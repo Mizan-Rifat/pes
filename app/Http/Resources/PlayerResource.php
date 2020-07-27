@@ -16,7 +16,10 @@ class PlayerResource extends JsonResource
     {
         return [
             'id'=>$this->id,
-            'details'=>new PlayerModelresource($this->whenLoaded('details')),
+            'name'=>$this->details['name'],
+            'model_id'=>$this->details['model_id'],
+            'position'=>$this->details['position'],
+            // 'details'=>new PlayerModelresource($this->details),
             'jersey'=>$this->jersey,
             'club'=>new ClubResource($this->whenLoaded('club')),
         ];

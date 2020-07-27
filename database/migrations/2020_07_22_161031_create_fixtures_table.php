@@ -20,10 +20,10 @@ class CreateFixturesTable extends Migration
             $table->dateTime('date');
             $table->unsignedInteger('host_id');
             $table->unsignedInteger('tournament_id');
-            $table->unsignedInteger('group_');
-            $table->unsignedInteger('round');
-            $table->unsignedInteger('leg');
-            $table->unsignedInteger('completed');
+            $table->unsignedInteger('group_')->nullable();
+            $table->unsignedInteger('round')->nullable();
+            $table->unsignedInteger('leg')->nullable();
+            $table->unsignedInteger('completed')->default(0);
             $table->timestamps();
         });
     }

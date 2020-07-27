@@ -22,53 +22,67 @@ class TournamentSeeder extends Seeder
             [
             "name"=> "Premier League",
             "type"=> 1,
+            'leg' => 2,
+            'round'=> 18,
             "active"=> 1
             ],
             [
             "name"=> "Elite League",
             "type"=> 1,
+            'leg' => 2,
+            'round'=> 18,
             "active"=> 1
             ],
             [
             "name"=> "Master League",
             "type"=> 1,
+            'leg' => 2,
+            'round'=> 18,
             "active"=> 1
             ],
             [
             "name"=> "Super League",
             "type"=> 1,
+            'leg' => 2,
+            'round'=> 18,
             "active"=> 1
             ],
             [
             "name"=> "Premier League Cup",
             "type"=> 2,
+            'leg' => 1,
+            'round'=> 3,
             "active"=> 1
             ],
             [
             "name"=> "Elite League Cup",
             "type"=> 2,
+            'leg' => 1,
+            'round'=> 3,
             "active"=> 1
             ],
             [
             "name"=> "Master League Cup",
             "type"=> 2,
+            'leg' => 1,
+            'round'=> 3,
             "active"=> 1
             ],
             [
             "name"=> "Super League Cup",
             "type"=> 2,
+            'leg' => 1,
+            'round'=> 3,
             "active"=> 1
             ],
             [
             "name"=> "Champions League",
             "type"=> 3,
+            'leg' => 1,
+            'round'=> 4,
             "active"=> 1
             ],
-            [
-            "name"=> "New Tournament",
-            "type"=> 1,
-            "active"=> 1
-            ]
+            
         ];
         foreach($tournaments as $tournament){
             
@@ -76,6 +90,8 @@ class TournamentSeeder extends Seeder
                 'name'=>$tournament['name'],
                 'slug'=>strtolower(str_replace(' ','',$tournament['name'])),
                 'type'=>$tournament['type'],
+                'leg'=>$tournament['leg'],
+                'round'=>$tournament['round'],
                 'active'=>$tournament['active'],
 
             ]);

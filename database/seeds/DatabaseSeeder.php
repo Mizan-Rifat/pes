@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Seeder;
 
+
+
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -20,6 +22,10 @@ class DatabaseSeeder extends Seeder
         // $this->call(TournamentSeeder::class);
         // $this->call(ClubTournamentSeeder::class);
         // $this->call(PlayerModelSeeder::class);
-        $this->call(PlayerSeeder::class);
+        // $this->call(PlayerSeeder::class);
+        // $this->call(MatchResultSeeder::class);
+        // $this->call(MatchRatingSeeder::class);
+        // $this->call(MatchDetailsSeeder::class);
+
     }
 }
