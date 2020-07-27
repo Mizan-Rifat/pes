@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateClubTournamentTable extends Migration
+class CreateMatchResultsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,12 @@ class CreateClubTournamentTable extends Migration
      */
     public function up()
     {
-        Schema::create('club_tournament', function (Blueprint $table) {
+        Schema::create('match_results', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('club_id');
-            $table->unsignedInteger('tournament_id');
-            $table->unsignedInteger('group_')->nullable();
+            $table->unsignedInteger('fixture_id');
+            $table->unsignedInteger('match_status');
+            $table->unsignedInteger('team1_goals')->default(0);
+            $table->unsignedInteger('team2_goals')->default(0);
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ class CreateClubTournamentTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('club_tournament');
+        Schema::dropIfExists('match_results');
     }
 }

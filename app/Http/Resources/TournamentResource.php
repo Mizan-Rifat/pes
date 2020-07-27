@@ -18,7 +18,11 @@ class TournamentResource extends JsonResource
             'id'=>$this->id,
             'name'=>$this->name,
             'slug'=>$this->slug,
-            'clubs'=> ClubResource::collection($this->whenLoaded('clubs'))
+            'type'=>$this->type,
+            'leg'=>$this->leg,
+            'round'=>$this->round,
+            'clubs'=> ClubResource::collection($this->whenLoaded('clubs')),
+            // 'fixtures'=> ClubResource::collection($this->whenLoaded('clubs'))
         ];
     }
 }

@@ -18,6 +18,8 @@ class CreateTournamentsTable extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->unsignedInteger('type');
+            $table->unsignedInteger('leg');
+            $table->unsignedInteger('round')->nullable();
             $table->unsignedInteger('active');
             $table->timestamps();
         });
