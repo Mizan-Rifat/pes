@@ -32,8 +32,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return MatchResult::all();
-    return view('welcome');
+    return view('main');
 });
 
 Route::get('/pes', function () {
