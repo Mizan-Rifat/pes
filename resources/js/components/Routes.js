@@ -11,7 +11,7 @@ export default function Routes() {
         <BrowserRouter>
             <Switch>
 
-                <Route path='/login' component={Login} />
+                <Route path='/root' component={AdminRoot} />
 
                 <Route path='/admin/:path?' exact>
                     <AdminLayout>
