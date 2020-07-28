@@ -1,12 +1,11 @@
 import React from "react"
 import ReactDOM from 'react-dom';
+import Routes from "./Routes";
 
 
 export default function App() {
     return (
-        <div>
-                  
-        </div>
+        <Routes />
     )
 }
 

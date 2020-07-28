@@ -31,9 +31,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('main');
-});
+Route::view('/{path?}', 'main');
+
+// Route::get('/', function () {
+//     return view('main');
+// });
 
 Route::get('/pes', function () {
     $clubrepo = new ClubRepository;
