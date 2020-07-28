@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState,useContext } from 'react'
 import {TextField,Select,MenuItem,FormControl,Button} from '@material-ui/core'
+import {MyContext} from '../Result';
 
-export default function Events({state, setstate}) {
 
-    
+export default function Events({teamNo}) {
+
 
     const [events, setevents] = useState([]);
     const [players, setplayers] = useState([
@@ -24,19 +25,37 @@ export default function Events({state, setstate}) {
             id:4
         },
     ]);
+
+    const addEvent =()=>{
+        setevents([
+            ...events,1
+        ])
+    }
+ 
     return (
-        <table className="table table-striped">
+        <div>
+            <Button variant='contained' color='primary' onClick={addEvent}>Add</Button>
+
+            <table className="table table-striped">
+                
+                    {
+                        events.map((item,index)=>(
+                            <SingleEvent players={players} index={index} key={index} teamNo={teamNo}/>
+                        ))
+                    }
+                        
+                    
             
-                
-                    <SingleEvent players={players} mainState={state} setMainState={setstate}/>
-                
-        
-        </table>
+            </table>
+        </div>
     )
 }
 
 
-function SingleEvent({players,mainState, setMainState}){
+function SingleEvent({players,index,teamNo}){
+
+    const {context,dispatch} = useContext(MyContext);
+
     const [state, setState] = useState({
         event: 1,
         player: 0,
@@ -45,9 +64,12 @@ function SingleEvent({players,mainState, setMainState}){
     })
     const eventHandleChange = (e) => {
         setState({ ...state, event: e.target.value })
-        setMainState({
-            ...mainState,
-            
+        dispatch({
+            type:'EVENT_ID_CHANGE',
+            payload:{
+                teamNo,
+                index
+            }
         })
     }
     const playerHandleChange = (e) => {
@@ -88,7 +110,8 @@ function SingleEvent({players,mainState, setMainState}){
             </td>
 
             <td>
-                <TextField id="Minute" label="Minute" type="search" value={state.minute} onChange={minuteHandleChange} />
+                <input value={state.minute} onChange={minuteHandleChange} placeholder='minute'/>
+                
             </td>
 
             <td>
@@ -103,9 +126,7 @@ function SingleEvent({players,mainState, setMainState}){
                     </Select>
                 </FormControl>
             </td>
-            <td>
-                <Button variant='contained' color='primary'>ok</Button>
-            </td>
+            
         </tr>
     )
 }
