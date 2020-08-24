@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
         ]);
 
         
-        factory(\App\User::class,39)->create();
+        factory(\App\User::class,50)->create();
         
     }
 }

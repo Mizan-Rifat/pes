@@ -11,5 +11,21 @@ const mix = require('laravel-mix');
  |
  */
 mix.disableNotifications();
+
+mix.webpackConfig({
+resolve: {
+    alias: {
+        '@components': path.resolve(__dirname, 'resources/js/components/'),
+        '@assets': path.resolve(__dirname, 'resources/js/components/assets'),
+        '@customComponent': path.resolve(__dirname, 'resources/js/components/CustomComponent'),
+        '@actions': path.resolve(__dirname, 'resources/js/components/Redux/actions'),
+        '@reducers': path.resolve(__dirname, 'resources/js/components/Redux/reducers'),
+    }
+}
+});
+
 mix.react('resources/js/app.js', 'public/js')
     .sass('resources/sass/app.scss', 'public/css');
+
+
+

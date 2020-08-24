@@ -50,7 +50,9 @@ trait PointTableRepository
 
         $matchCount = count($matchesArray);
 
-        $clubName = Club::find($club_id)->name;
+        $club = Club::find($club_id);
+        $clubName = $club->name;
+        $clubLogo = $club->logo;
 
         $win = $playedMatches->where('result.match_status',1)->count();
         
@@ -78,6 +80,7 @@ trait PointTableRepository
 
         $pointsTable = collect([
             'clubName' => $clubName,
+            'clubLogo' => $clubLogo,
             'played' => $matchCount,
             'win' => $win,
             'draw' => $draw,

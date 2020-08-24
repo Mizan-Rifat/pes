@@ -31,13 +31,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::view('/{path?}', 'main');
+// Route::view('/{path?}', 'main');
+
+// Route::view('/{path?}', 'main')
+//      ->where('path', '.*')
+//      ->name('react');
+
+Route::get('{reactRoutes}', function () {
+    return view('main'); // your start view
+    })->where('reactRoutes', '^((?!api).)*$');
 
 // Route::get('/', function () {
 //     return view('main');
 // });
 
-Route::get('/pes', function () {
+Route::get('api/pes', function () {
     $clubrepo = new ClubRepository;
     return $clubrepo->test();
 
@@ -58,22 +66,7 @@ Route::get('/pes', function () {
     dd(Club::where('id',1)->with('owner')->get());
 });
 
-// ----FIXTURES----------
 
-Route::get('/fixture/{id}','FixtureController@getFixtureById'); // ?tournament_id
-Route::get('/createfixture','FixtureController@createFixture'); // ?tournament_id
-Route::get('/tournament/fixtures','FixtureController@getFixturesByTournament'); // ?tournament_id
-Route::get('/club/fixtures','FixtureController@getFixturesByClub'); // ?club_id,tournament_id
-Route::get('/club/fixtures/home','FixtureController@getClubHomeFixtures'); // ?club_id,tournament_id
-Route::get('/club/fixtures/away','FixtureController@getClubAwayFixtures'); // ?club_id,tournament_id
-
-// -----------Fixtures_End---------
-
-// ----TOURNAMNET----------
-
-Route::get('/tournament','TournamentController@getTournament'); // ?slug / ?id
-
-// -----------Tournament_End----------
 
 Auth::routes();
 

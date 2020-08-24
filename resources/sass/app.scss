@@ -1,8 +1,73 @@
 // Fonts
-@import url('https://fonts.googleapis.com/css?family=Nunito');
-
+// @import url('https://fonts.googleapis.com/css?family=Nunito');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 // Variables
 @import 'variables';
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+
+html{
+    background: #eee;
+    
+}
+#app {
+    background: #eee;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-size: 14px !important;
+}
+
+button:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+input:focus {
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.MuiTypography-body1 {
+    font-size: 14px !important;
+}
+
+
+
+.detailTable {
+    .MuiTypography-h6{
+        font-size: 14px !important;
+        font-weight: 700 !important;
+    }
+}
+.resultTable{
+    
+        &.MuiTableCell-paddingNone{
+            display: none !important;
+        }
+    
+}
+
+p{
+    &.p{
+        color: yellow !important;
+    }
+}
+@media all and (max-width:480px) {
+    .responsiveTable{
+        .MuiTable-root tr {    
+            display: table;  
+            width:100%;    
+        };               
+        .MuiTable-root td {    
+            display: table-row; 
+        };
+        .MuiTableCell-root {
+            border-bottom: unset;;
+        };
+        .MuiTableRow-root {
+            border-bottom: 1px solid rgba(224, 224, 224, 1);
+        } 
+    }
+              
+}
