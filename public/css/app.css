@@ -1,11 +1,6 @@
-@import url(https://fonts.googleapis.com/css?family=Nunito);@charset "UTF-8";
+@import url(https://fonts.googleapis.com/css2?family=Roboto:wght@400;
 
-/*!
- * Bootstrap v4.5.0 (https://getbootstrap.com/)
- * Copyright 2011-2020 The Bootstrap Authors
- * Copyright 2011-2020 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- */
+500;700&display=swap);@charset "UTF-8";
 
 :root {
   --blue: #3490dc;
@@ -10925,6 +10920,62 @@ a.text-dark:focus {
   .table .thead-dark th {
     color: inherit;
     border-color: #dee2e6;
+  }
+}
+
+html {
+  background: #eee;
+}
+
+#app {
+  background: #eee;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-size: 14px !important;
+}
+
+button:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+input:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.MuiTypography-body1 {
+  font-size: 14px !important;
+}
+
+.detailTable .MuiTypography-h6 {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+
+.resultTable.MuiTableCell-paddingNone {
+  display: none !important;
+}
+
+p.p {
+  color: yellow !important;
+}
+
+@media all and (max-width: 480px) {
+  .responsiveTable .MuiTable-root tr {
+    display: table;
+    width: 100%;
+  }
+
+  .responsiveTable .MuiTable-root td {
+    display: table-row;
+  }
+
+  .responsiveTable .MuiTableCell-root {
+    border-bottom: unset;
+  }
+
+  .responsiveTable .MuiTableRow-root {
+    border-bottom: 1px solid #e0e0e0;
   }
 }
 

@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(MatchResultSeeder::class);
         // $this->call(MatchRatingSeeder::class);
         // $this->call(MatchDetailsSeeder::class);
+        $this->call(OfficialsSeeder::class);
 
     }
 }

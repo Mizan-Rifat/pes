@@ -17,12 +17,16 @@ class TournamentResource extends JsonResource
         return [
             'id'=>$this->id,
             'name'=>$this->name,
-            'slug'=>$this->slug,
-            'type'=>$this->type,
-            'leg'=>$this->leg,
-            'round'=>$this->round,
+            'slug'=>$this->when($this->slug !== null ,$this->slug),
+            'format'=>$this->when($this->type !== null ,$this->type),
+            'rounds'=>$this->when($this->rounds !== null ,$this->rounds),
+            'leg'=>$this->when($this->leg !== null ,$this->leg),
+            'active'=>$this->when($this->active !== null ,$this->active),
+            'invitation' => $this->whenPivotLoaded('club_tournament', function () {
+                return $this->pivot->invitation;
+            }),
             'clubs'=> ClubResource::collection($this->whenLoaded('clubs')),
-            // 'fixtures'=> ClubResource::collection($this->whenLoaded('clubs'))
+            'clubs_count'=> $this->when($this->clubs_count!== null ,$this->clubs_count),
         ];
     }
 }

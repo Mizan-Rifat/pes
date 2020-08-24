@@ -215,4 +215,30 @@ trait FixtureRepo
         }
 
     }
+
+
+    public function create($request){
+
+        $request['team1_id'] = $request['team1'];
+        $request['team2_id'] = $request['team2'];
+        $request['group_'] = $request['group'];
+
+        unset($request['team1'],$request['team2'],$request['group']);
+
+
+       $validatedData = $request->validate([
+           'tournament_id'=>['required','integer'],
+           'team1_id' => ['required','integer'],
+           'team2_id' => ['required','integer','different:team1_id'],
+           'date' => ['required','date','nullable'],
+           'group_' => ['required','integer','nullable'],
+           'round' => ['required','integer'],
+           'leg' => ['required','integer'],
+       ]);   
+       
+
+       $fixture = $this->model->create($validatedData);
+
+       return $fixture;
+    }
 }

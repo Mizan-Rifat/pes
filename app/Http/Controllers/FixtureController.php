@@ -18,17 +18,18 @@ class FixtureController extends Controller
         $this->tournamentRepo = $tournamentRepo;
     }
 
-    public function getFixtureById($id){
-        $fixture = $this->fixtureRepo->find($id);
+    public function getFixtureById(Request $request){
+
+        if($request['players']){
+            $fixture = $this->fixtureRepo->with('team1.players','team2.players')->find($request['fixture_id']);    
+        }else{
+            $fixture = $this->fixtureRepo->with('team1','team2')->find($request['fixture_id']);    
+        }
+
         return  new FixtureResource($fixture);
     }
 
-    public function getFixturesByTournament(){
-
-        $fixtures = $this->fixtureRepo->getFixturesByTournament(request('tournament_id'));
-
-        return  FixtureResource::collection($fixtures);
-    }
+    
     
     public function getFixturesByClub(){
 
@@ -52,7 +53,7 @@ class FixtureController extends Controller
         return  FixtureResource::collection($fixtures);
     }
 
-    public function createFixture(){
+    public function createFixtures(){
 
         $tournament = $this->tournamentRepo->find(request('tournament_id'));
         $tournament_id = request('tournament_id');
@@ -90,6 +91,44 @@ class FixtureController extends Controller
 
         return 'success';
 
+    }
+
+
+    public function destroy(Request $request){
+
+        $delete = $this->fixtureRepo->destroyById($request->id);
+
+        if($delete){
+            return response()->json([
+                'message' => count($request->id) > 1 ? 'Fixtures  removed successfully.' : 'Fixture removed successfully.',
+            ],200);
+        }else{
+            return response()->json([
+                'message' => count($request->id) > 1 ? 'Fixtures not deleted.' : 'Fixture not deleted.',
+            ],500);
+        }
+    }
+
+    public function createFixture(Request $request){
+        
+        $fixture = $this->fixtureRepo->create($request);
+
+        return response()->json([
+            'message'=>'Fixture Created',
+            'fixture'=>new FixtureResource($fixture)
+        ],200);
+    }
+
+    
+
+    public function updateFixture(Request $request){  
+        
+        $fixture = $this->fixtureRepo->updateFixture($request);
+
+        return response()->json([
+            'message'=>'Update Successfull',
+            'fixture'=>new FixtureResource($fixture)
+        ],200);
     }
 
     

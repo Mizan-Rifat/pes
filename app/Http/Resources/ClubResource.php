@@ -18,7 +18,11 @@ class ClubResource extends JsonResource
             'id'=>$this->id,
             'name'=>$this->name,
             'slug'=>$this->slug,
-            'logo'=>$this->logo,
+            'logo'=>asset('/images/logo/'.$this->logo),
+            'invitation' => $this->whenPivotLoaded('club_tournament', function () {
+                return $this->pivot->invitation;
+            }),
+            'establishedIn'=>$this->created_at,
             'owner'=>new UserResource($this->whenLoaded('owner')),
             'tournaments'=> TournamentResource::collection($this->whenLoaded('tournaments')),
             'players'=> PlayerResource::collection($this->whenLoaded('players')),

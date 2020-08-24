@@ -19,6 +19,7 @@ class PlayerResource extends JsonResource
             'name'=>$this->details['name'],
             'model_id'=>$this->details['model_id'],
             'position'=>$this->details['position'],
+            'image'=>asset('/images/players/'.$this->details['model_id'].'.png'),
             // 'details'=>new PlayerModelresource($this->details),
             'jersey'=>$this->jersey,
             'club'=>new ClubResource($this->whenLoaded('club')),

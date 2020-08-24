@@ -26,10 +26,26 @@ class FixtureRepository
   
  
 
-    public function getFixturesByTournament($tournament_id){
+    public function getFixturesByTournament($reference,$with=[]){
 
-        $fixtures = $this->tournamentRepo->find($tournament_id)->fixtures()->get();
+        $tournament = $this->tournamentRepo
+                        // ->find($tournament_id)
+                        ->where('id',$reference)
+                        ->orWhere('slug',$reference)
+                        ->with('fixtures')
+                        ->firstOrFail();
         
+        return $tournament->fixtures;
+    }
+    public function getCompletedFixturesByTournament($tournament_id,$with=[]){
+
+        $fixtures = $this->tournamentRepo
+                        ->find($tournament_id)
+                        ->fixtures()
+                        ->where('completed',1)
+                        ->with($with)
+                        ->get();
+
         return $fixtures;
     }
 
@@ -71,6 +87,42 @@ class FixtureRepository
                     ->get();
         
         return $fixtures;
+    }
+
+    
+
+    public function updateFixture($request){
+
+        $request['team1_id'] = $request['team1'];
+        $request['team2_id'] = $request['team2'];
+        $request['group_'] = $request['group'];
+
+        unset($request['team1'],$request['team2'],$request['group']);
+
+
+       $validatedData = $request->validate([
+           'id' => ['required','integer'],
+           'team1_id' => ['integer'],
+           'team2_id' => ['integer','different:team1_id'],
+           'date' => ['date','nullable'],
+           'group_' => ['integer','nullable'],
+           'round' => ['integer'],
+           'leg' => ['integer'],
+       ]);   
+       
+
+       $fixture = $this->model->findorFail($validatedData['id']);
+
+       $fixture->update($validatedData);
+
+       return $fixture;
+   }
+
+    public function destroyById($ids){
+
+        $delete = $this->model->whereIn('id',$ids)->delete();
+
+        return $delete;
     }
     
 }

@@ -18,7 +18,9 @@ class UserResource extends JsonResource
             'id'=>$this->id,
             'name'=>$this->name,
             'email'=>$this->email,
-            'club'=>new ClubResource($this->club),
+            'email_verified'=>$this->email_verified_at === null ? false : true,
+            'club'=>new ClubResource($this->whenLoaded('club')),
+            'blocked'=>$this->blocked == 0 ? false : true,
         ];
     }
 }

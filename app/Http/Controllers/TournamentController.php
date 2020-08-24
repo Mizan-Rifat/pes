@@ -2,7 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ClubResource;
+use App\Http\Resources\FixtureResource;
+use App\Http\Resources\MatchResultResource;
+use App\Http\Resources\OfficialResource;
+use App\Http\Resources\ResultResource;
 use App\Http\Resources\TournamentResource;
+use App\Model\Fixture;
+use App\Model\Tournament;
+use App\Repositories\OfficialRepository;
 use App\Repositories\TournamentRepository;
 use Illuminate\Http\Request;
 
@@ -10,10 +18,44 @@ class TournamentController extends Controller
 {
 
     protected $tournamentRepo;
+    protected $officialRepo;
 
-    public function __construct(TournamentRepository $tournamentRepo) {
+    public function __construct(TournamentRepository $tournamentRepo,OfficialRepository $officialRepo) {
  
         $this->tournamentRepo = $tournamentRepo;
+        $this->officialRepo = $officialRepo;
+    }
+
+    public function index(){
+        $tournaments = $this->tournamentRepo->withCount('clubs')->get();
+        // return $tournaments;
+        return TournamentResource::collection($tournaments);
+    }
+
+    
+
+    public function create(Request $request){
+        $tournament = $this->tournamentRepo->createTournament($request);
+        
+        return response()->json([
+            'message'=>'Tournament Created Successfully',
+            'data'=>new TournamentResource($tournament)
+        ],200); 
+    }
+
+    public function destroy(Request $request){
+
+        $delete = $this->tournamentRepo->destroy($request['ids']);
+        
+        if($delete){
+            return response()->json([
+                'message' => 'Tournament(s) removed successfully.',
+            ],200);
+            }else{
+                return response()->json([
+                    'message' => 'Tournament(s) not removed.',
+                ],500);
+            }
     }
 
     public function getTournament(){
@@ -30,13 +72,113 @@ class TournamentController extends Controller
 
     }
 
-    public function test(){
-
-        return $this->tournamentRepo->getTournamentPointsTable(1);
-
-        return $this->tournamentRepo->getPlayedMatches(1,1);
-        return $this->tournamentRepo->get_club_stats(1,1);
+    public function getTournamentDeatils(){
+        if(request()->slug != null){
+            $key = 'slug';
+            $value = request()->slug;
+        }else{
+            $key = 'id';
+            $value = request()->id;
+        }
+        
+        return new TournamentResource($this->tournamentRepo->getTournament($key,$value,['clubs.owner']));
     }
+
+    public function getClubsWithDetails(){
+        $clubs = $this->tournamentRepo
+                ->find(request('tournament_id'))
+                ->clubs()
+                ->with('owner')
+                ->where('invitation','>',0)
+                ->get();
+
+        return ClubResource::collection($clubs);
+        
+    }
+
+    public function getClubs(){
+        $clubs = $this->tournamentRepo
+                ->find(request('tournament_id'))
+                ->clubs()
+                ->where('invitation','>',0)
+                ->get();
+
+
+        return ClubResource::collection($clubs);
+    }
+
+    public function getResults(){
+
+        $results = $this->tournamentRepo->getResults(request('tournament_id'));
+
+        return ResultResource::collection($results);
+        
+    }
+
+    public function getFixtures(){
+
+        $reference = '';
+
+        if(request('tournament_id')){
+            $reference=request('tournament_id');
+        }elseif(request('tournament_slug')){
+            $reference=request('tournament_slug');
+        }
+
+        $fixtures = $this->tournamentRepo->getFixtures($reference);
+
+        return  FixtureResource::collection($fixtures);
+    }
+
+    public function getOfficials(){
+        $officials = $this->tournamentRepo->getOfficials(request('tournament_id'));
+
+        return OfficialResource::collection($officials);
+    }
+
+    public function addOfficials(Request $request){
+        $official = $this->officialRepo->store($request);
+
+        return response()->json([
+            'message'=>'Official Added Successfully',
+            'official'=>new OfficialResource($official)
+        ],200);
+    }
+
+    public function removeOfficials(Request $request){
+       $delete = $this->officialRepo->destroyByIds($request);
+
+       if($delete){
+        return response()->json([
+            'message' => 'Official(s) removed successfully.',
+        ],200);
+        }else{
+            return response()->json([
+                'message' => 'Official(s) not removed.',
+            ],500);
+        }
+    }
+
+    public function update(Request $request){
+        $tournament = $this->tournamentRepo->updateInfo($request);
+
+        return response()->json([
+            'message'=>'Tournament Info Updated Successfully.',
+            'tournament'=> new TournamentResource($tournament)
+        ],200);
+    }
+
+
+    public function getPoinTable(Request $request){
+        $validatedData = $request->validate([
+            'tournament_id'=>['required','integer']
+        ]);
+
+        return $this->tournamentRepo->getTournamentPointsTable($validatedData['tournament_id']);
+    }
+
+    
+
 
 
 }
