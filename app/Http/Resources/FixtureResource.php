@@ -41,7 +41,7 @@ class FixtureResource extends JsonResource
 
             'date'=>$this->date === null ? 'N/A' : date("Y-m-d\TH:i:s", strtotime($this->date)),
 
-            'host_details' => new ClubResource(Club::find($this->host_id)),
+            // 'host_details' => new ClubResource(Club::find($this->host_id)),
             'tournament_id'=>$this->tournament_id,
             'group'=>$this->group_,
             // 'group'=>$this->group_ === null ? 'none' : $this->group_,

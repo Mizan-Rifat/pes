@@ -5,7 +5,7 @@ import SearchComp from '@customComponent/SearchComp';
 import Notify from '@customComponent/Notify';
 import { useSelector,useDispatch } from 'react-redux';
 import { addPlayerInClub, removePlayerFromClub, updatePlayersOfSquad } from '../../Redux/actions/clubsAction';
-import Title from '../Tournament/Components/Title';
+import Title from '@customComponent/Title';
 
 
 

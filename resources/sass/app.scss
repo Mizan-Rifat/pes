@@ -40,7 +40,7 @@ input:focus {
         font-weight: 700 !important;
     }
 }
-.resultTable{
+.frTable{
     
         &.MuiTableCell-paddingNone{
             display: none !important;
@@ -53,6 +53,15 @@ p{
         color: yellow !important;
     }
 }
+.frTable{
+
+    .MuiTableCell-root{
+        padding: 5px !important;
+    }
+    
+}
+
+
 @media all and (max-width:480px) {
     .responsiveTable{
         .MuiTable-root tr {    

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Http\Resources\ClubResource;
 use App\Model\Tournament;
 use App\Repositories\Traits\BaseRepository;
 use App\Repositories\Traits\PlayerStatsRepository;
@@ -32,12 +33,18 @@ class TournamentRepository
     
 
     public function getTournament($key,$value,$with=[]){
-        return $this->model->where($key,$value)->with($with)->firstOrFail();
+        $tournament = $this->model->where($key,$value)->with($with)->firstOrFail();
+
+        if($tournament->type == 3){
+            $tournament->groups = $this->getTournamentGroups($tournament->id);
+        }
+        
+        return $tournament;
 
     }
 
-    public function getFixtures($reference){
-        return $this->fixtureRepo()->getFixturesByTournament($reference);
+    public function getFixtures($data){
+        return $this->fixtureRepo()->getFixturesByTournament($data);
     }
 
     public function createTournament($request){
@@ -62,23 +69,17 @@ class TournamentRepository
     
   
 
-    public function getTournamentWithGroups($tournament_id){
+    public function getTournamentGroups($tournament_id){
 
-        $tournament = $this->model->with('groups')->find($tournament_id);
+        $tournament = $this->model->with('clubs')->find($tournament_id);
 
-        $groups = $tournament->groups->mapToGroups(function($item,$key){
-            
-            return [$item['pivot']['group_'] => $item];
-            
-        });
+        $groups = $this->getGroups($tournament->clubs);
 
-        unset($tournament->groups);
-
-        $tournament->groups = $groups;
-
-        return $tournament;
+        return $groups;
 
     }
+
+    
 
     public function getResults($tournament_id){
         $results = $this->fixtureRepo()
@@ -98,7 +99,7 @@ class TournamentRepository
 
 
     public function getPlayers($tournament_id){
-        $clubs = Tournament::find($tournament_id)->clubs()->with('players')->get();
+        $clubs = Tournament::find($tournament_id)->clubs()->with('players.club')->get();
 
 
         $allPlayers =collect([]);
@@ -130,6 +131,40 @@ class TournamentRepository
         $tournament->update($validatedData);
 
         return $tournament;
+
+    }
+
+
+    public function getstats($tournament_id){
+        $players = $this->getPlayers($tournament_id);
+
+         $results = $this->model->find($tournament_id)->fixtures()->where('completed',1)->with('events','ratings')->get();
+
+         $events = $results->pluck('events')->collapse();
+          $ratings = $results->pluck('ratings')->collapse();
+
+
+       return $players->map(function($player) use($events,$ratings){
+            $player->stats = $this->getSinglePlayerStats($events,$ratings,$player->id);
+            return $player;
+        })->filter(function($item){
+            return $item->stats['match_played'] != 0;
+        })->sortByDesc('stats.goals');
+
+        
+    }
+
+    public function getSinglePlayerStats($events,$ratings,$player_id){
+
+        
+        $player['match_played'] = $ratings->where('player_id',$player_id)->where('rating','!=',0)->count();
+        $player['goals'] = $events->where('player_id',$player_id)->where('event_id',1)->count();
+        $player['yellow_cards'] = $events->where('player_id',$player_id)->where('event_id',2)->count();
+        $player['red_cards'] = $events->where('player_id',$player_id)->where('event_id',3)->count();
+        $player['own_goals'] = $events->where('player_id',$player_id)->where('event_id',4)->count();
+        $player['ratings'] = $ratings->where('player_id',$player_id)->sum('rating');
+
+        return $player;
 
     }
 

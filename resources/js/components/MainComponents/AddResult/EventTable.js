@@ -1,9 +1,10 @@
 import React,{useState} from 'react';
 import Mtable from '@customComponent/Mtable';
-import {makeStyles} from '@material-ui/core';
+import {makeStyles, TextField} from '@material-ui/core';
 import { MTableToolbar } from 'material-table';
 import { useDispatch, useSelector } from 'react-redux';
 import { addEventToState, removeEventFromState } from '../../Redux/actions/resultAddAction';
+import Notify from '@customComponent/Notify';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -23,11 +24,14 @@ const useStyles = makeStyles(theme=>({
     },
 }))
 
-export default function EventTable({players,id,setId,club_id}) {
+export default function EventTable({players,club_id,events,loading}) {
 
     const classes  = useStyles();
-    // const {} = useSelector(state => state.addResult)
+
     const dispatch = useDispatch();
+
+    const toast = Notify();
+  
 
     const playerLookup = (players) =>{
         const obj = {};
@@ -45,8 +49,10 @@ export default function EventTable({players,id,setId,club_id}) {
             lookup:{
                 1:'Goal',
                 2:'YC',
-                3:'RC'
+                3:'RC',
+                4:'OG' 
             },
+            
 
             cellStyle:{
                 padding:'5px',
@@ -74,7 +80,7 @@ export default function EventTable({players,id,setId,club_id}) {
                 fontSize:'12px',
                 // textAlign:'center'
             },
-            // width:'50px',
+            
         },
         {
             title:'Assisted',
@@ -92,19 +98,43 @@ export default function EventTable({players,id,setId,club_id}) {
         },
     ])
 
-    const [data, setdata] = useState([])
-    
-
 
     const handleAddRow = (newData) => (
 
         new Promise((resolve,reject)=>{
-            console.log({newData})
-            const abc = {...newData,id,club_id}
-            dispatch(addEventToState(abc))
-            setId(id+1)
-            setdata([...data,abc])
 
+            console.log({newData})
+
+            if( !newData.hasOwnProperty('event_id')){
+                toast('Event field is required.','error')
+             
+                return reject();
+            }
+            
+            if( !newData.hasOwnProperty('player_id')){
+                toast('player field is required.','error')
+              
+                return reject()
+            }
+            
+            if( !newData.hasOwnProperty('minute')){
+                toast('Minute field is required.','error')
+             
+                return reject()
+            }
+            if( !Number.isInteger(parseInt(newData.minute))){
+                toast('Invalid Minute','error')
+             
+                return reject()
+            }
+
+            const data = {
+                ...newData,
+                club_id,
+                assist_player_id:newData.hasOwnProperty('assist_player_id') ? newData.assist_player_id : null 
+            }
+
+            dispatch(addEventToState(data))
             resolve()
          
         })
@@ -113,9 +143,8 @@ export default function EventTable({players,id,setId,club_id}) {
     const handleDeleteRow = (oldData) => (
 
         new Promise((resolve,reject)=>{
-            console.log({oldData})
-            dispatch(removeEventFromState(oldData.id))
-            setdata(data.filter(event=> event.id != oldData.id))
+            
+            dispatch(removeEventFromState(oldData.eventKey))
             resolve()
         })
 
@@ -124,10 +153,11 @@ export default function EventTable({players,id,setId,club_id}) {
     return (
         <Mtable 
                 columns={columns}
-                data={data}
+                data={events}
                 handleAddRow={handleAddRow}
                 handleDeleteRow={handleDeleteRow}
-                edit={true}
+                edit={!loading}
+                addLast={true}
                 title='Events'
                 header={{padding:'8px'}}
                 search={false}

@@ -58,7 +58,6 @@ export const fetchAllTournaments = () => {
         dispatch(fetchLoadingTrue())
         axios.get(`/api/alltournaments`)
         .then(response=>{
-            console.log(response.data.data)
             dispatch(allTournamentsFetched(response.data.data))
             
         })

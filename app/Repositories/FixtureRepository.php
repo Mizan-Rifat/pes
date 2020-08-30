@@ -26,16 +26,18 @@ class FixtureRepository
   
  
 
-    public function getFixturesByTournament($reference,$with=[]){
+    public function getFixturesByTournament($validatedData){
 
-        $tournament = $this->tournamentRepo
-                        // ->find($tournament_id)
-                        ->where('id',$reference)
-                        ->orWhere('slug',$reference)
-                        ->with('fixtures')
-                        ->firstOrFail();
-        
-        return $tournament->fixtures;
+
+            $fixtures = $this->tournamentRepo
+                        ->find($validatedData['tournament_id'])
+                        ->fixtures()
+                        ->where('completed',0)
+                        ->with(isset($validatedData['admin']) ? [] : ['team1','team2'])
+                        ->get();
+
+
+            return $fixtures;
     }
     public function getCompletedFixturesByTournament($tournament_id,$with=[]){
 

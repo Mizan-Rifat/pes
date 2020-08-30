@@ -6,6 +6,7 @@ use App\Http\Resources\ClubResource;
 use App\Http\Resources\FixtureResource;
 use App\Http\Resources\MatchResultResource;
 use App\Http\Resources\OfficialResource;
+use App\Http\Resources\PlayerResource;
 use App\Http\Resources\ResultResource;
 use App\Http\Resources\TournamentResource;
 use App\Model\Fixture;
@@ -80,8 +81,16 @@ class TournamentController extends Controller
             $key = 'id';
             $value = request()->id;
         }
+
+        $tournament = $this->tournamentRepo->getTournament($key,$value,['clubs.owner']);
+
+        $tournament->groups = $tournament->groups->map(function($group){
+            return ClubResource::collection($group);
+        });
+
+        // return $tournament;
         
-        return new TournamentResource($this->tournamentRepo->getTournament($key,$value,['clubs.owner']));
+        return new TournamentResource($tournament);
     }
 
     public function getClubsWithDetails(){
@@ -115,17 +124,17 @@ class TournamentController extends Controller
         
     }
 
-    public function getFixtures(){
+    public function getFixtures(Request $request){
 
-        $reference = '';
+        $validatedData = $request->validate([
+            'tournament_id' => ['required','integer'],
+            'admin'=>['integer']
+        ]);
 
-        if(request('tournament_id')){
-            $reference=request('tournament_id');
-        }elseif(request('tournament_slug')){
-            $reference=request('tournament_slug');
-        }
 
-        $fixtures = $this->tournamentRepo->getFixtures($reference);
+        $fixtures = $this->tournamentRepo->getFixtures($validatedData);
+
+        // return $fixtures;
 
         return  FixtureResource::collection($fixtures);
     }
@@ -177,6 +186,38 @@ class TournamentController extends Controller
         return $this->tournamentRepo->getTournamentPointsTable($validatedData['tournament_id']);
     }
 
+
+    public function getPlayerStats(Request $request){
+        
+        $validatedData = $request->validate([
+            'tournament_id'=>['required','integer']
+        ]);
+        $request->merge(['stats'=>1]);
+
+        // return $this->tournamentRepo->getstats($validatedData['tournament_id']);
+
+        return PlayerResource::collection($this->tournamentRepo->getstats($validatedData['tournament_id']));
+    }
+
+
+    public function getPlayers(Request $request){
+        $validatedData = $request->validate([
+            'tournament_id'=>['required','integer']
+        ]);
+
+        return $this->tournamentRepo->getPlayers($validatedData['tournament_id']);
+    }
+
+
+    public function getTournamentGroups(Request $request){
+        $validatedData = $request->validate([
+            'tournament_id'=>['required','integer']
+        ]);
+
+        return $this->tournamentRepo->getTournamentGroups($validatedData['tournament_id'])->map(function($group){
+            return ClubResource::collection($group);
+        });
+    }
     
 
 

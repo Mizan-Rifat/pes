@@ -117,12 +117,13 @@ export const fetchAllClubs = () => {
 
 export const fetchClub = (slug) => {
     return (dispatch) => {
-        dispatch(loadingTrue())
+        dispatch(squadLoadingTrue())
         axios.get(`/api/club/${slug}`)
         .then(response=>{
             dispatch(clubFetched(response.data.data))
         })
         .catch(error=>{
+            dispatch(squadLoadingFalse())
             switch (error.response.status) {
                 case 422:
                     console.log(error.response.data.errors)

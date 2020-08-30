@@ -15,7 +15,7 @@ import TournamentDashboard from './AdminComponents/views/Tournaments/TournamentD
 import AllClubs from './AdminComponents/views/Clubs/AllClubs';
 import AllTournaments from './AdminComponents/views/AllTournaments/AllTournaments';
 import Club from './MainComponents/Club/Club';
-import MatchDetails from './MainComponents/MatchDetails/MatchDetails';
+import ResultDetails from './MainComponents/MatchDetails/ResultDetails';
 import AddResult from './MainComponents/AddResult/AddResult';
 
 const useStyles = makeStyles((theme) => ({
@@ -69,7 +69,7 @@ export default function Routes() {
                         <Switch>
                             <Route path='/tournament/:title/:details' component={MTournament} />
                             <Route path='/club/:slug' component={Club} />
-                            <Route path='/matchdetails/:match_id' component={MatchDetails} />
+                            <Route path='/resultdetails/:match_id' component={ResultDetails} />
                             <Route path='/addresult/:match_id' component={AddResult} />
                             <Route path='/test' component={Test} />
                             

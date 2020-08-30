@@ -1,27 +1,64 @@
 import React, { useState } from 'react';
 import MaterialTable,{MTableToolbar,MTableEditRow} from 'material-table'
+import { tableTheme } from "@assets/jss/material-dashboard-react.js";
+import { createMuiTheme,makeStyles,ThemeProvider  } from '@material-ui/core/styles';
+
+const theme1 = createMuiTheme({
+  overrides: {
+    MuiTableSortLabel: {
+      root: {
+        color: '#fff',
+        '&:hover': {
+          color: '#bbdefb',
+        },
+        '&:focus': {
+          color: '#bbdefb',
+        },
+      },
+      active: {
+        color: '#bbdefb !important',
+      },
+      icon: {
+        color: '#bbdefb !important',
+      },
+    },
+
+  },
+});
+const theme2 = createMuiTheme({
+  overrides: {
+    MuiTableRow:{
+          root:{
+            '&:hover':{
+              background:'#454545 !important',
+              color:'#FFFFE7 !important'
+            }
+          }
+    }
+  }
+});
 
 export default function Mtable(props) {
 
-    const {columns,data,handleAddRow,handleUpdateRow,handleDeleteRow,handleBulkUpdate,edit} = props;
+    const {columns,data,handleAddRow,handleUpdateRow,handleDeleteRow,handleBulkUpdate,edit,addLast,onOrderChange} = props;
 
     const {title = ''} = props;
     const {detailPanel,actions = []} = props;
     const {components,header = {}} = props;
-    const {paging,search,editable,sorting= true} = props;
-    const {selectMode,loading,headerLess,onRowClick= false} = props;
+    const {paging,search,editable,sorting = true} = props;
+    const {selectMode,loading,headerLess,onRowClick,thirdSortClick,draggable,hoverable= false} = props;
     const {pageSize = 10} = props;
 
     const headerStyle = {
-      backgroundColor: headerLess ? '' : '#F1CB29',
-      fontWeight: 'bold',
-      ...header
+      ...tableTheme,
+      ...header,
     }
-
 
     const [editMode, setEditMode] = useState(edit)
 
+
     return (
+      <ThemeProvider theme={{...theme1,...(hoverable && theme2) }}>
         <MaterialTable
                 style={{ boxShadow: 'unset',background:'unset' }}
                 title={title}
@@ -29,20 +66,26 @@ export default function Mtable(props) {
                 data={data}
                 isLoading={loading}
                 className='newClass'
+                onOrderChange={onOrderChange}
                 options={{
                     search:search,
                     actionsColumnIndex: -1,
-                    headerStyle: headerStyle,
+                    headerStyle: headerLess ? {backgroundColor:'#eee'} : headerStyle,
                     pageSize:pageSize,
+                    draggable:draggable,
                     selection: editMode && selectMode,
                     paging:paging,
                     sorting:sorting,
-                    addRowPosition:'first',
-                    rowStyle: (rowData, index) => {
-                      if (index % 2) {
-                          return {backgroundColor: "#f2f2f2"}
-                      }
-                  }
+                    thirdSortClick:thirdSortClick,
+                    addRowPosition: addLast ? 'last' : 'first',
+                    // rowStyle: (rowData, index) => {
+                    //   if (index % 2) {
+                    //       return {backgroundColor: "#f2f2f2"}
+                    //   }
+                      rowStyle:(rowData, index) => ({
+                        "&:hover": { backgroundColor: "#red !important" }
+                        })
+                  // }
                     
                 }}
 
@@ -63,7 +106,7 @@ export default function Mtable(props) {
                 editable={ editMode ? {
                     
                     onBulkUpdate: handleBulkUpdate ? 
-                        newData => handleBulkUpdate(newData) : false,
+                        changes => handleBulkUpdate(changes) : false,
 
                     onRowAdd: handleAddRow ? 
                         newData => handleAddRow(newData) : false,
@@ -115,9 +158,8 @@ export default function Mtable(props) {
                 detailPanel={detailPanel}
                 onRowClick={onRowClick}
 
-                
-                
             
             />
+    </ThemeProvider>
     )
 }

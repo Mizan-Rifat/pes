@@ -17,9 +17,10 @@ const useStyles = makeStyles(theme=>({
     }
 }))
 
-export default function Teams(props) {
+export default function Teams({fixtureDetails,panel}) {
 
-    const {team1_name,team2_name,team1_logo,team2_logo,panel} = props;
+    const {name:team1_name,logo:team1_logo} = fixtureDetails.team1_details;
+    const {name:team2_name,logo:team2_logo} = fixtureDetails.team2_details;
 
     const classes  = useStyles();
 
@@ -43,7 +44,7 @@ export default function Teams(props) {
                 </Grid>
 
                 <Grid item sm={4} >
-                    <Versus team1_goals={3} team2_goals={2} panel={panel} />
+                    <Versus data={fixtureDetails} panel={panel} />
                 </Grid>
 
                 <Grid item sm={4}>

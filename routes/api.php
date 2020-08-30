@@ -12,6 +12,7 @@ use App\Model\MatchRating;
 use App\Model\Official;
 use App\Model\Player;
 use App\Model\Tournament;
+use App\Repositories\TournamentRepository;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,10 +35,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::get('/test',function(Request $request){
 
-    $player = Fixture::with('team1.players','team2.players')->find(1);
+    $tr =new TournamentRepository();
+    $player = $tr->getTournamentGroups(9);
 
     return $player;
 });
+Route::get('/test2','TournamentController@getFixtureById');
 
 
 // ----FIXTURES----------
@@ -63,6 +66,10 @@ Route::get('/tournament','TournamentController@getTournament'); // ?slug / ?id
 Route::post('/tournament/create','TournamentController@create'); // ?slug / ?id
 Route::post('/tournament/delete','TournamentController@destroy'); // ?slug / ?id
 Route::get('/tournament/details','TournamentController@getTournamentDeatils'); // ?slug / ?id
+Route::get('/tournament/players','TournamentController@getPlayers'); // ?slug / ?id
+Route::get('/tournament/players/stats','TournamentController@getPlayerStats'); // ?slug / ?id
+
+Route::get('/tournament/groups','TournamentController@getTournamentGroups'); // ?tournament_id
 
 Route::get('/tournament/standings','TournamentController@getPoinTable');// ?tournament_id
 
@@ -104,6 +111,7 @@ Route::post('/result/delete/event','ResultController@deleteMatchEvent');
 Route::post('/result/delete/rating','ResultController@deleteMatchRating'); 
 Route::post('/result/add/event','ResultController@addMatchEvent'); 
 Route::post('/result/add/rating','ResultController@addMatchRating'); 
+Route::post('/result/add','ResultController@addMatchResult'); 
 
 Route::get('/resultdetails','ResultController@getResultDetails');  // ?id return:events,ratings,team1,team2
 

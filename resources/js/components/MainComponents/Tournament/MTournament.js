@@ -1,20 +1,51 @@
-import React from 'react'
+import React,{useEffect} from 'react'
 import MCarousel from '../Carousel/MCarousel'
-import Title from './Components/Title'
+import Title from '@customComponent/Title'
 import HeaderTabs from './Components/HeaderTabs'
-import { Container } from '@material-ui/core'
+import { Container } from '@material-ui/core';
+import { useSelector,useDispatch} from 'react-redux';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { fetchInfo, reset } from '@actions/infoAction'
+import Progress from '../../CustomComponent/Progress';
+
+
 
 export default function MTournament(props) {
 
-    const detailSlug = props.match.params.details
-    return (
-        <div>
-            <MCarousel />
+    const detailSlug = props.match.params.details;
+    const slug = props.match.params.title;
 
-            <Container style={{height:'500px'}}>
-                <Title title='Premier League' />
-                <HeaderTabs detailSlug={detailSlug} />
-            </Container>
-        </div>
+    const {fetchLoading,tournament} = useSelector(state=> state.info)
+    const dispatch = useDispatch();
+
+
+    useEffect(()=>{
+
+        dispatch(reset())
+
+        dispatch(fetchInfo(slug))
+        
+    },[slug])
+
+    return (
+<>
+        {
+            fetchLoading ? 
+
+            <Progress style={{top:'25%'}} />
+
+            :
+        
+            <div>
+                <MCarousel />
+
+                <Container style={{height:'500px'}}>
+                    <Title title={tournament.name} />
+                    <HeaderTabs detailSlug={detailSlug} tournament={tournament}/>
+                </Container>
+            </div>
+
+        }
+</>
     )
 }

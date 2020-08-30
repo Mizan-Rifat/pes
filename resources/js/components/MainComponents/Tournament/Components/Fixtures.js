@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {makeStyles} from '@material-ui/core';
 import Mtable from '@customComponent/Mtable';
 import clsx from 'clsx';
 import {Team1,Team2} from '@customComponent/Team'
+import Versus from '@customComponent/Versus'
+import { useSelector,useDispatch } from 'react-redux';
+import { fetchAllFixtures, deleteFixture, updateFixture, createFixture } from '@actions/fixturesAction';
 
 const useStyles = makeStyles(theme=>({
 
@@ -48,68 +51,49 @@ const useStyles = makeStyles(theme=>({
 
 export default function Fixtures() {
 
+
+    const {fixtures,loading} = useSelector(state=>state.fixtures)
+    const {id:tournament_id} = useSelector(state=>state.info.tournament)
+
+    const dispatch = useDispatch()
+ 
+
     const [columns, setcolumns] = useState([
         {
-            field:'team1_id',
-            render: rowData => (<Team1 name={rowData.team1} logo={rowData.logo} panel='user' />),
+            field:'team1_details.name',
+            render: rowData => (<Team1 name={rowData.team1_details.name} logo={rowData.team1_details.logo} panel='user' />),
         },
         {
-            render:rowData => <Versus />
+            render:rowData => <Versus panel='vs' data={rowData} adb />
         },
         {
-            field:'team2_id',
-            render: rowData => <Team2 name={rowData.team2} logo={rowData.logo} panel='user' />
+            field:'team2_details.name',
+            render: rowData => <Team2 name={rowData.team2_details.name} logo={rowData.team2_details.logo} panel='user' />
         },
 
     ])
 
-const [fixtures, setfixtures] = useState([
-    {
-        team1:'FC BARCELONA',
-        team2:'FC RED RANGERS',
-        logo:'http://192.168.0.100:8000/images/logo/fcb.png'
-    },{
-        team1:'FC BARCELONA',
-        team2:'FC RED RANGERS',
-        logo:'http://192.168.0.100:8000/images/logo/fcb.png'
-    },{
-        team1:'FC BARCELONA',
-        team2:'FC RED RANGERS',
-        logo:'http://192.168.0.100:8000/images/logo/fcb.png'
-    },{
-        team1:'FC BARCELONA',
-        team2:'FC RED RANGERS',
-        logo:'http://192.168.0.100:8000/images/logo/fcb.png'
-    },{
-        team1:'FC BARCELONA',
-        team2:'FC RED RANGERS',
-        logo:'http://192.168.0.100:8000/images/logo/fcb.png'
-    },
-])
+
+    useEffect(()=>{
+        if(fixtures.length === 0){
+            dispatch(fetchAllFixtures(tournament_id,false))    
+        }
+    },[])
 
     return (
-        <div className='responsiveTable'>
-            <Mtable
-                headerLess={true} 
-                columns={columns}
-                data={fixtures}
-                editable={false}
-                
-            />
-        </div>
+        <>
+
+                <div className='responsiveTable frTable'>
+                    <Mtable
+                        headerLess={true} 
+                        columns={columns}
+                        data={fixtures}
+                        editable={false}
+                        loading={loading}
+                        paging={true}
+                    />
+                </div>
+        </>
     )
 }
 
-
-
-function Versus(){
-    const classes = useStyles();
-    return(
-        <div className='text-center' className={classes.container}>
-            <h4>VS</h4>
-            <div className={classes.date}>08 Aug 20,10:02 PM</div>
-            <small className={classes.small}>Round 1 | </small>
-            <small className={classes.small}>Leg 1</small>
-        </div>
-    )
-}

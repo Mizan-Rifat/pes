@@ -7,6 +7,8 @@ import ResultsReducer from './ResultsReducer';
 import TournamentsReducer from './TournamentsReducer';
 import OfficialsReducer from './OfficialsReducer';
 import ResultAddReducer from './ResultAddReducer';
+import StandingsReducer from './StandingsReducer';
+import PlayerStatsReducer from './PlayerStatsReducer';
 
 export const reducers = combineReducers({
     users:UsersReducer,
@@ -16,7 +18,9 @@ export const reducers = combineReducers({
     clubs:ClubsReducer,
     tournaments:TournamentsReducer,
     officials:OfficialsReducer,
-    addResult:ResultAddReducer
+    addResult:ResultAddReducer,
+    standings:StandingsReducer,
+    playerStats:PlayerStatsReducer
     
     
 })

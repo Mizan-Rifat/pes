@@ -10,7 +10,9 @@ const initState = {
     team1:[],
     team2:[],
     success:'',
-    test:[]
+    test:[],
+    resultDetails:{},
+    resultDetailsLoading:true,
 };
 
 export default (state=initState,action)=>{
@@ -26,14 +28,22 @@ export default (state=initState,action)=>{
             
             return {
                 ...state,
-                team1_events:action.payload.result.team1_events,
-                team2_events:action.payload.result.team2_events,
-                team1_ratings:action.payload.result.team1_ratings,
-                team2_ratings:action.payload.result.team2_ratings,
-                team1:action.payload.team1,
-                team2:action.payload.team2,
-                detailPanelLoading:false
+                resultDetails:action.payload,
+                resultDetailsLoading:false
+
             }
+        // case 'RESULT_DETAILS_FETCHED':
+            
+        //     return {
+        //         ...state,
+        //         team1_events:action.payload.team1_events,
+        //         team2_events:action.payload.team2_events,
+        //         team1_ratings:action.payload.team1_ratings,
+        //         team2_ratings:action.payload.team2_ratings,
+        //         // team1:action.payload.team1,
+        //         // team2:action.payload.team2,
+        //         detailPanelLoading:false
+        //     }
         case 'ALL_RESULT_FETCHED_ERROR':
             
             return {
@@ -116,6 +126,18 @@ export default (state=initState,action)=>{
                     ...state,
                     detailPanelLoading:false
                 }
+        case 'RESULT_DETAILS_LOADING_TRUE':
+            
+                return {
+                    ...state,
+                    resultDetailsLoading:true
+                }
+        case 'RESULT_DETAILS_LOADING_FALSE':
+            
+                return {
+                    ...state,
+                    resultDetailsLoading:false
+                }
                 
         case 'SET_ERRORS':
             
@@ -138,7 +160,9 @@ export default (state=initState,action)=>{
                 team1:[],
                 team2:[],
                 success:'',
-                test:[]
+                test:[],
+                resultDetails:{},
+                resultDetailsLoading:true,
             }
     
         default:

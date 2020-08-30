@@ -46,12 +46,13 @@ export const setErrors = (errors) =>{
         payload:errors
     }
 }
-export const fetchAllFixtures = (slug) => {
+export const fetchAllFixtures = (id,admin) => {
+
+    const qs = admin ? '&admin=1' : ''; 
     return (dispatch) => {
         dispatch(loadingTrue())
-        axios.get(`/api/tournament/fixtures?tournament_slug=${slug}`)
+        axios.get(`/api/tournament/fixtures?tournament_id=${id}${qs}`)
         .then(response=>{
-            console.log(response.data.data)
             dispatch(allFixturesFetched(response.data.data))
             
         })
