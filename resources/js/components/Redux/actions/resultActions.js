@@ -3,7 +3,7 @@ export const loadingTrue = () =>{
         type:'RESULTS_LOADING_TRUE',
     }
 }
-export const deatailLoadingTrue = () =>{
+export const detailLoadingTrue = () =>{
     return {
         type:'RESULTS_DETAIL_PANEL_LOADING_TRUE',
     }
@@ -13,7 +13,16 @@ export const loadingFalse = () =>{
         type:'RESULTS_LOADING_FALSE',
     }
 }
-
+export const resultDetailsLoadingTrue = () =>{
+    return {
+        type:'RESULT_DETAILS_LOADING_TRUE',
+    }
+}
+export const resultDetailsLoadingFalse = () =>{
+    return {
+        type:'RESULT_DETAILS_LOADING_FALSE',
+    }
+}
 export const allResultsFetched = (results) =>{
     return {
         type:'ALL_RESULT_FETCHED',
@@ -91,27 +100,51 @@ export const fetchAllResults = (tournament_id) => {
         })
     } 
 }
-export const fetchResultDetails = (id) => {
-    return (dispatch) => {
-        dispatch(deatailLoadingTrue())
-        axios.get(`/api/resultdetails?id=${id}&admin=1`)
+export const fetchResultDetails = (id,admin) => (dispatch) => (
+
+    new Promise((resolve,reject)=>{
+
+        const qs = admin ? '&admin=1' : ''; 
+        dispatch(resultDetailsLoadingTrue())
+        
+        axios.get(`/api/resultdetails?id=${id}${qs}`)
         .then(response=>{
             console.log(response.data.data)
-            dispatch(resultDetailsFetched(response.data))
+            dispatch(resultDetailsFetched(response.data.data))
+            resolve()
             
         })
         .catch(error=>{
-            console.log(error)
-            dispatch(setErrors(error))
+            
+            switch (error.response.status) {
+                case 422:
+                    console.log(error.response.data.errors)
+                    reject(error.response.data.errors)
+                    break;
+                case 500:
+                    console.log(error.response.data.message)
+                    reject({msg:error.response.data.message})
+                    break;
+                case 404:
+                    console.log(error.response.data.message)
+                    reject({msg:'Result Not Found'})
+                    break;
+            
+                default:
+                    break;
+            }
+            dispatch(resultDetailsLoadingFalse())
+            console.log(error.response.status)
+         
 
         })
-    } 
-}
+    
+    })
+)
 
 export const createFixture = (newData,tournament_id) => (dispatch) =>
 
     new Promise((resolve,reject)=>{
-
         dispatch(loadingTrue())
 
         axios.get('/sanctum/csrf-cookie').then(response => {

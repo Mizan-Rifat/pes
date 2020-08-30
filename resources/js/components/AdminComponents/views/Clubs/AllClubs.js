@@ -41,7 +41,8 @@ export default function AllClubs() {
             title:'Club',
             field:'name',
             render : rowData => <ClubListItem logo={rowData.logo} name={rowData.name} />,
-            editComponent: props => <SearchComp searchurl='/api/clubs/search' props={props} />
+            editComponent: props => <SearchComp searchurl='/api/clubs/search' props={props} />,
+            validate: rowData => rowData.name !== '',
 
         },
         {

@@ -11,6 +11,9 @@ import Results from './Results/Results';
 import {useHistory} from 'react-router-dom';
 import Standings from './Standings';
 import Teams from './Teams';
+import Stats from './Stats';
+import Groups from './Groups';
+import {primaryColor,secondaryColor} from '@assets/jss/material-dashboard-react.js'
 
 
 
@@ -19,15 +22,30 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     width: '100%',
     backgroundColor: theme.palette.background.paper,
+    '&.MuiTab-wrapper':{
+      color:'yellow'
+    }
   },
   tabRoot: {
-    justifyContent: "center"
+    justifyContent: "center",
+    background:secondaryColor[0]
+  },
+  indicator:{
+    backgroundColor:'unset'
   },
   scroller: {
     flexGrow: "0"
   },
+  wrapper:{
+    color:'#fff',
+    fontWeight:700
+  },
+  selected:{
+    background:primaryColor[0]
+  },
   box:{
     padding:'10px',
+    background:'#eee',
     ['@media (max-width:480px)'] : {
       padding:0
     }
@@ -73,35 +91,53 @@ function a11yProps(index) {
 
 
 
-export default function HeaderTabs({detailSlug}) {
+export default function HeaderTabs({detailSlug,tournament}) {
   const classes = useStyles();
 
   const history = useHistory();
   const [value, setValue] = React.useState(0);
+
   const [tabs,setTabs] = useState([
     {
       label:'FIXTURES',
-      index:0
+      key:0,
+      children:<Fixtures />
     },
     {
       label:'RESULTS',
-      index:1
+      key:1,
+      children:<Results />
     },
     {
       label:'STANDINGS',
-      index:2
+      key:2,
+      children:<Standings />
+    },
+    {
+      label:'Groups',
+      key:3,
+      children:<Groups />
+    },
+    {
+      label:'Bracket',
+      key:4,
+      children:<p>bracket</p>
     },
     {
       label:'STATS',
-      index:3
+      key:5,
+      children:<Stats />
     },
     {
       label:'TEAMS',
-      index:4
+      key:6,
+      children:<Teams />
     },
   ]);
 
   const handleChange = (event, newValue) => {
+
+    console.log({newValue})
     setValue(newValue);
 
     const pathname = window.location.pathname;
@@ -113,6 +149,30 @@ export default function HeaderTabs({detailSlug}) {
 
   };
 
+
+  useEffect(()=>{
+    let newTabs = []
+
+    if(tournament.format == 1){
+      newTabs = tabs.filter(tab=>tab.key != 3 && tab.key != 4)
+    }
+    if(tournament.format == 2){
+      newTabs = tabs.filter(tab=>tab.key != 2 && tab.key != 3)
+    }
+    if(tournament.format == 3){
+      newTabs = tabs.filter(tab=>tab.key != 4)
+    }
+
+    setTabs(newTabs.map((tab,index)=>(
+      {
+        ...tab,
+        index
+      }
+    )))
+
+
+  },[])
+  
   useEffect(()=>{
 
     tabs.map(tab=>{
@@ -122,8 +182,7 @@ export default function HeaderTabs({detailSlug}) {
       }
     })
 
-
-  },[])
+  },[tabs])
 
   return (
     <div className={classes.root}>
@@ -139,36 +198,25 @@ export default function HeaderTabs({detailSlug}) {
           scrollButtons="auto"
           centered
           aria-label="scrollable auto tabs example"
-          classes={{ root: classes.tabRoot, scroller: classes.scroller }}
+          classes={{ root: classes.tabRoot, scroller: classes.scroller,wrapper:classes.wrapper,indicator:classes.indicator }}
         >
           {
             tabs.map((tab,ind)=>(
-              <Tab key={ind} label={tab.label} {...a11yProps(tab.index)} />    
+              <Tab key={ind} label={tab.label} {...a11yProps(tab.index)} classes={{wrapper:classes.wrapper,selected:classes.selected }}/>    
             ))
           }
-          {/* <Tab label="FIXTURES" {...a11yProps(0)} />
-          <Tab label="RESULTS" {...a11yProps(1)} />
-          <Tab label="STANDINGS" {...a11yProps(2)} />
-          <Tab label="STATS" {...a11yProps(3)} />
-          <Tab label="TEAMS" {...a11yProps(4)} /> */}
         </Tabs>
       </AppBar>
 
-      <TabPanel value={value} index={0}>
-        <Fixtures />
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        <Results />
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        <Standings />
-      </TabPanel>
-      <TabPanel value={value} index={3}>
-        Item Four
-      </TabPanel>
-      <TabPanel value={value} index={4}>
-        <Teams />
-      </TabPanel>
+      {
+        tabs.map((tab,index)=>(
+          <TabPanel value={value} index={tab.index} key={index}>
+              {tab.children}
+          </TabPanel>
+        ))
+      }
+
+    
     </div>
   );
 }

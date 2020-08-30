@@ -9,18 +9,38 @@ export const loadingFalse = () =>{
         type:'ADD_RESULT_LOADING_FALSE',
     }
 }
+export const submitLoadingTrue = () =>{
+    return {
+        type:'ADD_RESULT_SUBMIT_LOADING_TRUE',
+    }
+}
+
+export const submitLoadingFalse = () =>{
+    return {
+        type:'ADD_RESULT_SUBMIT_LOADING_FALSE',
+    }
+}
+
 export const addEventToState = (newData) =>{
     return {
         type:'ADD_EVENT_TO_STATE',
         payload:newData
     }
 }
-export const removeEventFromState = (id) =>{
+export const removeEventFromState = (key) =>{
     return {
         type:'REMOVE_EVENT_FROM_STATE',
-        payload:{id}
+        payload:{key}
     }
 }
+
+export const addRatingToState = (ratings,team) =>{
+    return {
+        type:'ADD_RATING_TO_STATE',
+        payload:{ratings,team}
+    }
+}
+
 
 export const fixtureDetailsFetched = (data) =>{
     return {
@@ -28,6 +48,7 @@ export const fixtureDetailsFetched = (data) =>{
         payload:data
     }
 }
+
 
 export const fetchFixtureDetails = (fixture_id) => {
     return (dispatch) => {
@@ -96,3 +117,39 @@ export const addRating = (data,key) => (dispatch) =>(
         
     })
 );
+
+
+export const addMatchResult = (data) => (dispatch) =>(
+
+    new Promise((resolve,reject)=>{
+
+        dispatch(submitLoadingTrue())
+        
+        axios.get('/sanctum/csrf-cookie').then(response => {
+            axios.post(`/api/result/add`,data)
+            .then(response=>{
+
+                dispatch(submitLoadingFalse())
+                resolve(response.data.message)
+
+            }).catch(error=>{
+                dispatch(submitLoadingFalse())
+                switch (error.response.status) {
+                    case 422:
+                        console.log(error.response.data.errors)
+                        reject(error.response.data.errors)
+                        break;
+                    case 500:
+                        console.log(error.response.data.message)
+                        reject({msg:error.response.data.message})
+                        break;
+                
+                    default:
+                        break;
+                }
+            })
+        })
+    })
+);
+
+

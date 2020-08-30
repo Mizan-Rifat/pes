@@ -23,16 +23,16 @@ export default function DetailPanel({id,team1_id,team2_id}) {
         team1_ratings,
         team2_events,
         team2_ratings,
-        loading,
         team1,
-        team2
+        team2,
+        loading
     } = useSelector(state=>state.results)
 
 
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(fetchResultDetails(id))
+        dispatch(fetchResultDetails(id,true))
     }, [])
     return (
         <>

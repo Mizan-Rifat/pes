@@ -1,7 +1,7 @@
 import React from 'react';
 import {makeStyles} from '@material-ui/core';
-
-
+import dateFormat from "dateformat";
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -22,8 +22,10 @@ const useStyles = makeStyles(theme=>({
   }));
 
 
-export default function Versus({team1_goals,team2_goals,panel}){
+export default function Versus({panel,data,vdb,adb}){
     const classes = useStyles();
+
+    const {team1_goals,team2_goals,date,round,leg} = data
     return(
         <div className={classes.container}>
             {
@@ -33,9 +35,27 @@ export default function Versus({team1_goals,team2_goals,panel}){
                 <h4>{team1_goals} : {team2_goals}</h4>
             }
             
-            <div className={classes.date}>08 Aug 20,10:02 PM</div>
-            <small className={classes.small}>Round 1 | </small>
-            <small className={classes.small}>Leg 1</small>
+            <div className={classes.date}>
+                {
+                    date == 'N/A' ? date :
+                    dateFormat(date,'dd mmm yy,h:MM TT')
+                }
+            </div>
+            {/* <div className={classes.date}>08 Aug 20,10:02 PM</div> */}
+            <small className={classes.small}>Round {round} | </small>
+            <small className={classes.small}>Leg {leg}</small>
+            {
+                vdb && 
+                    <Link to={`/resultdetails/${data.id}`} style={{display:'block'}}>
+                        <small className={classes.small}>View Details</small>
+                    </Link>
+            }
+            {
+                adb && 
+                    <Link to={`/addresult/${data.id}`} style={{display:'block'}}>
+                        <small className={classes.small}>Add Result</small>
+                    </Link>
+            }
         </div>
     )
 }

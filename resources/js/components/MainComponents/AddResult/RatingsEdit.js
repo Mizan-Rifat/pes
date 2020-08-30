@@ -2,7 +2,9 @@ import React,{useState, useEffect} from 'react'
 import { Grid,makeStyles } from '@material-ui/core'
 import Mtable from '@customComponent/Mtable'
 import { MTableToolbar } from 'material-table';
-
+import { useDispatch } from 'react-redux';
+import { addRatingToState, updateRatingToState } from '../../Redux/actions/resultAddAction';
+import clsx from 'clsx';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -22,16 +24,19 @@ const useStyles = makeStyles(theme=>({
     },
 }))
 
-export default function RatingsEdit({team1_players,team2_players}) {
+export default function RatingsEdit({team1_players,team2_players,team1_id,team2_id,ratings,className}) {
 
     const classes  = useStyles();
 
     return (
-        <Grid container spacing={3} className={classes.container}>
+        <Grid container spacing={3} className={clsx(classes.container,className)} >
             <Grid item sm={6} >
                 
                 <RatingsTable 
                    players={team1_players}
+                   club_id={team1_id}
+                   team={1}
+                   ratings={ratings.team1}
                 
                 />
             </Grid>
@@ -39,6 +44,9 @@ export default function RatingsEdit({team1_players,team2_players}) {
             <Grid item sm={6}>
                 <RatingsTable 
                     players={team2_players}
+                    club_id={team2_id}
+                    team={2}
+                    ratings={ratings.team2}
                     />
             </Grid>
         
@@ -46,7 +54,9 @@ export default function RatingsEdit({team1_players,team2_players}) {
     )
 }
 
-function RatingsTable({players}){
+function RatingsTable({players,club_id,team,ratings}){
+
+    const dispatch = useDispatch();
 
     const playerLookup = (players) =>{
         const obj = {};
@@ -64,7 +74,6 @@ function RatingsTable({players}){
         return obj;
     }
 
-    const [data, setdata] = useState([])
 
 
     const [columns,setColumns] = useState([
@@ -99,32 +108,42 @@ function RatingsTable({players}){
         },
     ])
 
-    const handleBulkUpdate = (newData) => (
+    const handleBulkUpdate = (changes) => (
 
         new Promise((resolve,reject)=>{
-            console.log(newData)
+         
+        console.log({changes})
+            const updatedData = ratings.map((item,index)=>(
+                Object.keys(changes).includes(index.toString()) ? 
+                    changes[index].newData
+                    :
+                    item
+            ))
+          
+            dispatch(addRatingToState(updatedData,team))
             resolve();
-        //     dispatch(updateFixture(newData))
-        //     .then(response=>{
-        //         toast(response,'success')
-        //         resolve();
-        //     }).catch(error=>{
-               
-        //         Object.keys(error).map(err=>{
-        //             toast(error[err],'error')
-        //         })
-        //         reject();
-        //     })
+  
         })
     )
-        useEffect(()=>{
-            const newData = players.map(player=>({
-                player_id:player.id,
-                rating:0
-            }))
 
-            setdata(newData)
-        },[])
+    useEffect(()=>{
+
+        const newData = players.map(player=>({
+            player_id:player.id,
+            rating:0,
+            club_id
+        }))
+
+        dispatch(addRatingToState(newData,team))
+
+    },[])
+
+
+    useEffect(() => {
+        
+    }, [ratings])
+
+
 
 
     const classes  = useStyles();
@@ -132,7 +151,7 @@ function RatingsTable({players}){
     return(
         <Mtable 
             columns={columns}
-            data={data}
+            data={ratings}
             search={false}
             title='Ratings'
             handleBulkUpdate={handleBulkUpdate}

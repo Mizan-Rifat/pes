@@ -12,14 +12,6 @@ export default function Test() {
       {/* <Bulk /> */}
       {/* <AdminLayout2 /> */}
 
-      <div className='parent'>
-        <p className='p'>
-          lldfkg
-        </p>
-        <p className='p2'>
-          lldsdfsdfsdfkg
-        </p>
-      </div>
     </div>
   )
 }

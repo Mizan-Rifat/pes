@@ -78,8 +78,8 @@ trait FixtureRepo
             }
         }
         
-        // $this->insertToDB($fixs,$tournament_id,$group);
-        return $fixs;
+        $this->insertToDB($fixs,$tournament_id,$group);
+        // return $fixs;
         
 
     }

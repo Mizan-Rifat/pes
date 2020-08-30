@@ -23,6 +23,7 @@ class PlayerResource extends JsonResource
             // 'details'=>new PlayerModelresource($this->details),
             'jersey'=>$this->jersey,
             'club'=>new ClubResource($this->whenLoaded('club')),
+            'stats'=>$this->when($request->stats,$this->stats),
         ];
     }
 }

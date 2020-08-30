@@ -1,108 +1,60 @@
 import React from "react";
-import MaterialTable from "material-table";
-import Mtable from "@customComponent/Mtable";
-import { reject } from "lodash";
+import PropTypes from "prop-types";
+import { Checkbox } from "@material-ui/core";
+import { createMuiTheme } from "@material-ui/core/styles";
+import { makeStyles, ThemeProvider } from "@material-ui/styles";
 
+import orange from "@material-ui/core/colors/orange";
 
-function App() {
-  const { useState } = React;
+const useStyles = makeStyles(theme => {
+  console.log(theme);
 
-  const [columns, setColumns] = useState([
-    { title: "Name", field: "name" },
-    {
-      title: "Surname",
-      field: "surname",
-      initialEditValue: "initial edit value"
+  return {
+    root: {
+      color: theme.status.danger,
+      "&$checked": {
+        color: theme.status.danger
+      },
+      marginTop:200
     },
-    { title: "Birth Year", field: "birthYear", type: "numeric" },
-    {
-      title: "Birth Place",
-      field: "birthCity",
-      lookup: { 34: "İstanbul", 63: "Şanlıurfa" }
-    }
-  ]);
+    checked: {}
+  };
+});
 
-  const [data, setData] = useState([
-    { name: "Mehmet", surname: "Baran", birthYear: 1987, birthCity: 63 },
-    { name: "Zerya Betül", surname: "Baran", birthYear: 2017, birthCity: 34 }
-  ]);
-
-  const handleAddRow = (newData) => (
-
-    new Promise((resolve,reject)=>{
-      console.log({newData})
-      resolve()
-    })
-
-  )
-  const handleUpdateRow = (newData) => (
-
-    new Promise((resolve,reject)=>{
-      console.log({newData})
-      resolve()
-    })
-
-  )
-  const handleDeleteRow = (newData) => (
-
-    new Promise((resolve,reject)=>{
-      console.log({newData})
-      resolve()
-    })
-
-  )
-
-  const actions = [
-    {
-      tooltip: 'Remove Selected',
-      icon: 'delete',
-      onClick: (event, data) => console.log(data),
-      
-      
-    },
-    {
-        icon: 'edit',
-        tooltip: 'Edit Selected',
-        onClick: (event, data) => handleMultipleEdit(event,data),
-       
-        
-    },
-  ]
- 
+let CustomCheckbox = props => {
+  const classes = useStyles();
+  console.log(classes);
   return (
-    // <MaterialTable
-    //   title="Bulk Edit Preview"
-    //   columns={columns}
-    //   data={data}
-    //   editable={{
-    //     onBulkUpdate: (changes) =>
-        
-    //       new Promise((resolve, reject) => {
-    //         console.log(changes)
-    //           resolve();
-            
-    //       }),
-    //     onRowDelete: (oldData) =>
-    //       new Promise((resolve, reject) => {
-    //         setTimeout(() => {
-    //           resolve();
-    //         }, 1000);
-    //       })
-    //   }}
-    // />
-
-    <Mtable 
-      columns={columns} 
-      data={data} 
-      handleUpdateRow={handleUpdateRow} 
-      handleAddRow={handleAddRow} 
-      handleDeleteRow={handleDeleteRow} 
-      editMode={true}
-      // actions={actions}
+    <Checkbox
+      defaultChecked
+      classes={{
+        root: classes.root,
+        checked: classes.checked
+      }}
     />
+  );
+};
+
+CustomCheckbox.propTypes = {
+  classes: PropTypes.object.isRequired
+};
+
+const theme = createMuiTheme({
+  status: {
+    // My business variables
+    danger: orange[500]
+  },
+  otherCustomVars: {
+    width: 90
+  }
+});
+
+function CustomStyles() {
+  return (
+    <ThemeProvider theme={theme}>
+      <CustomCheckbox />
+    </ThemeProvider>
   );
 }
 
-export default App;
-
-  
+export default CustomStyles;

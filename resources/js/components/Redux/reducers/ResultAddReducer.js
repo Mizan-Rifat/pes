@@ -1,8 +1,10 @@
 const initState = {
     loading:true,
+    submitLoading:false,
     fixture:{},
     events:[],
-    ratings:[],
+    eventKey:0,
+    ratings:{},
     error:{},
     success:''
 };
@@ -22,23 +24,31 @@ export default (state=initState,action)=>{
             
             return {
                 ...state,
-                events:[...state.events,action.payload],
+                eventKey:state.eventKey + 1,
+                events:[...state.events,{...action.payload,eventKey:state.eventKey}],
                 
             }
-        case 'ADD_RATING_TO_STATE':
-            
-            return {
-                ...state,
-                ratings:[...state.ratings,action.payload],
-                
-            }
+        
         case 'REMOVE_EVENT_FROM_STATE':
             
             return {
                 ...state,
-                events:state.events.filter(event=> event.id != action.payload.id),
+                events:state.events.filter(event=> event.eventKey != action.payload.key),
                 
             }
+
+        case 'ADD_RATING_TO_STATE':
+            
+                return {
+                    ...state,
+                    ratings:{
+                        ...state.ratings,
+                        [`team${action.payload.team}`] : action.payload.ratings
+                    },
+                    
+                }
+
+        
         case 'REMOVE_RATING_FROM_STATE':
             
             return {
@@ -60,6 +70,18 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 loading:false
+            }
+        case 'ADD_RESULT_SUBMIT_LOADING_TRUE':
+        
+            return {
+                ...state,
+                submitLoading:true
+            }
+        case 'ADD_RESULT_SUBMIT_LOADING_FALSE':
+            
+            return {
+                ...state,
+                submitLoading:false
             }
        
     

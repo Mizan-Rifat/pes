@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -17,6 +17,11 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles,useTheme } from '@material-ui/core/styles';
 import Appbar from './Appbar';
+import Navbar from './Navbar';
+import {useSelector,useDispatch} from 'react-redux';
+import { fetchAllTournaments } from '@actions/tournamentsAction';
+
+
 
 const drawerWidth = 240;
 
@@ -59,6 +64,9 @@ export default function MainLayout(props) {
   const theme = useTheme();
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
+  const {tournaments,fetchLoading} = useSelector(state=>state.tournaments)
+  const dispatch = useDispatch();
+
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
   };
@@ -89,15 +97,23 @@ export default function MainLayout(props) {
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
+
+  useEffect(() => {
+    if(Object.entries(tournaments).length == 0){
+      dispatch(fetchAllTournaments())
+    }
+  }, [])
+
   return (
     <div className={classes.root}>
       <CssBaseline />
-
+<div>
       <Appbar  
         drawerOpen={drawerOpen} 
         setDrawerOpen={setDrawerOpen} 
       />
-     
+      <Navbar />
+     </div>
       
       <nav className={classes.drawer} aria-label="mailbox folders">
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
@@ -131,7 +147,7 @@ export default function MainLayout(props) {
         </Hidden> */}
       </nav>
       <main className={classes.content}>
-        <div className={classes.toolbar} />
+        <div className={classes.toolbar}>sdfsdfds</div>
         {props.children}
       </main>
     </div>

@@ -68,18 +68,18 @@ class FixtureController extends Controller
         switch ($tournament->type) {
             case 1:
 
-                return $this->fixtureRepo->createRoundRobinFixtures($tournament_id,$clubIds,$tournament_leg);
+                $this->fixtureRepo->createRoundRobinFixtures($tournament_id,$clubIds,$tournament_leg);
                 
             break;
 
             case 2:
                 
-                return $this->fixtureRepo->createKnockoutFixtures($tournament_id,$clubIds,$tournament_round,$tournament_leg,true);
+                $this->fixtureRepo->createKnockoutFixtures($tournament_id,$clubIds,$tournament_round,$tournament_leg,true);
 
             break;
             case 3:
                 
-                return $this->fixtureRepo->createRRKFixture($tournament_id,$tournament_leg,);
+                $this->fixtureRepo->createRRKFixture($tournament_id,$tournament_leg,);
 
             break;
             

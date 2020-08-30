@@ -4,10 +4,11 @@ import Sidebar from './Sidebar'
 import SquadList from './SquadList';
 import { useSelector,useDispatch } from 'react-redux';
 import { fetchClub } from '@actions/clubsAction';
+import Progress from '../../CustomComponent/Progress';
 
 export default function Club(props) {
 
-    const {club,loading} = useSelector(state => state.clubs);
+    const {club,squadLoading:loading} = useSelector(state => state.clubs);
     const dispatch = useDispatch()
 
     const slug=props.match.params.slug
@@ -21,7 +22,11 @@ export default function Club(props) {
     return (
         <Container>
             {
-                loading ? '' :
+                loading ? 
+
+                    <Progress size={30} />
+                
+                    :
             
                     <Grid container spacing={3} className='mt-5'>
                         <Grid item xs={12} sm={4}>

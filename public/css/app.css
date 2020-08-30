@@ -10952,12 +10952,16 @@ input:focus {
   font-weight: 700 !important;
 }
 
-.resultTable.MuiTableCell-paddingNone {
+.frTable.MuiTableCell-paddingNone {
   display: none !important;
 }
 
 p.p {
   color: yellow !important;
+}
+
+.frTable .MuiTableCell-root {
+  padding: 5px !important;
 }
 
 @media all and (max-width: 480px) {

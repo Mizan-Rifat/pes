@@ -16,8 +16,6 @@ export default function Fixtures(props) {
 
     const {setTitle} = props
 
-    const slug = props.match.params.title;
-
     const toast = Notify();
 
     const {fixtures,loading} = useSelector(state=>state.fixtures)
@@ -116,6 +114,7 @@ export default function Fixtures(props) {
                 padding:'16px 0px',
                 // textAlign:'center'
             },
+            validate: rowData => rowData.round !== '',
             
 
         },
@@ -200,7 +199,7 @@ export default function Fixtures(props) {
     useEffect(()=>{
         setTitle('Fixtures')
         if(fixtures.length === 0){
-            dispatch(fetchAllFixtures(slug))    
+            dispatch(fetchAllFixtures(tournament_id,true))    
         }
         
     },[])

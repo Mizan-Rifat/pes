@@ -2,9 +2,11 @@
 
 namespace App\Repositories\Traits;
 
+use App\Http\Resources\ClubResource;
 use App\Model\Club;
 use App\Model\Tournament;
 use Illuminate\Support\Facades\DB;
+use App\Repositories\TournamentRepository;
 
 trait PointTableRepository
 {
@@ -15,46 +17,53 @@ trait PointTableRepository
             'fixtures'=>function($query){
                 $query->where('completed',1)->with('result'); 
             },
-            'clubs'
+            'clubs',
         ])->find($tournament_id);
 
-        $clubIdArray = $tournament->clubs->pluck('id');
+        $clubs = $tournament->clubs;
+        // return $tournament;
 
-        $pointsTable = $clubIdArray->map(function($club_id) use($tournament){
-            return $this->get_club_stats($tournament->fixtures,$club_id);
+        if($tournament->type == 3){
+            return $this->getGroupPointTable($tournament); 
+        }
+
+        $clubsStats = $clubs->map(function($club) use($tournament){
+            return $this->get_club_stats($tournament->fixtures,$club);
         });
 
-        $criteria = ["points" => "desc", "gd" => "desc",'gs'=>'desc','ga'=>'desc'];
-        $comparer = $this->makeComparer($criteria);
-        $sorted = $pointsTable->sort($comparer);
-        $actual = $sorted->values()->toArray();
+        $pointsTable = $this->sortPointTable($clubsStats);
 
-        return $actual;
+        return $pointsTable;
 
     }
 
-    public function getPlayedMatches($fixtures,$club_id){
+    public function getGroupPointTable($tournament){
 
-        return $fixtures->filter(function($item) use($club_id){
-            return $item->team1_id == $club_id || $item->team2_id == $club_id;
+        $groups = $this->getGroups($tournament->clubs);
+
+        return $pointsTable = $groups->mapWithKeys(function($group,$key) use($tournament){
+            $stats = $group->map(function($club) use($tournament){
+                return $this->get_club_stats($tournament->fixtures,$club);
+            });
+
+            $groupPointTable = $this->sortPointTable($stats);
+
+            return [$key => $groupPointTable];
         });
+    }
+
     
-    }
 
-    public function get_club_stats($fixtures,$club_id)
+    public function get_club_stats($fixtures,$club)
     {
 
-        $playedMatches = $this->getPlayedMatches($fixtures,$club_id);
+        $playedMatches = $this->getPlayedMatches($fixtures,$club['id']);
 
         $matchesArray = $playedMatches->pluck('id');
 
         $matchCount = count($matchesArray);
 
-        $club = Club::find($club_id);
-        $clubName = $club->name;
-        $clubLogo = $club->logo;
-
-        $win = $playedMatches->where('result.match_status',1)->count();
+        $win = $playedMatches->where('result.match_status',$club['id'])->count();
         
         $draw = $playedMatches->where('result.match_status',0)->count();
 
@@ -66,21 +75,20 @@ trait PointTableRepository
 
         $goalGS = DB::table('match_details')
             ->whereIn('fixture_id', $matchesArray)
-            ->where('club_id', $club_id)
+            ->where('club_id', $club['id'])
             ->where('event_id', 1)
             ->get()->count();
 
         $goalGA = DB::table('match_details')
             ->whereIn('fixture_id', $matchesArray)
-            ->where('club_id','!=', $club_id)
+            ->where('club_id','!=', $club['id'])
             ->where('event_id', 1)
             ->get()->count();
 
         $goalGD = $goalGS - $goalGA;
 
         $pointsTable = collect([
-            'clubName' => $clubName,
-            'clubLogo' => $clubLogo,
+            'club' => new ClubResource($club),
             'played' => $matchCount,
             'win' => $win,
             'draw' => $draw,
@@ -92,6 +100,14 @@ trait PointTableRepository
         ]);
 
         return $pointsTable;
+    }
+
+    public function getPlayedMatches($fixtures,$club_id){
+
+        return $fixtures->filter(function($item) use($club_id){
+            return $item->team1_id == $club_id || $item->team2_id == $club_id;
+        });
+    
     }
 
     public function makeComparer($criteria){
@@ -109,6 +125,25 @@ trait PointTableRepository
             return 0;
         };
         return $comparer;
+    }
+
+    public function sortPointTable($clubsStats){
+        $criteria = ["points" => "desc", "gd" => "desc",'gs'=>'desc','ga'=>'desc'];
+        $comparer = $this->makeComparer($criteria);
+        $sorted = $clubsStats->sort($comparer);
+        $pointsTable = $sorted->values()->toArray();
+        return $pointsTable;
+    }
+
+    public function getGroups($clubs){
+
+        $groups = $clubs->mapToGroups(function($item,$key){
+            
+            return ['group'.$item['pivot']['group_'] => $item];
+            
+        });
+
+        return $groups;
     }
 
     
