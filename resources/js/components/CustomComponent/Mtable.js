@@ -50,8 +50,10 @@ export default function Mtable(props) {
     const {pageSize = 10} = props;
 
     const headerStyle = {
-      ...tableTheme,
       ...header,
+        background:'#0E1723',
+        color:'#fff',
+        fontWeight:'bold',
     }
 
     const [editMode, setEditMode] = useState(edit)

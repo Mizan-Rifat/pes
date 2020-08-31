@@ -15,6 +15,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import {useSelector,useDispatch} from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import clsx from 'clsx';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
     right:0,
     left:'auto',
     width:'100%',
-    background:'black',
+    background:'rgba(0,0,0,.5)',
     color:'white',
     // padding:'10px 20px',
     // height:'30px',
@@ -36,19 +37,42 @@ const useStyles = makeStyles((theme) => ({
   item:{
       borderRight:'1px solid rgba(255,255,255,.3)',
       padding: '10px 20px',
-      cursor:'default'
+      cursor:'default',
+    //   '&:hover':{
+    //     background:theme.palette.primary.light
+    // }
   
   },
   paper:{
+      background:theme.palette.primary.main,
+      color:theme.palette.primary.contrastText
     //   height:100,
     //   width:100,
 },
   menus:{
     position:'absolute',
-    width:'100%'
+    width:'100%',
     // top:0,
     // right:0
 
+  },
+  listRoot:{
+    '&.MuiList-padding':{
+        padding:0
+    }
+  },
+  listItem:{
+      '&.MuiListItem-button':{
+          '&:hover':{
+              background:theme.palette.secondary.main
+          }
+      }
+  },
+  firstItem:{
+      borderLeft:'1px solid rgba(255,255,255,.3)',
+  },
+  active:{
+      background:theme.palette.primary.dark
   }
 }));
 
@@ -96,6 +120,7 @@ export default function Navbar() {
                                             label={item.label}
                                             name={item.name}
                                             items={tournaments}
+                                            index={index}
                                         />
                                     ))
                                 }
@@ -108,14 +133,16 @@ export default function Navbar() {
 }
 
 
-function MItems({label,items,name}){
+function MItems({label,items,name,index}){
     const classes = useStyles();
     const [checked, setchecked] = useState(false)
     return(
             <div style={{position:'relative',width:'170px',textAlign:'center'}}>
                 <div 
-                    className={classes.item} 
-                    style={{borderLeft:'1px solid rgba(255,255,255,.3)'}}
+                    className={clsx(classes.item,{
+                        [classes.firstItem] : index == 0,
+                        [classes.active] : checked
+                    })}
                     onMouseEnter={()=>setchecked(true)}
                     onMouseLeave={()=>setchecked(false)}
                     >
@@ -149,10 +176,10 @@ function Collapseitem({checked,setchecked,items,name}){
         
                 <div
                         onMouseEnter={()=>setchecked(true)}
-                            onMouseLeave={()=>setchecked(false)}
+                        onMouseLeave={()=>setchecked(false)}
                 >
-                    <Paper elevation={2} className={classes.paper} square>
-                            <List component="nav" aria-label="main mailbox folders">
+                    <Paper elevation={0} className={classes.paper} square>
+                            <List component="nav" aria-label="main mailbox folders" className={classes.listRoot}>
 
                                 {
                                     items.map((tournament,index)=>(
@@ -160,6 +187,7 @@ function Collapseitem({checked,setchecked,items,name}){
                                             button 
                                             key={index} 
                                             onClick={()=>handleClick(tournament.slug,name)}
+                                            className={classes.listItem}
                                         >
                                             <ListItemText primary={tournament.name} />
                                         </ListItem>
