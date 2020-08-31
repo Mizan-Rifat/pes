@@ -72,9 +72,11 @@ export default function ResultDetails(props) {
                         :
 
                         <Container>
-                            <Teams 
-                                fixtureDetails = {resultDetails.fixture} 
-                            />
+                            <div  style={{marginTop:'60px'}}>
+                                <Teams 
+                                    fixtureDetails = {resultDetails.fixture} 
+                                />
+                            </div>
                             <Container>
                                 <Events 
                                     team1_events={resultDetails.team1_events} 

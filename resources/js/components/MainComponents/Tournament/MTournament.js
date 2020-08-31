@@ -1,5 +1,5 @@
 import React,{useEffect} from 'react'
-import MCarousel from '../Carousel/MCarousel'
+import MCarousel from '@customComponent/Carousel/MCarousel'
 import Title from '@customComponent/Title'
 import HeaderTabs from './Components/HeaderTabs'
 import { Container } from '@material-ui/core';
@@ -39,8 +39,10 @@ export default function MTournament(props) {
             <div>
                 <MCarousel />
 
-                <Container style={{height:'500px'}}>
-                    <Title title={tournament.name} />
+                <Container style={{minHeight:'500px'}}>
+                    <div style={{margin:'50px 0'}}>
+                        <Title title={tournament.name} />
+                    </div>
                     <HeaderTabs detailSlug={detailSlug} tournament={tournament}/>
                 </Container>
             </div>

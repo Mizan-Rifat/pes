@@ -84,6 +84,10 @@ const useStyles = makeStyles((theme) => ({
       display: 'none',
     },
   },
+  logo:{
+    height:'50px',
+    margin:'0 30px'
+  }
 }));
 
 
@@ -194,9 +198,12 @@ export default function PrimarySearchAppBar(props) {
           </Hidden>
 
             <Link to='/'>
-              <Typography className={classes.title} variant="h6" noWrap>
+
+              <img src='/images/logo/pes.png' className={classes.logo}/>
+
+              {/* <Typography className={classes.title} variant="h6" noWrap>
                 Material-UI
-              </Typography>
+              </Typography> */}
             </Link>
 
 

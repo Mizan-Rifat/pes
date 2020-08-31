@@ -23,9 +23,6 @@ export default function Sidebar() {
 
     const classes = useStyles();
 
-   
-
-
  
 
     const brand = (

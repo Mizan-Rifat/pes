@@ -37,14 +37,15 @@ const useStyles = makeStyles((theme) => ({
   listItem:{
     paddingRight:0,
     '&.Mui-selected':{
-      backgroundColor:'rgb(0,172,193)'
+      // backgroundColor:'rgb(0,172,193)'
+      backgroundColor:theme.palette.secondary.main
     },
     '&.Mui-selected:hover':{
-      backgroundColor:'rgba(0,172,193,.9) !important'
+      // backgroundColor:`${theme.palette.secondary.dark} !important`
     },
     '&.MuiListItem-button:hover': {
       // backgroundColor: 'red'
-      backgroundColor: 'rgba(0, 0, 0, 0.2)'
+      backgroundColor: theme.palette.secondary.light
     }
   },
   listicon:{
@@ -53,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
       marginRight:'15px',
   },
   selected:{
-      backgroundColor:'#00ACC1',
+      // backgroundColor:'#00ACC1',
   },
   listtext:{
     '&.MuiListItemText-primary':{

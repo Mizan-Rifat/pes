@@ -104,11 +104,12 @@ export default function AddResult(props) {
 
                         :
                         <>
-
-                            <Teams 
-                                panel='vs'
-                                fixtureDetails={fixture}
-                            />
+                            <div  style={{margin:'60px 0'}}>
+                                <Teams 
+                                    panel='vs'
+                                    fixtureDetails={fixture}
+                                />
+                            </div>
                             <Container>
                                 <EventsEdit
                                     events={events} 

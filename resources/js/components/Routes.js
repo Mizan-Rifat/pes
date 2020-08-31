@@ -3,20 +3,27 @@ import {BrowserRouter,Switch,Route, Redirect} from 'react-router-dom';
 import AdminLayout from './Containers/Layouts/Admin/AdminLayout';
 import MainLayout from './Containers/Layouts/Main/MainLayout';
 import {default  as AdminRoot} from './AdminComponents/Root';
-import Login from './Login';
+
+import Login from '@components/AuthComponent/Login';
+import Registration from '@components/AuthComponent/Registration';
+
 import Dashboard from '@components/AdminComponents/Dashboard';
 import Tournament from '@components/AdminComponents/views/Tournaments/Tournament';
 import MTournament from '@components/MainComponents/Tournament/MTournament';
 import Test from '../components/Test/Test';
 import Users from '@components/AdminComponents/views/Users/Users';
 import { SnackbarProvider } from 'notistack';
-import { makeStyles } from '@material-ui/core/styles';
 import TournamentDashboard from './AdminComponents/views/Tournaments/TournamentDashboard';
 import AllClubs from './AdminComponents/views/Clubs/AllClubs';
 import AllTournaments from './AdminComponents/views/AllTournaments/AllTournaments';
 import Club from './MainComponents/Club/Club';
 import ResultDetails from './MainComponents/MatchDetails/ResultDetails';
 import AddResult from './MainComponents/AddResult/AddResult';
+import { createMuiTheme } from "@material-ui/core/styles";
+import { makeStyles, ThemeProvider } from "@material-ui/styles";
+import { purple,pink,red } from '@material-ui/core/colors';
+import LandingPage from './MainComponents/Landing'
+
 
 const useStyles = makeStyles((theme) => ({
     topClass: {
@@ -27,11 +34,30 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
+const theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: '#0E1723',
+      },
+      secondary: {
+        main: "#EF2743",
+      },
+      info:{
+        main:'#454545'
+      },
+
+      background:{
+        main:'#FFD525'
+      }
+    },
+  });
+
 export default function Routes() {
 
     const classes = useStyles();
 
     return (
+        <ThemeProvider theme={theme}>
         <BrowserRouter>
 
 
@@ -45,6 +71,7 @@ export default function Routes() {
             <Switch>
 
                 <Route path='/login' component={Login} />
+                <Route path='/registration' component={Registration} />
 
 
                 {/* <Provider store={adminStore}> */}
@@ -67,6 +94,7 @@ export default function Routes() {
                 <Route>
                     <MainLayout>
                         <Switch>
+                            <Route path='/' exact component={LandingPage} />
                             <Route path='/tournament/:title/:details' component={MTournament} />
                             <Route path='/club/:slug' component={Club} />
                             <Route path='/resultdetails/:match_id' component={ResultDetails} />
@@ -81,5 +109,6 @@ export default function Routes() {
             </SnackbarProvider>
         
         </BrowserRouter>
+        </ThemeProvider>
     )
 }
