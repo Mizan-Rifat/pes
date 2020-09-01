@@ -1,11 +1,22 @@
 
 export const loadingTrue = () =>{
     return {
-        type:'SESSION_USER_LOADING_TRUE',
+        type:'SESSION_AUTH_LOADING_TRUE',
     }
 }
 
 export const loadingFalse = () =>{
+    return {
+        type:'SESSION_AUTH_LOADING_FALSE',
+    }
+}
+export const userloadingTrue = () =>{
+    return {
+        type:'SESSION_USER_LOADING_TRUE',
+    }
+}
+
+export const userLoadingFalse = () =>{
     return {
         type:'SESSION_USER_LOADING_FALSE',
     }
@@ -16,44 +27,37 @@ export const userFetched = (users) =>{
         payload:users
     }
 }
-
-export const allUsersFetchedError = (error) =>{
+export const userLoggedIn = (user) =>{
     return {
-        type:'ALL_USERS_FETCHED_ERROR',
-        payload:error.message
+        type:'USER_LOGGED_IN',
+        payload:user
     }
 }
-export const userUpdatedError = (errors) =>{
+export const userLoggedOut = () =>{
     return {
-        type:'SET_ERRORS',
-        payload:errors
+        type:'USER_LOGGED_OUT',
     }
 }
-export const userUpdated = (data) =>{
+export const userRegistered = (user) =>{
     return {
-        type:'UPDATE_USER',
-        payload:data
+        type:'USER_REGISTERED',
+        payload:user
     }
 }
-export const userDeleted = (ids,message) =>{
+export const setErrors = (error) =>{
     return {
-        type:'DELETE_USER',
-        payload:{ids,message}
-    }
-}
-export const userBlocked = (ids) =>{
-    return {
-        type:'BLOCK_USER',
-        payload:ids
+        type:'SET_SESSION_ERRORS',
+        payload:error
     }
 }
 
-export const fetchSessionUser = () => {
+
+export const fetchUser = () => {
 
     return (dispatch) => {
         
         dispatch(loadingTrue())
-        axios.get(`/api/allusers`)
+        axios.get(`/api/`)
         .then(response=>{
             console.log(response.data.data)
             dispatch(allUsersFetched(response.data.data))
@@ -67,63 +71,120 @@ export const fetchSessionUser = () => {
     } 
 }
 
-export const updateUser = (newData) => (dispatch) =>
+export const loginUser = (formData) => (dispatch) => (
 
     new Promise((resolve,reject)=>{
 
         dispatch(loadingTrue())
 
         axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/api/updateuser`,{
-                ...newData
-            }).then(response=>{
-                dispatch(userUpdated(response.data))
-                resolve(response.data.message);
-            }).catch(error=>{
-                dispatch(userUpdatedError(error.response.data.errors))
-                reject(error.response.data.errors);
-
+            axios.post(`/login`,{
+                email:formData.email,
+                password:formData.password,
+                remember:formData.remember,
+            },{
+                accept:'Application/Json'
             })
-        })
-    });
-        
-
-export const deleteUser = (ids) => (dispatch) =>(
-
-    new Promise((resolve,reject)=>{
-        dispatch(loadingTrue())
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/api/deleteuser`,{
-                id:ids
-            }).then(response=>{
-                dispatch(userDeleted(ids,response.data.message))
-                resolve(response.data.message)
+            .then(response=>{
+                dispatch(userLoggedIn(response.data))
+                console.log(response.data)
+                resolve();
             }).catch(error=>{
-                dispatch(loadingFalse())
-                reject(error.response.data.message)
+
+                const err = {
+                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
+                    message:error.response.data.message,
+                    errorCode:error.response.status
+                }
+
+                dispatch(setErrors(err))
+
+                reject(err);
+
             })
         })
     })
-);
-
-export const blockUser = (ids) => (dispatch) =>(
+)
+export const logoutUser = () => (dispatch) => (
 
     new Promise((resolve,reject)=>{
+
         dispatch(loadingTrue())
+
         axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/api/blockusers`,{
-                ids:ids
-            }).then(response=>{
-                dispatch(userBlocked(ids))
-                resolve(response.data.message)
+            axios.post(`/logout`,{},{
+                accept:'Application/Json'
+            })
+            .then(response=>{
+                dispatch(userLoggedOut())
+                console.log(response.data)
+                resolve();
             }).catch(error=>{
-                dispatch(loadingFalse())
-                console.log({error})
-                reject(error.response.data.message)
+
+                const err = {
+                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
+                    message:error.response.data.message,
+                    errorCode:error.response.status
+                }
+
+                dispatch(setErrors(err))
+
+                reject(err);
+
             })
         })
     })
+)
 
-);
+export const registerUser = (formData) => (dispatch) => (
 
+    new Promise((resolve,reject)=>{
+
+        dispatch(loadingTrue())
+
+        axios.get('/sanctum/csrf-cookie').then(response => {
+            axios.post(`/register`,{
+                name:formData.name,
+                email:formData.email,
+                password:formData.password,
+                password_confirmation:formData.password_confirmation,
+            })
+            .then(response=>{
+                dispatch(userRegistered(response.data))
+                console.log(response.data)
+                resolve();
+            }).catch(error=>{
+
+                const err = {
+                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
+                    message:error.response.data.message,
+                    errorCode:error.response.status
+                }
+
+                dispatch(setErrors(err))
+
+                reject(err)
+
+                // switch (error.response.status) {
+                //     case 406:
+                //         reject(error.response.data.message)
+                //         break;
+                //     case 422:
+                //         // console.log(error.response.data.errors)
+                //         reject(error.response.data.errors)
+                //         break;
+                //     case 500:
+                //         // console.log(error.response.data.message)
+                //         reject({msg:error.response.data.message})
+                //         break;
+                
+                //     default:
+                //         reject()
+                //         break;
+                // }
+
+            })
+        })
+    })
+)
 

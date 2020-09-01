@@ -152,6 +152,7 @@ export default function MAppBar({handleDrawerToggle}) {
   };
 
   const menuId = 'primary-search-account-menu';
+  
   const renderMenu = (
 
     <Menu
@@ -216,7 +217,7 @@ export default function MAppBar({handleDrawerToggle}) {
     <div >
       <AppBar 
         position="fixed"  
-        className={clsx(classes.appBar)}
+        // className={clsx(classes.appBar)}
         >
         <Toolbar>
         <Hidden smUp implementation="css">
@@ -308,8 +309,10 @@ export default function MAppBar({handleDrawerToggle}) {
           </div>
         </Toolbar>
       </AppBar>
+
       {renderMobileMenu}
       {renderMenu}
+
     </div>
   );
 }

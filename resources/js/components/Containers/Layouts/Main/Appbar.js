@@ -15,12 +15,10 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
-import Menus from './Menus';
-
-import useScrollTrigger from '@material-ui/core/useScrollTrigger';
-import Slide from '@material-ui/core/Slide';
-
 import {Link } from 'react-router-dom'
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '../../../Redux/actions/SessionAction';
+import RenderAppBarMenu from './RenderAppBarMenu'
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -87,6 +85,19 @@ const useStyles = makeStyles((theme) => ({
   logo:{
     height:'50px',
     margin:'0 30px'
+  },
+  menuList:{
+      background:theme.palette.primary.dark,
+      padding:0,
+      color:'white',
+  },
+  menuPaper:{
+    borderRadius:0
+  },
+  menuItem:{
+    '&:hover':{
+      background:theme.palette.secondary.main
+    },
   }
 }));
 
@@ -94,6 +105,9 @@ const useStyles = makeStyles((theme) => ({
 
 export default function PrimarySearchAppBar(props) {
   const {drawerOpen,setDrawerOpen} = props;
+
+  const dispatch = useDispatch();
+
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -118,7 +132,14 @@ export default function PrimarySearchAppBar(props) {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+  const handleLogout = () =>{
+    dispatch(logoutUser())
+    setAnchorEl(null);
+    handleMobileMenuClose();
+  }
+
   const menuId = 'primary-search-account-menu';
+
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
@@ -128,11 +149,18 @@ export default function PrimarySearchAppBar(props) {
       transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={isMenuOpen}
       onClose={handleMenuClose}
+      classes={{
+        list:classes.menuList,
+        paper:classes.menuPaper
+      }}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleMenuClose} className={classes.menuItem} >Profile</MenuItem>
+      <MenuItem onClick={handleMenuClose} className={classes.menuItem}>My account</MenuItem>
+      <MenuItem onClick={handleLogout} className={classes.menuItem}>Logout</MenuItem>
     </Menu>
   );
+
+
 
   const mobileMenuId = 'primary-search-account-menu-mobile';
   const renderMobileMenu = (
@@ -161,6 +189,7 @@ export default function PrimarySearchAppBar(props) {
         </IconButton>
         <p>Notifications</p>
       </MenuItem>
+
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
           aria-label="account of current user"
@@ -201,25 +230,9 @@ export default function PrimarySearchAppBar(props) {
 
               <img src='/images/logo/pes.png' className={classes.logo}/>
 
-              {/* <Typography className={classes.title} variant="h6" noWrap>
-                Material-UI
-              </Typography> */}
             </Link>
 
 
-            {/* <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <SearchIcon />
-              </div>
-              <InputBase
-                placeholder="Search…"
-                classes={{
-                  root: classes.inputRoot,
-                  input: classes.inputInput,
-                }}
-                inputProps={{ 'aria-label': 'search' }}
-              />
-            </div> */}
 
 
             <div className={classes.grow} />

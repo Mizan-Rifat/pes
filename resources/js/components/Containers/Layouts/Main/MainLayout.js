@@ -20,6 +20,8 @@ import Appbar from './Appbar';
 import Navbar from './Navbar';
 import {useSelector,useDispatch} from 'react-redux';
 import { fetchAllTournaments } from '@actions/tournamentsAction';
+import MAppBar from '../Admin/Appbar/MAppBar';
+import MyAppBar from '../Appbar/MyAppBar';
 
 
 
@@ -108,10 +110,11 @@ export default function MainLayout(props) {
     <div className={classes.root}>
       <CssBaseline />
 <div>
-      <Appbar  
+      {/* <Appbar  
         drawerOpen={drawerOpen} 
         setDrawerOpen={setDrawerOpen} 
-      />
+      /> */}
+      <MyAppBar handleDrawerToggle={handleDrawerToggle} panel='user' />
       <Navbar />
      </div>
       

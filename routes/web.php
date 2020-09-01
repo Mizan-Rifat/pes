@@ -31,14 +31,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::view('/{path?}', 'main');
-
-// Route::view('/{path?}', 'main')
-//      ->where('path', '.*')
-//      ->name('react');
 
 Route::get('{reactRoutes}', function () {
-    return view('main'); // your start view
+    return view('main'); 
     })->where('reactRoutes', '^((?!api).)*$');
 
 // Route::get('/', function () {
