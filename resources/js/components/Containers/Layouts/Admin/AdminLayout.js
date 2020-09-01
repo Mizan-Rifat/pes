@@ -9,7 +9,8 @@ import clsx from 'clsx';
 import SideBarImage from '@assets/img/sidebar-2.jpg';
 import {useSelector,useDispatch} from 'react-redux';
 import { fetchAllTournaments } from '@actions/tournamentsAction';
-import MAppBar from './Appbar/MAppBar'
+import MAppBar from './Appbar/MAppBar';
+import MyAppBar from '../Appbar/MyAppBar';
 
 
 export const drawerWidth = 260;
@@ -74,42 +75,52 @@ function AdminLayout(props) {
 
   return (
     fetchLoading ? '' :
+
     <div className={classes.root}>
+
       <CssBaseline />
-      <MAppBar handleDrawerToggle={handleDrawerToggle}/>
+
+      <MyAppBar 
+        handleDrawerToggle={handleDrawerToggle}
+        panel='admin'  
+      />
+
       <nav className={classes.drawer} aria-label="mailbox folders">
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-        <Hidden smUp implementation="css">
-          <Drawer
-            container={container}
-            variant="temporary"
-            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            <Sidebar />
 
-          </Drawer>
+          <Hidden smUp implementation="css">
 
-        </Hidden>
-        <Hidden xsDown implementation="css">
-          <Drawer
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            variant="permanent"
-            open
-          >
-            <Sidebar />
-          </Drawer>
-        </Hidden>
+            <Drawer
+              container={container}
+              variant="temporary"
+              anchor={theme.direction === 'rtl' ? 'right' : 'left'}
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+              classes={{
+                paper: classes.drawerPaper,
+              }}
+              ModalProps={{
+                keepMounted: true, 
+              }}
+            >
+              <Sidebar />
+
+            </Drawer>
+
+          </Hidden>
+          <Hidden xsDown implementation="css">
+            <Drawer
+              classes={{
+                paper: classes.drawerPaper,
+              }}
+              variant="permanent"
+              open
+            >
+              <Sidebar />
+            </Drawer>
+          </Hidden>
       </nav>
+
+
       <main className={classes.content}>
         <div className={classes.toolbar} />
           

@@ -1,7 +1,12 @@
 const initState = {
-    loading:true,
-    user:[],
-    error:{},
+    loading:false,
+    userLoading:false,
+    user:{},
+    error:{
+        message:'',
+        errors:{},
+        errorCode:''
+    },
     success:''
 };
 
@@ -15,14 +20,29 @@ export default (state=initState,action)=>{
                 loading:false
             }
         
-        case 'UPDATE_USER':
+        case 'USER_LOGGED_IN':
             
             return {
                 ...state,
                 loading:false,
-                users:state.users.map(user=>(
-                    user.id === action.payload.user.id ? action.payload.user : user 
-                ))
+                user:action.payload
+               
+            }
+        case 'USER_LOGGED_OUT':
+            
+            return {
+                ...state,
+                loading:false,
+                user:{}
+               
+            }
+        case 'USER_REGISTERED':
+            
+            return {
+                ...state,
+                loading:false,
+                // users:action.payload
+               
             }
        
         
@@ -30,16 +50,29 @@ export default (state=initState,action)=>{
             
             return {
                 ...state,
-                loading:true
+                userLoading:true
             }
         
         case 'SESSION_USER_LOADING_FALSE':
             
             return {
                 ...state,
+                userLoading:false
+            }
+        case 'SESSION_AUTH_LOADING_TRUE':
+            
+            return {
+                ...state,
+                loading:true
+            }
+        
+        case 'SESSION_AUTH_LOADING_FALSE':
+            
+            return {
+                ...state,
                 loading:false
             }
-        case 'SET_ERRORS':
+        case 'SET_SESSION_ERRORS':
             
             return {
                 ...state,

@@ -10,6 +10,10 @@ import SubmitButton from './SubmitButton';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { Link } from 'react-router-dom'
+import LinearProgress from '@material-ui/core/LinearProgress';
+import { ThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+import { useDispatch,useSelector } from 'react-redux';
+
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -20,9 +24,11 @@ const useStyles = makeStyles(theme=>({
         alignItems:'center'
     },
     card:{
-        height: '480px',
-        width: '350px',
-        marginTop: '50px',
+        // height: '480px',
+        // width: '350px',
+        height: '450px',
+        width: '340px',
+        marginTop: '75px',
         // background: theme.palette.primary.light,
         background: '#353D5A',
         position: 'relative',
@@ -53,7 +59,7 @@ const useStyles = makeStyles(theme=>({
     formContainer:{
         display:'flex',
         justifyContent:'center',
-        marginTop:'80px'
+        marginTop:'115px'
     },
     formControlLabel:{
         '&.MuiFormControlLabel-root':{
@@ -70,13 +76,42 @@ const useStyles = makeStyles(theme=>({
     footer:{
         display:'flex',
         justifyContent:'center'
-    }
+    },
+    pbContainer: {
+        width: "100%",
+        "& > * + *": {
+          marginTop: theme.spacing(2),
+        },
+        position: "absolute",
+        bottom: 0,
+    },
+    formDisable: {
+        pointerEvents: "none",
+        opacity: "0.5",
+    },
    
 }))
+
+const theme = createMuiTheme({
+    overrides: {
+      MuiLinearProgress: {
+          root:{
+            // bottom:'-24px'
+          },
+        colorPrimary: {
+          backgroundColor: "#676CAD",
+        },
+        barColorPrimary: {
+          backgroundColor: "#353D5A",
+        },
+      },
+    },
+  });
 
 export default function Auth({form,type}) {
 
     const classes = useStyles();
+    const {loading} = useSelector(state => state.session)
 
     return (
         <div className={classes.container}>
@@ -84,15 +119,32 @@ export default function Auth({form,type}) {
 
                 <div className='d-flex justify-content-center'>
                     <div className={classes.logoContainer}>
-                        <img src='/images/logo/pes.png' className={classes.logoImg}/>
+                        {/* <Link to='/'> */}
+                            <img src='/images/logo/pes.png' className={classes.logoImg}/>
+                        {/* </Link> */}
                     </div>
                 </div>
 
-                <div className={classes.formContainer}>
-                    {form}
+                <div className={clsx({[classes.formDisable]: loading})}>
+
+                    <div className={classes.formContainer}>
+                        {form}
+                    </div>
+
+                    <Footer type={type} />
+
                 </div>
 
-                <Footer type={type} />
+
+                {
+                    loading &&
+                
+                    <div className={classes.pbContainer}>
+                        <ThemeProvider theme={theme}>
+                            <LinearProgress />
+                        </ThemeProvider>
+                    </div>
+                }
 
             </div>
         </div>

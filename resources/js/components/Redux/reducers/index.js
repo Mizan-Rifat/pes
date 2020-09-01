@@ -9,6 +9,7 @@ import OfficialsReducer from './OfficialsReducer';
 import ResultAddReducer from './ResultAddReducer';
 import StandingsReducer from './StandingsReducer';
 import PlayerStatsReducer from './PlayerStatsReducer';
+import SessionReducer from './SessionReducer';
 
 export const reducers = combineReducers({
     users:UsersReducer,
@@ -20,7 +21,8 @@ export const reducers = combineReducers({
     officials:OfficialsReducer,
     addResult:ResultAddReducer,
     standings:StandingsReducer,
-    playerStats:PlayerStatsReducer
+    playerStats:PlayerStatsReducer,
+    session:SessionReducer
     
     
 })
