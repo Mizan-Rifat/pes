@@ -7,6 +7,7 @@ import { useSelector,useDispatch} from 'react-redux';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { fetchInfo, reset } from '@actions/infoAction'
 import Progress from '../../CustomComponent/Progress';
+import { fetchSessionUser } from '../../Redux/actions/SessionAction';
 
 
 
@@ -16,6 +17,7 @@ export default function MTournament(props) {
     const slug = props.match.params.title;
 
     const {fetchLoading,tournament} = useSelector(state=> state.info)
+    const {user} = useSelector(state=> state.session)
     const dispatch = useDispatch();
 
 
@@ -24,6 +26,7 @@ export default function MTournament(props) {
         dispatch(reset())
 
         dispatch(fetchInfo(slug))
+        // dispatch(fetchSessionUser())
         
     },[slug])
 

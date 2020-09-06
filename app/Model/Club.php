@@ -11,9 +11,11 @@ class Club extends Model
     use CacheQueryBuilder;
 
     protected $guarded = [];
+
+    protected $with = ['details'];
     
     public function owner(){
-        return $this->hasOne('App\User','id','owner_id');
+        return $this->hasOne('App\User','id','owner_user_id');
     }
 
     public function players(){
@@ -21,5 +23,9 @@ class Club extends Model
     }
     public function tournaments(){
         return $this->belongsToMany('App\Model\Tournament')->withPivot('invitation','group_');
+    }
+
+    public function details(){
+        return $this->hasOne('App\Model\ClubModel','id','model_id');
     }
 }

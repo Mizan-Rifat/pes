@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\Repositories\Traits\BaseRepository;
 use App\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserRepository
 {
@@ -15,21 +17,41 @@ class UserRepository
         $this->model = new User();
     }
 
-    public function updateUsers($request){
+    public function updateUser($request){
 
         $validatedData = $request->validate([
-            'name' => ['required','max:20','min:2'],
-            'email' => ['required','email'],
+            'id'=>['required','numeric'],
+            'name' => ['max:20','min:2'],
+            'email' => ['email','unique:users,email,'.Auth::id()],
             'blocked' => ['nullable','boolean'],
-            'password' => ['confirmed','min:6'],
+            'old_password' => [
+                'nullable', function ($attribute, $value, $fail) {
+                    if (!Hash::check($value, Auth::user()->password)) {
+                        $fail('Old Password didn\'t match');
+                    }
+                },
+            ],
+            'password' => ['nullable','confirmed','min:8'],
+            'fbID'=>['nullable','unique:users,fbID,'.Auth::id()]
         ]);
 
-        $user = $this->model->with('club')->findOrFail($request->id);
+        unset($validatedData['old_password']);
 
-        $user->update($validatedData);
+        if(isset($validatedData['password'])){
+            $validatedData['password'] = Hash::make($validatedData['password']);
+        }
+
+        if($validatedData['id'] != Auth::id()){
+            abort(403,"You don't have permission for this operation.");
+        }
+
+        $user = $this->model->with('club.players')->findOrFail($validatedData['id']);
+
+        // $user->update($validatedData);
 
         return $user;
     }
+    
 
     public function destroyById($ids){
 

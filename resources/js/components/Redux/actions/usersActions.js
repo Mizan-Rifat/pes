@@ -1,3 +1,4 @@
+import { sessionLoadingTrue,sessionUserUpdated,setErrors as setSessionErrors } from "./SessionAction";
 
 export const loadingTrue = () =>{
     return {
@@ -47,6 +48,12 @@ export const userBlocked = (ids) =>{
         payload:ids
     }
 }
+export const setErrors = (error) =>{
+    return {
+        type:'SET_USER_ERRORS',
+        payload:error
+    }
+}
 
 export const fetchAllUsers = () => {
     return (dispatch) => {
@@ -70,16 +77,28 @@ export const updateUser = (newData) => (dispatch) =>
     new Promise((resolve,reject)=>{
 
         dispatch(loadingTrue())
+        dispatch(sessionLoadingTrue())
 
         axios.get('/sanctum/csrf-cookie').then(response => {
             axios.post(`/api/updateuser`,{
                 ...newData
             }).then(response=>{
+
                 dispatch(userUpdated(response.data))
+
+                dispatch(sessionUserUpdated(response.data.data))
+
                 resolve(response.data.message);
             }).catch(error=>{
-                dispatch(userUpdatedError(error.response.data.errors))
-                reject(error.response.data.errors);
+                const err = {
+                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
+                    message:error.response.data.message,
+                    errorCode:error.response.status
+                }
+    
+                dispatch(setErrors(err))
+                dispatch(setSessionErrors(err))
+                reject(err);
 
             })
         })

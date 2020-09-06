@@ -11,6 +11,8 @@ import {useSelector,useDispatch} from 'react-redux';
 import { fetchAllTournaments } from '@actions/tournamentsAction';
 import MAppBar from './Appbar/MAppBar';
 import MyAppBar from '../Appbar/MyAppBar';
+import { fetchSessionAdmin } from '../../../Redux/actions/SessionAction';
+import Progress from '@customComponent/Progress';
 
 
 export const drawerWidth = 260;
@@ -57,7 +59,11 @@ function AdminLayout(props) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
 
-  const {tournaments,fetchLoading} = useSelector(state=>state.tournaments)
+  const {tournaments,fetchLoading:tournamentLoading} = useSelector(state=>state.tournaments)
+  const {admin,loading:adminLoading} = useSelector(state=> state.session)
+
+
+
   const dispatch = useDispatch();
 
   const handleDrawerToggle = () => {
@@ -71,10 +77,18 @@ function AdminLayout(props) {
     if(Object.entries(tournaments).length == 0){
       dispatch(fetchAllTournaments())
     }
+    if(Object.entries(admin).length == 0){
+      dispatch(fetchSessionAdmin())
+    }
+
   }, [])
 
   return (
-    fetchLoading ? '' :
+    tournamentLoading || adminLoading ? 
+    
+    <Progress />
+    
+    :
 
     <div className={classes.root}>
 

@@ -5,7 +5,7 @@ import {MenuItem,FormControl,Select,makeStyles,Input} from '@material-ui/core';
 const useStyles = makeStyles(theme=>({
     formControl: {
         '&.MuiInputBase-root':{
-            fontSize:'unset'
+            // fontSize:'unset'
         },
     },
     textField:{
@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme=>({
     }
 }));
 
-export default function EditComp({type,defaultValue,optionValue,name,options,handleChange}) {
+export default function EditComp({type,defaultValue,optionValue,name,options,handleChange,error}) {
 
     const classes = useStyles();
 
@@ -54,8 +54,24 @@ export default function EditComp({type,defaultValue,optionValue,name,options,han
                             value={value} 
                             name={name}
                             onChange={handleOnChange} 
-                            className={classes.formControl}  
+                            className={classes.formControl}
+                            error={Boolean(error)}  
                         />
+                        <small style={{color:'red',display:'block'}}>{error}</small>
+                    </>
+            }
+            {
+                type === 'password' &&
+                    <>
+                        <Input 
+                            value={value}
+                            type='password' 
+                            name={name}
+                            onChange={handleOnChange} 
+                            className={classes.formControl} 
+                            error={Boolean(error)} 
+                        />
+                        <small style={{color:'red',display:'block'}}>{error}</small>
                     </>
             }
             {

@@ -16,6 +16,7 @@ import {fetchAllUsers, updateUser,deleteUser,blockUser} from '@actions/usersActi
 import Notify from '@customComponent/Notify';
 import CompContainer from '@customComponent/CompContainer';
 import Mtable from '@customComponent/Mtable';
+import { fetchSessionAdmin } from '../../../Redux/actions/SessionAction';
 
 const useStyles =makeStyles(theme=>({
     container:{
@@ -29,6 +30,7 @@ export default function Users() {
     const toast = Notify();
 
     const {users,loading,error,success} = useSelector(state => state.users);
+    const {admin} = useSelector(state => state.session);
     const dispatch = useDispatch()
 
     const [columns, setcolumns] = useState([
@@ -72,6 +74,8 @@ export default function Users() {
         },
 
     ])
+
+
     
 
     const handleRemoveSelected = (ids)=>{
@@ -136,6 +140,7 @@ export default function Users() {
 
 
     useEffect(()=>{
+        // dispatch(fetchSessionAdmin())
         if(users.length === 0){
             dispatch(fetchAllUsers());
         }

@@ -139,10 +139,6 @@ function RatingsTable({players,club_id,team,ratings}){
     },[])
 
 
-    useEffect(() => {
-        
-    }, [ratings])
-
 
 
 

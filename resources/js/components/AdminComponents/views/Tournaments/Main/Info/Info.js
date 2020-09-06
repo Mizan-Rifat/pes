@@ -97,7 +97,7 @@ export default function Info({setTitle}) {
 
     
     useEffect(()=>{
-        setTitle('Info')
+        // setTitle('Info')
         setFormData({
             ...formData,
             id:tournament.id,
@@ -131,7 +131,8 @@ export default function Info({setTitle}) {
             {
                 title:'Format',
                 name:'format',
-                value:formatOptions[tournament.format - 1].label,
+                value:'dsf',
+                // value:formatOptions[tournament.format - 1].label,
                 optionValue:tournament.format,
                 type:'select',
                 options:formatOptions

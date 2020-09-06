@@ -60,7 +60,7 @@ export default (state=initState,action)=>{
                 ...state,
                 loading:false
             }
-        case 'SET_ERRORS':
+        case 'SET_USER_ERRORS':
             
             return {
                 ...state,

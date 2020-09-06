@@ -7,7 +7,7 @@ const useStyles = makeStyles(()=>({
         position:'absolute',
         left:'50%',
         right:'50%',
-        top:'25%'
+        top:'50%'
     }
 }))
 

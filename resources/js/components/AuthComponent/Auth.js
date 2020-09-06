@@ -38,6 +38,9 @@ const useStyles = makeStyles(theme=>({
         boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
         borderRadius: '5px',
     },
+    adminCard:{
+        // background: theme.palette.primary.light,
+    },
     logoContainer:{
         position: 'absolute',
         height: '170px',
@@ -108,20 +111,20 @@ const theme = createMuiTheme({
     },
   });
 
-export default function Auth({form,type}) {
+export default function Auth({form,type,panel}) {
 
     const classes = useStyles();
     const {loading} = useSelector(state => state.session)
 
     return (
         <div className={classes.container}>
-            <div className={classes.card}>
+            <div className={clsx(classes.card)}>
 
                 <div className='d-flex justify-content-center'>
                     <div className={classes.logoContainer}>
-                        {/* <Link to='/'> */}
+                        <Link to='/'>
                             <img src='/images/logo/pes.png' className={classes.logoImg}/>
-                        {/* </Link> */}
+                        </Link>
                     </div>
                 </div>
 

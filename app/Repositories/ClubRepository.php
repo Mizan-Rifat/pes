@@ -6,6 +6,8 @@ use App\Http\Resources\ClubResource;
 use App\Model\Club;
 use App\Model\Player;
 use App\Repositories\Traits\BaseRepository;
+use App\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -91,9 +93,17 @@ class ClubRepository
     }
     public function removePlayersFromClub($request){
 
+        $club_id = Auth::user()->club->id;
+
+        $validatedData = $request->validate([
+            'club_id' => ['required','integer','in:'.$club_id],
+            'player_ids'=>['required','array'],
+            'player_ids.*'=>['integer'],
+        ]);
+
         $delete = DB::table('players')
-                ->whereIn('id',$request['player_ids'])
-                ->where('club_id',$request['club_id'])
+                ->whereIn('id',$validatedData['player_ids'])
+                ->where('club_id',$validatedData['club_id'])
                 ->delete();
 
         return $delete;
@@ -102,19 +112,17 @@ class ClubRepository
 
     public function addPlayerToSquad($request){
 
-        $request['playermodel_id'] = $request['name'];
-
-        unset($request['name']);
+        $club_id = Auth::user()->club->id;
 
         $validatedData = $request->validate([
-            'club_id' => ['required','integer','exists:clubs,id'],
+            'club_id' => ['required','integer','in:'.$club_id],
             'playermodel_id' => ['required','bail','integer','exists:playermodels,id',
-                                    Rule::unique('players')->where(function ($query) use($request){
-                                        return $query->where('club_id', $request['club_id']);
+                                    Rule::unique('players')->where(function ($query) use($club_id){
+                                        return $query->where('club_id', $club_id);
                                     })    
                                 ],
-            'jersey' => ['required','integer',Rule::unique('players')->where(function ($query) use($request){
-                return $query->where('club_id', $request['club_id']);
+            'jersey' => ['required','integer',Rule::unique('players')->where(function ($query) use($club_id){
+                return $query->where('club_id', $club_id);
             })],
         ],
         [
@@ -122,11 +130,50 @@ class ClubRepository
         ]
         );
 
+
         $player = Player::create($validatedData);
 
         return $player;
     }
 
 
+    public function updateClub($request){
+
+        $user = User::with('club')->find(Auth::id());
+        $club = $user->club;
+
+        $validatedData = $request->validate([
+            'id'=>['required','numeric',function($attribute,$value,$fail) use($club){
+                if($value != $club->id){
+                    $fail('You don\'t have permission to do this.');
+                }
+            }],
+            'name' => ['max:20','min:2',Rule::unique('clubs')->ignore($club)],
+            // 'name' => ['max:20','min:2','unique:clubs,name,'.Auth::user()->club['name']],
+            'owner_id' => ['string'],
+            'model_id'=>['numeric'],
+
+        ]);
+
+        $club->update($validatedData);
+
+        return $club;
+    }
+
+    public function createClub($request){
+        $validatedData = $request->validate([
+            'name' => ['required','max:20','min:2','unique:clubs,name,','regex:/[a-zA-Z][a-zA-Z ]+/'],
+            'owner_id' => ['required','string','regex:/^\d{3}-\d{3}-\d{3}$/'],
+            'model_id'=>['required','numeric'],
+        ]);
+        $validatedData['name'] = strtoupper($validatedData['name']);
+        $validatedData['slug'] = str_replace(' ','',(strtolower($validatedData['name'])));
+        $validatedData['owner_user_id'] = Auth::id();
+
+        $club = $this->model->create($validatedData);
+
+        return $club;
+    }
+    
     
 }

@@ -3,8 +3,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser } from '../../../Redux/actions/SessionAction';
+import { logoutUser, logoutAdmin } from '../../../Redux/actions/SessionAction';
 import { useHistory } from 'react-router-dom';
+import Messages from './Messages';
 
 const useStyles = makeStyles((theme) => ({
 
@@ -30,15 +31,25 @@ export default function RenderMenu({anchorEl, setAnchorEl,panel}) {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    handleMobileMenuClose();
+    // handleMobileMenuClose();
   };
 
 
   const handleLogout = () =>{
-
-    dispatch(logoutUser())
+    if(panel == 'admin'){
+      dispatch(logoutAdmin())
+    }else{
+      dispatch(logoutUser())
+    }
+    
     setAnchorEl(null);
-    handleMobileMenuClose();
+    // handleMobileMenuClose();
+  }
+
+  const handelProfileClick = ()=>{
+    
+    history.push('/profile')
+    setAnchorEl(null);
   }
 
   return (
@@ -55,7 +66,7 @@ export default function RenderMenu({anchorEl, setAnchorEl,panel}) {
         {
             Object.keys(user).length > 0 || panel == 'admin' ?
                 <>
-                    <MenuItem onClick={handleMenuClose} className={classes.menuItem} >Profile</MenuItem>
+                    <MenuItem onClick={handelProfileClick} className={classes.menuItem} >Profile</MenuItem>
                     <MenuItem onClick={handleMenuClose} className={classes.menuItem}>My account</MenuItem>
                     <MenuItem onClick={handleLogout} className={classes.menuItem}>Logout</MenuItem>
                 </>

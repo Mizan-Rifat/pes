@@ -18,11 +18,16 @@ class ClubResource extends JsonResource
             'id'=>$this->id,
             'name'=>$this->name,
             'slug'=>$this->slug,
-            'logo'=>asset('/images/logo/'.$this->logo),
+            'club_model'=>$this->details->name,
+            'club_model_id'=>$this->details->id,
+            'logo'=>asset('/images/teams/'.sprintf("%06d",$this->details->model_id).'.png'),
+            // 'logo'=>asset('/images/logo/'.$this->logo),
+
             'invitation' => $this->whenPivotLoaded('club_tournament', function () {
                 return $this->pivot->invitation;
             }),
             'establishedIn'=>$this->created_at,
+            'owner_id'=>$this->owner_id,
             'owner'=>new UserResource($this->whenLoaded('owner')),
             'tournaments'=> TournamentResource::collection($this->whenLoaded('tournaments')),
             'players'=> PlayerResource::collection($this->whenLoaded('players')),

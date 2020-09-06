@@ -104,7 +104,7 @@ export default function AddResult(props) {
 
                         :
                         <>
-                            <div  style={{margin:'60px 0'}}>
+                            <div  style={{marginTop:'120px',marginBottom:'25px'}}>
                                 <Teams 
                                     panel='vs'
                                     fixtureDetails={fixture}

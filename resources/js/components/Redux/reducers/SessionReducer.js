@@ -1,7 +1,8 @@
 const initState = {
+    fetching:false,
     loading:false,
-    userLoading:false,
     user:{},
+    admin:{},
     error:{
         message:'',
         errors:{},
@@ -12,31 +13,64 @@ const initState = {
 
 export default (state=initState,action)=>{
     switch (action.type) {
-        case 'USER_FETCHED':
+
+        case 'SESSION_USER_FETCHED':
             
             return {
                 ...state,
-                users:action.payload,
-                loading:false
+                user:action.payload,
+                fetching:false
+            }
+        case 'SET_SESSION_USER_CLUB':
+            
+            return {
+                ...state,
+                user:{
+                    ...state.user,
+                    club:action.payload
+                },
+            } 
+        case 'SESSION_ADMIN_FETCHED':
+            
+            return {
+                ...state,
+                admin:action.payload,
+                fetching:false
             }
         
-        case 'USER_LOGGED_IN':
+        case 'SESSION_USER_LOGGED_IN':
             
             return {
                 ...state,
-                loading:false,
-                user:action.payload
+                fetching:false,
+                // user:action.payload
                
             }
-        case 'USER_LOGGED_OUT':
+        case 'SESSION_ADMIN_LOGGED_IN':
             
             return {
                 ...state,
-                loading:false,
+                fetching:false,
+                admin:action.payload
+               
+            }
+        case 'SESSION_USER_LOGGED_OUT':
+            
+            return {
+                ...state,
+                fetching:false,
                 user:{}
                
             }
-        case 'USER_REGISTERED':
+        case 'SESSION_ADMIN_LOGGED_OUT':
+            
+            return {
+                ...state,
+                loading:false,
+                admin:{}
+               
+            }
+        case 'SESSION_USER_REGISTERED':
             
             return {
                 ...state,
@@ -44,29 +78,37 @@ export default (state=initState,action)=>{
                 // users:action.payload
                
             }
+        case 'SESSION_USER_UPDATED':
+            
+            return {
+                ...state,
+                loading:false,
+                user:action.payload
+               
+            }
        
         
-        case 'SESSION_USER_LOADING_TRUE':
+        case 'SESSION_FETCHING_TRUE':
             
             return {
                 ...state,
-                userLoading:true
+                fetching:true
             }
         
-        case 'SESSION_USER_LOADING_FALSE':
+        case 'SESSION_FETCHING_FALSE':
             
             return {
                 ...state,
-                userLoading:false
+                fetching:false
             }
-        case 'SESSION_AUTH_LOADING_TRUE':
+        case 'SESSION_LOADING_TRUE':
             
             return {
                 ...state,
                 loading:true
             }
         
-        case 'SESSION_AUTH_LOADING_FALSE':
+        case 'SESSION_LOADING_FALSE':
             
             return {
                 ...state,
@@ -77,6 +119,7 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 loading:false,
+                fetching:false,
                 error:action.payload
             }
     

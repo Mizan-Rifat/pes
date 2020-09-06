@@ -7,16 +7,22 @@ use App\Http\Resources\OfficialResource;
 use App\Http\Resources\PlayerResource;
 use App\Http\Resources\UserResource;
 use App\Model\Club;
+use App\Model\ClubModel;
 use App\Model\Fixture;
 use App\Model\MatchRating;
 use App\Model\Official;
 use App\Model\Player;
 use App\Model\Tournament;
+use App\Repositories\ClubModelRepository;
 use App\Repositories\TournamentRepository;
 use App\User;
+use Facade\FlareClient\Stacktrace\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,16 +35,31 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+
+Route::middleware('auth:sanctum_admin')->get('/admin', function (Request $request) {
     return $request->user();
 });
 
 Route::get('/test',function(Request $request){
+    $user = User::with('club')->findOrFail(52);
+    return $user;
+});
 
-    $tr =new TournamentRepository();
-    $player = $tr->getTournamentGroups(9);
+Route::get('/rename',function(Request $request){
+    $path = public_path('/images/teams');
+    $files = scandir($path);
 
-    return $player;
+    // return str_replace('e_','',$files[3]);
+    
+    array_splice($files, 0, 2);
+
+    collect($files)->map(function($item){
+        // rename(public_path('/images/teams/'.$item),public_path('images/teams/'.str_replace('e_','',$item)));
+        rename(public_path('/images/teams/'.$item),public_path('images/teams/'.str_replace('_f_l','',$item)));
+    });
+
+    // rename(public_path('/images/teams/e_000001_r_l.png'),public_path('images/teams/000001.png'));
+  
 });
 Route::get('/test2','TournamentController@getFixtureById');
 
@@ -94,10 +115,15 @@ Route::post('/tournament/officials/remove','TournamentController@removeOfficials
 // -----------Clubs-----------
 Route::get('/allclubs','ClubController@index'); 
 Route::get('/club/{reference}','ClubController@getClub'); 
-Route::get('/clubs/search','ClubController@search');  // ?query
+Route::get('/club/search','ClubController@search');  // ?query
+Route::get('/clubmodel/search','ClubController@searchModel');  // ?query
+Route::post('/club/create','ClubController@create');  // ?query
+Route::post('/club/info/update','ClubController@update');  // ?query
 Route::post('/clubs/sendinvitation','ClubController@sendInvitation');  // ?query
 Route::post('/club/add/player','ClubController@addPlayerToClub');  
-Route::post('/club/remove/player','ClubController@removePlayerFromClub');  
+Route::post('/club/player/update','PlayerController@update');  
+Route::post('/club/player/remove','ClubController@removePlayerFromClub');  
+Route::get('/clubmodels','ClubController@getAllModels');  
 
 
 // -----------Clubs_End----------
@@ -126,8 +152,8 @@ Route::get('/user/details/{id}','UserController@getUser');
 Route::get('/allusers','UserController@getAllUsers'); 
 Route::post('/updateuser','UserController@update'); 
 Route::post('/deleteuser','UserController@destroy'); 
-Route::post('/blockusers','UserController@block'); 
-
+Route::post('/blockusers','UserController@block');
+Route::middleware('auth:sanctum_user')->get('/user','UserController@getCurrentUser');
 
 // -----------users_End-----------
 
@@ -136,7 +162,11 @@ Route::post('/blockusers','UserController@block');
 // ----------Players-----------
 
 Route::get('/players/search','PlayerController@search');  // ?query
-Route::post('/players/update','PlayerController@update');  // ?query
+// Route::post('/players/update','PlayerController@update');  // ?query
 
 
 // -----------Clubs_End-----------
+
+
+
+Route::get('/teams/logo','UserController@getTeamsLogo');

@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme=>({
 export default function AuthForm(props) {
   const classes = useStyles();
 
-  const {formData, setFormData,inputFields,submitMethod,label} = props
+  const {formData, setFormData,inputFields,submitMethod,label,panel} = props
 
   const dispatch = useDispatch();
 
@@ -52,7 +52,11 @@ export default function AuthForm(props) {
         e.preventDefault();
         dispatch(submitMethod(formData))
         .then(response=>{
-          history.push('/')
+          if(panel == 'admin'){
+            history.push('/admin')
+          }else{
+            history.push('/')
+          }
         })
         .catch(error=>{
           toast(error.message,'error')

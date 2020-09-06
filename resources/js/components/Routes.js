@@ -13,7 +13,7 @@ import MTournament from '@components/MainComponents/Tournament/MTournament';
 import Test from '../components/Test/Test';
 import Users from '@components/AdminComponents/views/Users/Users';
 import { SnackbarProvider } from 'notistack';
-import TournamentDashboard from './AdminComponents/views/Tournaments/TournamentDashboard';
+// import TournamentDashboard from './AdminComponents/views/Tournaments/TournamentDashboard';
 import AllClubs from './AdminComponents/views/Clubs/AllClubs';
 import AllTournaments from './AdminComponents/views/AllTournaments/AllTournaments';
 import Club from './MainComponents/Club/Club';
@@ -23,6 +23,7 @@ import { createMuiTheme } from "@material-ui/core/styles";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import { purple,pink,red } from '@material-ui/core/colors';
 import LandingPage from './MainComponents/Landing'
+import Profile from './MainComponents/Profile/Profile';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -72,6 +73,12 @@ export default function Routes() {
 
                 <Route path='/login' component={Login} />
                 <Route path='/registration' component={Registration} />
+                <Route
+                    path='/admin/login'
+                    render={(props) => (
+                      <Login {...props} panel='admin' />
+                    )}
+                  />
 
 
                 {/* <Provider store={adminStore}> */}
@@ -80,7 +87,7 @@ export default function Routes() {
                             <Switch>
                                 <Route path='/admin' exact component={AdminRoot} />
                                 <Route path='/admin/dashboard'  component={Dashboard} />
-                                <Route path='/admin/tournaments'  component={TournamentDashboard} />
+                                {/* <Route path='/admin/tournaments'  component={TournamentDashboard} /> */}
                                 <Route path='/admin/tournament/:title'  component={Tournament} />
                                 <Route path='/admin/users'  component={Users} />
                                 <Route path='/admin/clubs'  component={AllClubs} />
@@ -100,6 +107,7 @@ export default function Routes() {
                             <Route path='/resultdetails/:match_id' component={ResultDetails} />
                             <Route path='/addresult/:match_id' component={AddResult} />
                             <Route path='/test' component={Test} />
+                            <Route path='/profile' component={Profile} />
                             
                         </Switch>
                     </MainLayout>

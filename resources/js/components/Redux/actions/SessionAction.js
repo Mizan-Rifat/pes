@@ -1,46 +1,69 @@
 
-export const loadingTrue = () =>{
+export const fetchingTrue = () =>{
     return {
-        type:'SESSION_AUTH_LOADING_TRUE',
+        type:'SESSION_FETCHING_TRUE',
     }
 }
 
-export const loadingFalse = () =>{
+export const fetchingFalse = () =>{
     return {
-        type:'SESSION_AUTH_LOADING_FALSE',
+        type:'SESSION_FETCHING_FALSE',
     }
 }
-export const userloadingTrue = () =>{
+export const sessionLoadingTrue = () =>{
     return {
-        type:'SESSION_USER_LOADING_TRUE',
+        type:'SESSION_LOADING_TRUE',
     }
 }
 
-export const userLoadingFalse = () =>{
+export const sessionLoadingFalse = () =>{
     return {
-        type:'SESSION_USER_LOADING_FALSE',
+        type:'SESSION_LOADING_FALSE',
     }
 }
-export const userFetched = (users) =>{
+export const sessionUserFetched = (user) =>{
     return {
-        type:'USER_FETCHED',
-        payload:users
+        type:'SESSION_USER_FETCHED',
+        payload:user
+    }
+}
+export const sessionUserUpdated = (user) =>{
+    return {
+        type:'SESSION_USER_UPDATED',
+        payload:user
+    }
+}
+export const sessionAdminFetched = (admin) =>{
+    return {
+        type:'SESSION_ADMIN_FETCHED',
+        payload:admin
     }
 }
 export const userLoggedIn = (user) =>{
     return {
-        type:'USER_LOGGED_IN',
+        type:'SESSION_USER_LOGGED_IN',
+        payload:user
+    }
+}
+export const adminLoggedIn = (user) =>{
+    return {
+        type:'SESSION_ADMIN_LOGGED_IN',
         payload:user
     }
 }
 export const userLoggedOut = () =>{
     return {
-        type:'USER_LOGGED_OUT',
+        type:'SESSION_USER_LOGGED_OUT',
+    }
+}
+export const adminLoggedOut = () =>{
+    return {
+        type:'SESSION_ADMIN_LOGGED_OUT',
     }
 }
 export const userRegistered = (user) =>{
     return {
-        type:'USER_REGISTERED',
+        type:'SESSION_USER_REGISTERED',
         payload:user
     }
 }
@@ -50,32 +73,74 @@ export const setErrors = (error) =>{
         payload:error
     }
 }
+export const setSessionUserClub = (club) =>{
+    console.log({club})
+    return {
+        type:'SET_SESSION_USER_CLUB',
+        payload:club
+    }
+}
 
 
-export const fetchUser = () => {
 
-    return (dispatch) => {
-        
-        dispatch(loadingTrue())
-        axios.get(`/api/`)
+export const fetchSessionUser = () => (dispatch) => (
+
+    new Promise((resolve,reject)=>{
+
+        dispatch(fetchingTrue())
+
+        axios.get(`/api/user`)
         .then(response=>{
-            console.log(response.data.data)
-            dispatch(allUsersFetched(response.data.data))
+            console.log(response.data)
+            dispatch(sessionUserFetched(response.data.data))
+            resolve()
             
         })
         .catch(error=>{
-            console.log(error)
-            dispatch(allUsersFetchedError(error))
+            const err = {
+                errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
+                message:error.response.data.message,
+                errorCode:error.response.status
+            }
+
+            dispatch(setErrors(err))
+            reject(err);
 
         })
-    } 
-}
+    })
+)
+export const fetchSessionAdmin = () => (dispatch) => (
+
+    new Promise((resolve,reject)=>{
+
+        dispatch(fetchingTrue())
+
+        axios.get(`/api/admin`)
+        .then(response=>{
+            console.log(response.data)
+            dispatch(sessionAdminFetched(response.data))
+            resolve()
+            
+        })
+        .catch(error=>{
+            const err = {
+                errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
+                message:error.response.data.message,
+                errorCode:error.response.status
+            }
+
+            dispatch(setErrors(err))
+            reject(err);
+
+        })
+    })
+)
 
 export const loginUser = (formData) => (dispatch) => (
 
     new Promise((resolve,reject)=>{
 
-        dispatch(loadingTrue())
+        dispatch(fetchingTrue())
 
         axios.get('/sanctum/csrf-cookie').then(response => {
             axios.post(`/login`,{
@@ -105,11 +170,46 @@ export const loginUser = (formData) => (dispatch) => (
         })
     })
 )
-export const logoutUser = () => (dispatch) => (
+
+export const loginAdmin = (formData) => (dispatch) => (
 
     new Promise((resolve,reject)=>{
 
         dispatch(loadingTrue())
+
+        axios.get('/sanctum/csrf-cookie').then(response => {
+            axios.post(`/admin/login`,{
+                email:formData.email,
+                password:formData.password,
+                remember:formData.remember,
+            },{
+                accept:'Application/Json'
+            })
+            .then(response=>{
+                dispatch(adminLoggedIn(response.data))
+                console.log(response.data)
+                resolve();
+            }).catch(error=>{
+
+                const err = {
+                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
+                    message:error.response.data.message,
+                    errorCode:error.response.status
+                }
+
+                dispatch(setErrors(err))
+
+                reject(err);
+
+            })
+        })
+    })
+)
+export const logoutUser = () => (dispatch) => (
+
+    new Promise((resolve,reject)=>{
+
+        dispatch(fetchingTrue())
 
         axios.get('/sanctum/csrf-cookie').then(response => {
             axios.post(`/logout`,{},{
@@ -117,6 +217,36 @@ export const logoutUser = () => (dispatch) => (
             })
             .then(response=>{
                 dispatch(userLoggedOut())
+                console.log(response.data)
+                resolve();
+            }).catch(error=>{
+
+                const err = {
+                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
+                    message:error.response.data.message,
+                    errorCode:error.response.status
+                }
+
+                dispatch(setErrors(err))
+
+                reject(err);
+
+            })
+        })
+    })
+)
+export const logoutAdmin = () => (dispatch) => (
+
+    new Promise((resolve,reject)=>{
+
+        dispatch(loadingTrue())
+
+        axios.get('/sanctum/csrf-cookie').then(response => {
+            axios.post(`/admin/logout`,{},{
+                accept:'Application/Json'
+            })
+            .then(response=>{
+                dispatch(adminLoggedOut())
                 console.log(response.data)
                 resolve();
             }).catch(error=>{

@@ -31,7 +31,7 @@ class User extends Authenticatable
     ];
 
     public function club(){
-        return $this->hasOne('App\Model\Club','owner_id','id');
+        return $this->hasOne('App\Model\Club','owner_user_id','id');
     }
 
     public function toggleBlock()
