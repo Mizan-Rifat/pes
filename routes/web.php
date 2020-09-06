@@ -18,6 +18,7 @@ use App\Repositories\ClubRepository;
 use App\Repositories\FixtureRepository;
 use App\Repositories\TournamentRepository;
 use App\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,26 +41,9 @@ Route::get('{reactRoutes}', function () {
 //     return view('main');
 // });
 
-Route::get('api/pes', function () {
-    $clubrepo = new ClubRepository;
-    return $clubrepo->test();
+Route::middleware('adminGuard')->post('/admin/login','Auth\LoginController@login');
+Route::middleware('adminGuard')->post('/admin/logout','Auth\LoginController@logout');
 
-    
-    $user = User::where('id',1)->with('club')->first();
-    return new UserResource($user);
-
-    $players = Player::with('club','details')->get();
-    return PlayerResource::collection($players);
-
-
-    return new PlayerResource(Player::where('id',1)->with('club','model')->first());
-
-
-    return new ClubResource(Club::where('id',1)->with('owner','tournaments')->first());
-    $club = Club::where('id',1)->with('owner')->first(); 
-    return($club->owner['name']);
-    dd(Club::where('id',1)->with('owner')->get());
-});
 
 
 

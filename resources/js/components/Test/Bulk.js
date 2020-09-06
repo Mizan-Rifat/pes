@@ -1,60 +1,72 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Checkbox } from "@material-ui/core";
-import { createMuiTheme } from "@material-ui/core/styles";
-import { makeStyles, ThemeProvider } from "@material-ui/styles";
+import React from 'react';
+import MaterialTable from 'material-table'
+import Mtable from '@customComponent/Mtable'; 
 
-import orange from "@material-ui/core/colors/orange";
+export default function BulkEdit() {
+  const { useState } = React;
 
-const useStyles = makeStyles(theme => {
-  console.log(theme);
-
-  return {
-    root: {
-      color: theme.status.danger,
-      "&$checked": {
-        color: theme.status.danger
-      },
-      marginTop:200
+  const [columns, setColumns] = useState([
+    { 
+      field: 'key' ,
+      editable: 'never'
     },
-    checked: {}
-  };
-});
+    { 
+      field: 'surname',
+      render:rowData=> ':',
+      editable: 'never'
+     },
+    { 
+      field: 'value', 
+    },
+    
+  ]);
 
-let CustomCheckbox = props => {
-  const classes = useStyles();
-  console.log(classes);
+  const [data, setData] = useState([
+    { 
+      key:'User Name',
+      value:'Mizan',
+    },
+    { 
+      key:'Email',
+      value:'Mizan@mail.com',
+    },
+    { 
+      key:'FB id',
+      value:'fb.com/mizan'
+    },
+  ]);
+  const handleBulkUpdate = (changes) => (
+
+    new Promise((resolve,reject)=>{
+     
+    console.log({changes})
+        const updatedData = ratings.map((item,index)=>(
+            Object.keys(changes).includes(index.toString()) ? 
+                changes[index].newData
+                :
+                item
+        ))
+      
+        dispatch(addRatingToState(updatedData,team))
+        resolve();
+
+    })
+)
+
   return (
-    <Checkbox
-      defaultChecked
-      classes={{
-        root: classes.root,
-        checked: classes.checked
-      }}
-    />
-  );
-};
-
-CustomCheckbox.propTypes = {
-  classes: PropTypes.object.isRequired
-};
-
-const theme = createMuiTheme({
-  status: {
-    // My business variables
-    danger: orange[500]
-  },
-  otherCustomVars: {
-    width: 90
-  }
-});
-
-function CustomStyles() {
-  return (
-    <ThemeProvider theme={theme}>
-      <CustomCheckbox />
-    </ThemeProvider>
-  );
+    <div>
+        <Mtable 
+            columns={columns}
+            data={data}
+            title='Ratings'
+            handleBulkUpdate={handleBulkUpdate}
+            header={{padding:'8px'}}
+            edit={true}
+            sorting={false}
+            
+        
+        />
+    </div>
+  )
 }
 
-export default CustomStyles;

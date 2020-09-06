@@ -20,7 +20,7 @@ export default function Sidebar({club}) {
     return (
         <div>
             <div>
-                <img src={`http://127.0.0.1:8000/images/logo/fcb.png`} />
+                <img src={club.logo} />
             </div>
 
             <div>
@@ -52,7 +52,7 @@ export default function Sidebar({club}) {
                 </div>
                 <div className={classes.prop}>
                     <h5>Owner Id</h5>
-                    <p>888-888-888</p>
+                    <p>{club.owner_id}</p>
                 </div>
                 <div className={classes.prop}>
                     <h5>Location</h5>

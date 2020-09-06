@@ -3,8 +3,9 @@ import MaterialTable,{MTableToolbar,MTableEditRow} from 'material-table'
 import { tableTheme } from "@assets/jss/material-dashboard-react.js";
 import { createMuiTheme,makeStyles,ThemeProvider  } from '@material-ui/core/styles';
 
-const theme1 = createMuiTheme({
-  overrides: {
+
+const theme1 = {
+  
     MuiTableSortLabel: {
       root: {
         color: '#fff',
@@ -23,20 +24,32 @@ const theme1 = createMuiTheme({
       },
     },
 
-  },
-});
-const theme2 = createMuiTheme({
-  overrides: {
+    // MuiTableCell:{
+    //   root:{
+    //     padding:'5px'
+    //   },
+    //   head:{
+    //     padding:'16px 5px'
+    //   }
+    // }
+
+}
+
+const theme2 = {
+
     MuiTableRow:{
           root:{
             '&:hover':{
               background:'#454545 !important',
               color:'#FFFFE7 !important'
-            }
+            },
+            borderBottom:'none'
           }
     }
-  }
-});
+  
+};
+
+
 
 export default function Mtable(props) {
 
@@ -50,17 +63,24 @@ export default function Mtable(props) {
     const {pageSize = 10} = props;
 
     const headerStyle = {
-      ...header,
         background:'#0E1723',
         color:'#fff',
         fontWeight:'bold',
+        ...header,
     }
 
     const [editMode, setEditMode] = useState(edit)
 
+    const theme = createMuiTheme({
+      overrides:{
+        ...theme1,
+        ...(hoverable && theme2)
+      }
+    })
 
+console.log({theme})
     return (
-      <ThemeProvider theme={{...theme1,...(hoverable && theme2) }}>
+      <ThemeProvider theme={theme}>
         <MaterialTable
                 style={{ boxShadow: 'unset',background:'unset' }}
                 title={title}
@@ -84,10 +104,10 @@ export default function Mtable(props) {
                     //   if (index % 2) {
                     //       return {backgroundColor: "#f2f2f2"}
                     //   }
-                      rowStyle:(rowData, index) => ({
-                        "&:hover": { backgroundColor: "#red !important" }
-                        })
-                  // }
+                    rowStyle:{
+                      border:'none !important'
+                    }
+                      
                     
                 }}
 

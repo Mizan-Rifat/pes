@@ -38,6 +38,7 @@ export default function Stats() {
         {
             title:'MP',
             field: 'stats.match_played',
+       
            
         },
         {

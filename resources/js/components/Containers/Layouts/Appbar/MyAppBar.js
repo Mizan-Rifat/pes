@@ -14,7 +14,12 @@ import Messages from './Messages';
 import Notification from './Notification';
 import RenderMenu from './RenderMenu';
 import DesktopSection from './DesktopSection';
-import {Link} from 'react-router-dom'
+import {Link} from 'react-router-dom';
+import useScrollTrigger from '@material-ui/core/useScrollTrigger';
+import Slide from '@material-ui/core/Slide';
+import Navbar from './Navbar';
+
+
 
 const drawerWidth = 260;
 
@@ -44,8 +49,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function MAppBar({handleDrawerToggle,panel}) {
+export default function MAppBar(props) {
 
+  const {handleDrawerToggle,panel} = props
 
   const classes = useStyles();
 
@@ -57,77 +63,100 @@ export default function MAppBar({handleDrawerToggle,panel}) {
   };
 
   return (
-    <div >
-      <AppBar 
-        position="fixed"  
-        className={clsx({[classes.appBar] : panel == 'admin' })}
-        >
-
-        <Toolbar>
-
-            <Hidden smUp implementation="css">
-                <IconButton
-                    edge="start"
-                    className={classes.menuButton}
-                    color="inherit"
-                    aria-label="open drawer"
-                    onClick={handleDrawerToggle}
-                >
-                    <MenuIcon />
-                </IconButton>
-            </Hidden>
-
-
-            <Link to='/'>
-
-                <img src='/images/logo/pes.png' className={classes.logo}/>
-
-            </Link>
-
-
-          
-          <div className={classes.grow} />
-
-
-          <div className={classes.sectionDesktop}>
-
-              
-            <DesktopSection 
-                icon={<MailIcon />}
-                component={<Messages />}
-                count={4}
-            />
-            <DesktopSection 
-                icon={<NotificationsIcon />}
-                component={<Notification />}
-                count={4}
-            />
-
-
+    
             <div>
-                <IconButton
-                    edge="end"
-                    aria-label="account of current user"
-                    // aria-controls={menuId}
-                    aria-haspopup="true"
-                    onClick={handleProfileMenuOpen}
-                    color="inherit"
-                >
-                    <AccountCircle />
-                </IconButton>
+              <HideOnScroll {...props}>
+                  <AppBar 
+                    position="fixed"  
+                    className={clsx({[classes.appBar] : panel == 'admin' })}
+                    >
+
+                    <Toolbar>
+
+                        <Hidden smUp implementation="css">
+                            <IconButton
+                                edge="start"
+                                className={classes.menuButton}
+                                color="inherit"
+                                aria-label="open drawer"
+                                onClick={handleDrawerToggle}
+                            >
+                                <MenuIcon />
+                            </IconButton>
+                        </Hidden>
+
+
+                        <Link to='/'>
+
+                            <img src='/images/logo/pes.png' className={classes.logo}/>
+
+                        </Link>
+
+
+                      
+                      <div className={classes.grow} />
+
+
+                      <div className={classes.sectionDesktop}>
+
+                          
+                        <DesktopSection 
+                            icon={<MailIcon />}
+                            component={<Messages />}
+                            count={4}
+                        />
+                        <DesktopSection 
+                            icon={<NotificationsIcon />}
+                            component={<Notification />}
+                            count={4}
+                        />
+
+
+                        <div>
+                            <IconButton
+                                edge="end"
+                                aria-label="account of current user"
+                                // aria-controls={menuId}
+                                aria-haspopup="true"
+                                onClick={handleProfileMenuOpen}
+                                color="inherit"
+                            >
+                                <AccountCircle />
+                            </IconButton>
+                        </div>
+
+
+                    </div>
+                    </Toolbar>
+
+
+                    {
+                      panel == 'user' && <Navbar />
+                    }
+
+                        
+                  </AppBar>
+
+                  </HideOnScroll>
+
+              <RenderMenu anchorEl={anchorEl} setAnchorEl={setAnchorEl} panel={panel} />
             </div>
+  );
+}
 
+function HideOnScroll(props) {
+  const { children, window } = props;
+  // Note that you normally won't need to set the window ref as useScrollTrigger
+  // will default to window.
+  // This is only being set here because the demo is in an iframe.
+  const trigger = useScrollTrigger();
+  // const trigger = useScrollTrigger({ target: window ? window() : undefined });
 
-        </div>
+  console.log({trigger})
 
-
-          
-        </Toolbar>
-      </AppBar>
-
-      <RenderMenu anchorEl={anchorEl} setAnchorEl={setAnchorEl} panel={panel} />
-
-
-    </div>
+  return (
+    <Slide appear={false} direction="down" in={!trigger}>
+      {children}
+    </Slide>
   );
 }

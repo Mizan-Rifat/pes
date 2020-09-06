@@ -22,6 +22,8 @@ import {useSelector,useDispatch} from 'react-redux';
 import { fetchAllTournaments } from '@actions/tournamentsAction';
 import MAppBar from '../Admin/Appbar/MAppBar';
 import MyAppBar from '../Appbar/MyAppBar';
+import { fetchSessionUser } from '../../../Redux/actions/SessionAction';
+import Progress from '@customComponent/Progress';
 
 
 
@@ -57,6 +59,7 @@ const useStyles = makeStyles((theme) => ({
   content: {
     // flexGrow: 1,
     // padding: theme.spacing(1),
+    marginTop:'96px'
   },
 }));
 
@@ -66,7 +69,9 @@ export default function MainLayout(props) {
   const theme = useTheme();
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
-  const {tournaments,fetchLoading} = useSelector(state=>state.tournaments)
+  const {tournaments,fetchLoading:tournamentLoading} = useSelector(state=>state.tournaments)
+  const {user,fetching:userFetching} = useSelector(state=> state.session)
+
   const dispatch = useDispatch();
 
   const handleDrawerToggle = () => {
@@ -104,18 +109,29 @@ export default function MainLayout(props) {
     if(Object.entries(tournaments).length == 0){
       dispatch(fetchAllTournaments())
     }
+    if(Object.entries(user).length == 0){
+      dispatch(fetchSessionUser())
+    }
   }, [])
 
   return (
+
+    tournamentLoading || userFetching ? 
+    
+    <Progress />
+    
+    :
+
+
     <div className={classes.root}>
       <CssBaseline />
-<div>
+    <div>
       {/* <Appbar  
         drawerOpen={drawerOpen} 
         setDrawerOpen={setDrawerOpen} 
       /> */}
       <MyAppBar handleDrawerToggle={handleDrawerToggle} panel='user' />
-      <Navbar />
+      {/* <Navbar /> */}
      </div>
       
       <nav className={classes.drawer} aria-label="mailbox folders">
@@ -150,7 +166,6 @@ export default function MainLayout(props) {
         </Hidden> */}
       </nav>
       <main className={classes.content}>
-        <div className={classes.toolbar}>sdfsdfds</div>
         {props.children}
       </main>
     </div>

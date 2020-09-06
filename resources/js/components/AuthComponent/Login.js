@@ -3,7 +3,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import EmailIcon from '@material-ui/icons/Email';
 import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import Auth from './Auth';
-import { loginUser } from '../Redux/actions/SessionAction';
+import { loginUser, loginAdmin } from '../Redux/actions/SessionAction';
 import AuthForm from './AuthForm'
 
 const useStyles = makeStyles(theme=>({
@@ -12,7 +12,7 @@ const useStyles = makeStyles(theme=>({
 }))
 
 
-export default function Login() {
+export default function Login(props) {
 
     const [formData, setFormData] = useState({
         email: "",
@@ -44,8 +44,9 @@ export default function Login() {
             formData={formData}
             setFormData={setFormData}
             inputFields={inputFields}
-            submitMethod={loginUser}
+            submitMethod={ props.panel ==  'admin' ? loginAdmin : loginUser}
             label='Login'
+            panel={props.panel}
         />
     )
 
@@ -55,6 +56,7 @@ export default function Login() {
         <Auth 
             form={registrationForm}
             type='login'
+            panel={props.panel}
         />
     )
 }

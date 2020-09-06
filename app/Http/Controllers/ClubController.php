@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ClubResource;
 use App\Http\Resources\PlayerResource;
+use App\Model\ClubModel;
+use App\Repositories\ClubModelRepository;
 use App\Repositories\ClubRepository;
 use Illuminate\Http\Request;
 
@@ -11,9 +13,11 @@ class ClubController extends Controller
 {
 
     protected $clubRepo;
+    protected $clubModelRepo;
 
-    public function __construct(ClubRepository $clubRepo) {
+    public function __construct(ClubRepository $clubRepo,ClubModelRepository $clubModelRepo) {
         $this->clubRepo = $clubRepo;
+        $this->clubModelRepo = $clubModelRepo;
     }
 
     public function index(){
@@ -72,6 +76,19 @@ class ClubController extends Controller
         return ClubResource::collection($this->clubRepo->search($request));
     }
 
+    public function searchModel(Request $request){
+
+        $data =$this->clubModelRepo->search($request);
+        
+       
+        return response()->json([
+            'data' => $data->map(function($item){
+                $item->logo = asset('/images/teams/'.sprintf("%06d",$item->model_id).'.png');
+                return $item;
+            }),
+        ]);
+    }
+
     public function addPlayerToClub(Request $request){
         $player = $this->clubRepo->addPlayerToSquad($request);
 
@@ -93,5 +110,22 @@ class ClubController extends Controller
                     'message' => 'Player(s) not removed.',
                 ],500);
             }
+    }
+
+    public function getAllModels(){
+        return ClubModel::all();
+    }
+
+    public function update(Request $request){
+        $club = $this->clubRepo->updateClub($request);
+       
+        return response()->json([
+            'message' => 'Updated Successfully.',
+            'data'=> new ClubResource($club)
+        ],200);
+    }
+
+    public function create(Request $request){
+        return $this->clubRepo->createClub($request);
     }
 }

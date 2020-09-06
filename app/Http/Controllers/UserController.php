@@ -6,6 +6,7 @@ use App\Http\Resources\UserResource;
 use App\Repositories\UserRepository;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -22,6 +23,13 @@ class UserController extends Controller
         return UserResource::collection($users);
     }
 
+    public function getCurrentUser(){
+        // return Auth::id();
+        $user = $this->userRepo->with('club.players')->findOrFail(Auth::id());
+        return new UserResource($user);
+    
+    }
+    
     public function getUser($id){
         $user = $this->userRepo->with('club.players')->findOrFail($id);
         return new UserResource($user);
@@ -29,14 +37,15 @@ class UserController extends Controller
 
     public function update(Request $request){
 
-        $user = $this->userRepo->updateUsers($request);
+        $user = $this->userRepo->updateUser($request);
 
         return response()->json([
             'message'=>'Update Successfull',
-            'user'=>new UserResource($user)
+            'data'=>new UserResource($user)
         ],200);
         
     }
+
 
     public function destroy(Request $request){
 
@@ -68,6 +77,17 @@ class UserController extends Controller
         $users = $this->userRepo->searchUser($request->get('query'));
 
         return UserResource::collection($users);
+    }
+
+    public function getTeamsLogo(){
+        $path = public_path('/images/teams');
+        $files = scandir($path);
+        
+        array_splice($files, 0, 2);
+
+        return collect($files)->map(function($item){
+            return asset('/images/teams/'.$item);
+        });
     }
 
   

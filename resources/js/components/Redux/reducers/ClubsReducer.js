@@ -1,10 +1,14 @@
 const initState = {
-    loading:true,
-    squadLoading:true,
+    loading:false,
+    fetching:true,
     allClubs:[],
     clubs:[],//tournament_clubs
-    club:{},
-    error:{},
+    club:{},//current club
+    error:{
+        message:'',
+        errors:{},
+        errorCode:''
+    },
     success:''
 };
 
@@ -15,29 +19,28 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 allClubs:action.payload,
-                loading:false
+                fetching:false
             }
         case 'ALL_CLUB_FETCHED_ERROR':
             
             return {
                 ...state,
                 error:action.payload,
-                loading:false
+                fetching:false
             }
         case 'TOURNAMENT_CLUBS_FETCHED':
             
             return {
                 ...state,
                 clubs:action.payload,
-                loading:false
+                fetching:false
             }
         case 'CLUB_FETCHED':
             
             return {
                 ...state,
                 club:action.payload,
-                loading:false,
-                squadLoading:false,
+                fetching:false,
             }
         case 'CLUB_ADDED_IN_TOURNAMENT':
             
@@ -63,7 +66,7 @@ export default (state=initState,action)=>{
                     ...state.club,
                     players:state.club.players.filter(player => !action.payload.includes(player.id)),
                 },
-                squadLoading:false
+                loading:false
             }
         case 'PLAYER_ADDED_IN_CLUB':
             
@@ -75,24 +78,28 @@ export default (state=initState,action)=>{
                         ...state.club.players,action.payload
                     ]
                 },
-                squadLoading:false
+                loading:false
             }
-        case 'UPDATE_CLUB':
+        case 'CLUB_UPDATED':
             
             return {
                 ...state,
                 loading:false,
-                allClubs:[],
-                clubs:state.clubs.map(club=>(
-                    club.id === action.payload.club.id ? action.payload.club : user 
-                ))
+                club:action.payload
+            }
+        case 'CLUB_CREATED':
+            
+            return {
+                ...state,
+                loading:false,
+                club:action.payload
             }
 
         case 'PLAYER_UPDATED':
             
             return {
                 ...state,
-                squadLoading:false,
+                loading:false,
                 club:{
                     ...state.club,
                     players:state.club.players.map(player => player.id === action.payload.id ? action.payload : player),
@@ -119,23 +126,24 @@ export default (state=initState,action)=>{
                 ...state,
                 loading:false
             }
-        case 'CLUB_SQUAD_LOADING_TRUE':
+        case 'CLUB_FETCHING_TRUE':
             
             return {
                 ...state,
-                squadLoading:true
+                fetching:true
             }
-        case 'CLUB_SQUAD_LOADING_FALSE':
+        case 'CLUB_FETCHING_FALSE':
             
             return {
                 ...state,
-                squadLoading:false
+                fetching:false
             }
-        case 'SET_ERRORS':
+        case 'SET_CLUB_ERRORS':
             
             return {
                 ...state,
                 loading:false,
+                fetching:false,
                 error:action.payload
             }
     

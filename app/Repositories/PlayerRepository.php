@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Model\Player;
 use App\Repositories\Traits\BaseRepository;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class PlayerRepository
@@ -17,11 +18,14 @@ class PlayerRepository
     }
 
     public function update($request){
+
+        $club_id = Auth::user()->club->id;
+
         $validatedData = $request->validate([
+            'club_id'=>['required','integer','in:'.$club_id],
             'id'=>['required','integer'],
-            'club_id'=>['required','integer','exists:clubs,id'],
-            'jersey' => ['integer',Rule::unique('players')->where(function ($query) use($request){
-                return $query->where('club_id', $request['club_id']);
+            'jersey' => ['integer',Rule::unique('players')->where(function ($query) use($club_id){
+                return $query->where('club_id', $club_id);
             })],
         ]);
 

@@ -72,7 +72,7 @@ export default function ResultDetails(props) {
                         :
 
                         <Container>
-                            <div  style={{marginTop:'60px'}}>
+                            <div  style={{marginTop:'120px',marginBottom:'25px'}}>
                                 <Teams 
                                     fixtureDetails = {resultDetails.fixture} 
                                 />

@@ -1,61 +1,59 @@
-import React, { useState } from 'react';
-import MaterialTable,{MTableToolbar,MTableEditRow} from 'material-table'
-import {Button,Grid} from '@material-ui/core';
-import { createMuiTheme } from "@material-ui/core/styles";
-import { makeStyles, ThemeProvider } from "@material-ui/styles";
-import { useTheme } from '@material-ui/core/styles';
-import { purple,pink,red } from '@material-ui/core/colors';
+import React from 'react';
+import Switch from '@material-ui/core/Switch';
+import Paper from '@material-ui/core/Paper';
+import Slide from '@material-ui/core/Slide';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { makeStyles } from '@material-ui/core/styles';
 
-
-const useStyles = makeStyles(theme=>{
-console.log({theme})
-  
-return {
-  root:{
-      height:'100px',
-      width:'100px',
-      margin:'100px',
-      background:'red'
+const useStyles = makeStyles((theme) => ({
+  root: {
+    height: 300,
+    margin:10,
+    border:'1px solid',
+    overflow:'hidden',
   },
-}
-  
-});
-
-const theme = createMuiTheme({
-  palette: {
-    // type:'dark',
-    primary: {
-      light: pink[900],
-      main: purple[900],
-      dark: red[900],
-      contrastText: '#fff',
-    },
-    secondary: {
-      light: '#ff7961',
-      main: '#f44336',
-      dark: '#ba000d',
-      contrastText: '#000',
-    },
-    // type:'dark'
+  wrapper: {
+    width: 100 + theme.spacing(2),
   },
-});
+  paper: {
+    zIndex: 1,
+    position: 'relative',
+    margin: theme.spacing(1),
+  },
+  svg: {
+    width: 100,
+    height: 100,
+  },
+  polygon: {
+    fill: theme.palette.common.white,
+    stroke: theme.palette.divider,
+    strokeWidth: 1,
+  },
+}));
 
-
-export default function DetailPanelWithRowClick() {
-
-        return (
-          <ThemeProvider theme={theme}>
-            <Comp />
-          </ThemeProvider>
-        )
-}
-      
-function Comp(){
+export default function SimpleSlide() {
   const classes = useStyles();
+  const [checked, setChecked] = React.useState(false);
+
+  const handleChange = () => {
+    setChecked((prev) => !prev);
+  };
 
   return (
-      <div className={classes.root}>
-          <Button color='primary' variant='contained'>asd</Button>
+    <div className={classes.root}>
+      <div className={classes.wrapper}>
+        <FormControlLabel
+          control={<Switch checked={checked} onChange={handleChange} />}
+          label="Show"
+        />
+        <Slide appear={true} direction="up" in={checked} mountOnEnter>
+          <Paper elevation={4} className={classes.paper}>
+            <svg className={classes.svg}>
+              <polygon points="0,100 50,00, 100,100" className={classes.polygon} />
+            </svg>
+          </Paper>
+        </Slide>
       </div>
-  )
+    </div>
+  );
 }

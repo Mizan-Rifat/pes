@@ -2,21 +2,28 @@ import React, { useState } from 'react'
 import  Mtable  from '@customComponent/Mtable'
 import { Team1 } from '@customComponent/Team';
 import SearchComp from '@customComponent/SearchComp';
+import {ListGroupItem1} from '@customComponent/ListGroupItem';
 import Notify from '@customComponent/Notify';
 import { useSelector,useDispatch } from 'react-redux';
-import { addPlayerInClub, removePlayerFromClub, updatePlayersOfSquad } from '../../Redux/actions/clubsAction';
+import { addPlayerInClub, removePlayerFromClub, updatePlayersOfSquad, testAction } from '../../Redux/actions/clubsAction';
 import Title from '@customComponent/Title';
+import useTableActions from '../../CustomComponent/useTableActions';
 
 
 
 export default function SquadList() {
 
+    const {club,loading} = useSelector(state=>state.clubs)
 
-    const {club,squadLoading:loading} = useSelector(state=>state.clubs)
-    const dispatch = useDispatch() 
+    const tabelActions = {
+        add:testAction,
+        update:updatePlayersOfSquad,
+        delete:removePlayerFromClub,
+    }
 
-    const toast = Notify();
-console.log({club})
+
+    const {handleAddRow,handleUpdateRow,handleDeleteRow} = useTableActions(tabelActions)
+
     const [columns, setcolmuns] = useState([
         {
             title:'#',
@@ -33,7 +40,8 @@ console.log({club})
             title:'Player',
             field:'name',
             width:'60%',
-            render:rowData => <Team1 logo={rowData.image} name={rowData.name} panel='admin' imageStyle={{height:'40px'}} />,
+            render:rowData => <ListGroupItem1 image={rowData.image} label={rowData.name} panel='admin' />,
+            // render:rowData => <Team1 logo={rowData.image} name={rowData.name} panel='admin' imageStyle={{height:'50px'}} />,
             editable: 'onAdd',
             editComponent: props => <SearchComp searchurl='/api/players/search' props={props} label='players'/>
         },
@@ -51,58 +59,22 @@ console.log({club})
     ])
 
 
-    const handleAddRow = (newData) => (
-
-        new Promise((resolve,reject)=>{
-          
-            dispatch(addPlayerInClub(newData,club.id))
-
-            .then(response=>{
-                toast(response,'success')
-                resolve();
-            }).catch(error=>{
-                Object.keys(error).map(err=>{
-                    toast(error[err],'error')
-                })
-                reject();
-            })
+    const handleAdd = (newData) => handleAddRow({
+        playermodel_id:newData.name,
+        jersey:newData.jersey,
+        club_id:club.id
+    })
+    const handleUpdate = (newData) => handleUpdateRow({
+        id:newData.id,
+        jersey:newData.jersey,
+        club_id:club.id
+    })
+   
+    const handleDelete = (oldData) => handleDeleteRow({
+            club_id:club.id,
+            player_ids:[oldData.id]
         })
-    )
-
-    const handleUpdateRow = (newData) => (
-
-        new Promise((resolve,reject)=>{
-            
-            dispatch(updatePlayersOfSquad(newData,club.id))
-            .then(response=>{
-                toast(response,'success')
-                resolve();
-            }).catch(error=>{
-               
-                Object.keys(error).map(err=>{
-                    toast(error[err],'error')
-                })
-                reject();
-            })
-        })
-    )
-
-    const handleDeleteRow = (oldData) => (
-        new Promise((resolve, reject) => {
-                            
-            dispatch(removePlayerFromClub(club.id,[oldData.id]))
-            .then(response=>{
-                toast(response,'success')
-                resolve()
-            }).catch(error=>{
-                Object.keys(error).map(err=>{
-                    toast(error[err],'error')
-                })
-                resolve()
-            })
-
-        })
-    )
+ 
 
     return (
         <>
@@ -115,9 +87,9 @@ console.log({club})
                 search={false}
                 // sorting={false}
                 loading={loading}
-                handleAddRow={handleAddRow}
-                handleUpdateRow={handleUpdateRow}
-                handleDeleteRow={handleDeleteRow}
+                handleAddRow={handleAdd}
+                handleUpdateRow={handleUpdate}
+                handleDeleteRow={handleDelete}
                 
             />
         </>

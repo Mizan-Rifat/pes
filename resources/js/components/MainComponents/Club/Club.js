@@ -8,21 +8,22 @@ import Progress from '../../CustomComponent/Progress';
 
 export default function Club(props) {
 
-    const {club,squadLoading:loading} = useSelector(state => state.clubs);
+    const {club,fetching} = useSelector(state => state.clubs);
     const dispatch = useDispatch()
 
     const slug=props.match.params.slug
 
     useEffect(() => {
-        console.log(props.match.params.slug)
-        dispatch(fetchClub(slug))
-    }, [])
+        if(club.length != 0 && club.slug != slug){
+            dispatch(fetchClub(slug))
+        }
+    }, [slug])
 
 
     return (
         <Container>
             {
-                loading ? 
+                fetching ? 
 
                     <Progress size={30} />
                 
