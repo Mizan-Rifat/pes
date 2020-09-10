@@ -42,14 +42,9 @@ export default function AddResult(props) {
 
     const match_id = props.match.params.match_id
 
-    const {fixture,events,ratings,loading,fetching} = useSelector(state => state.addResult)
+    const {fixture,events,ratings,eventsImages,ratings1Images,ratings2Images,loading,fetching} = useSelector(state => state.addResult)
     const {user} = useSelector(state => state.session)
     const dispatch = useDispatch();
-
-    const [eventsImages, setEventsImages] = useState([])
-    const [ratings1Images, setRatings1Images] = useState([])
-    const [ratings2Images, setRatings2Images] = useState([])
-
 
     const handleSubmitResult = ()=>{
 
@@ -167,7 +162,7 @@ console.log(fixture.completed)
                                     }
                                     <ImageUpload 
                                         buttonText='Upload Event images'
-                                        setImage={setEventsImages}
+                                        label='eventsImages'
                                     />
                                     {
                                         fixture.team2_id != user.id &&
@@ -184,11 +179,11 @@ console.log(fixture.completed)
                                     }
                                     <ImageUpload 
                                         buttonText='Upload team1 ratings images'
-                                        setImage={setRatings1Images}
+                                        label='ratings1Images'
                                     />
                                     <ImageUpload 
                                         buttonText='Upload team2 ratings images'
-                                        setImage={setRatings2Images}
+                                        label='ratings2Images'
                                     />
 
                                     <div className='text-center py-5'>

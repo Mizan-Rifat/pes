@@ -3,7 +3,7 @@ import Mtable from '@customComponent/Mtable';
 import {makeStyles, TextField} from '@material-ui/core';
 import { MTableToolbar } from 'material-table';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeEventFromState, addTeam1EventToState, addTeam2EventToState } from '../../Redux/actions/resultAddAction';
+import { removeEventFromState, addTeam1EventToState, addTeam2EventToState, addEventToState } from '../../Redux/actions/resultAddAction';
 import Notify from '@customComponent/Notify';
 import { editableEventsTableColumns } from '../../CData/table';
 
@@ -72,11 +72,13 @@ export default function EventTable({players,club_id,events,loading,team}) {
                 assist_player_id:newData.hasOwnProperty('assist_player_id') ? newData.assist_player_id : null 
             }
 
-            if(team == 1){
-                dispatch(addTeam1EventToState(data))
-            }else{
-                dispatch(addTeam2EventToState(data))
-            }
+            dispatch(addEventToState(data,`team${team}`));
+
+            // if(team == 1){
+            //     dispatch(addTeam1EventToState(data))
+            // }else{
+            //     dispatch(addTeam2EventToState(data))
+            // }
             
             resolve()
          

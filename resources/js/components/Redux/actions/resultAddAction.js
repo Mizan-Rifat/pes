@@ -23,6 +23,18 @@ export const fetchingFalse = () =>{
     }
 }
 
+export const addEventToState = (event,label) =>{
+    return {
+        type:'ADD_EVENT_TO_STATE',
+        payload:{event,label}
+    }
+}
+export const eventUpdated = (event) =>{
+    return {
+        type:'EVENT_UPDATED',
+        payload:event
+    }
+}
 export const addTeam1EventToState = (event) =>{
     return {
         type:'ADD_TEAM1_EVENT_TO_STATE',
@@ -68,6 +80,13 @@ export const resetAddResult = () =>{
         
     }
 }
+export const addImages = (label,images) =>{
+    return {
+        type:'SET_IMAGES',
+        payload:{label,images}
+    }
+}
+
 export const setErrors = (error) =>{
     return {
         type:'SET_ADD_RESULT_ERRORS',
@@ -134,6 +153,7 @@ export const addRating = (data,key) => (dispatch) =>(
     })
 );
 
+
 export const addMatchResult = (data,config) => (dispatch) => {
     
     const url ='/api/result/add',
@@ -144,5 +164,27 @@ export const addMatchResult = (data,config) => (dispatch) => {
     }
     return postAction(actions,url,data,dispatch,config);
 }
+export const updateEvent = (data) => (dispatch) => {
+    
+    const url ='/api/result/update/event',
+    actions={
+        loading:loadingTrue,
+        success:eventUpdated,
+        error:setErrors
+    }
+    return postAction(actions,url,data,dispatch);
+}
+export const addEvent = (data) => (dispatch) => {
+    
+    const url ='/api/result/update/event',
+    actions={
+        loading:loadingTrue,
+        success:eventUpdated,
+        error:setErrors
+    }
+    return postAction(actions,url,data,dispatch);
+}
 
-
+export const eventAdded = (data) => (dispatch) => {
+    
+}

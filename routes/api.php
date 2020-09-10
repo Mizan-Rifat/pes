@@ -135,11 +135,12 @@ Route::get('/clubmodels','ClubController@getAllModels');
 Route::get('/result','ResultController@getResultDetails');  // ?id return:single match details
 Route::get('/result/submitted','ResultController@getSubmittedResultDetails');  // ?id return:single match details
 
-Route::post('/result/update/event','ResultController@matchEventUpdate'); 
+Route::post('/result/update/event','ResultController@updateMatchEvent'); 
+Route::post('/result/add/event','ResultController@addMatchEvent'); 
 Route::post('/result/delete/event','ResultController@deleteMatchEvent'); 
 
 Route::post('/result/delete/rating','ResultController@deleteMatchRating'); 
-Route::post('/result/add/event','ResultController@addMatchEvent'); 
+
 Route::post('/result/add/rating','ResultController@addMatchRating'); 
 Route::post('/result/add','ResultController@addMatchResult'); 
 

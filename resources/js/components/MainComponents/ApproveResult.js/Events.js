@@ -7,6 +7,7 @@ import useTableActions from '@customComponent/useTableActions';
 import Mtable from '@customComponent/Mtable';
 import { eventsTableColumns } from '../../CData/table';
 import { MTableToolbar } from 'material-table';
+import { updateEvent } from '../../Redux/actions/resultAddAction';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -57,27 +58,31 @@ function EventTable({events}){
     const columns = eventsTableColumns();
 
     const tabelActions = {
-        update:updatePlayersOfSquad,
-        delete:removePlayerFromClub,
+        update:updateEvent,
+        // delete:removePlayerFromClub,
     }
 
     const {handleAddRow,handleUpdateRow,handleDeleteRow} = useTableActions(tabelActions)
 
-    const handleAdd = (newData) => handleAddRow({
-        playermodel_id:newData.name,
-        jersey:newData.jersey,
-        club_id:club.id
-    })
+    // const handleAdd = (newData) => handleAddRow({
+    //     playermodel_id:newData.name,
+    //     jersey:newData.jersey,
+    //     club_id:club.id
+    // })
     const handleUpdate = (newData) => handleUpdateRow({
-        id:newData.id,
-        jersey:newData.jersey,
-        club_id:club.id
+        assist_player_id: newData.assist_player_id,
+        club_id: newData.club_id,
+        event_id: newData.event_id,
+        fixture_id: newData.fixture_id,
+        id: newData.id,
+        minute: newData.minute,
+        player_id: newData.player_id
     })
    
-    const handleDelete = (oldData) => handleDeleteRow({
-            club_id:club.id,
-            player_ids:[oldData.id]
-        })
+    // const handleDelete = (oldData) => handleDeleteRow({
+    //         club_id:club.id,
+    //         player_ids:[oldData.id]
+    //     })
 
     return(
         <Mtable 
@@ -88,7 +93,7 @@ function EventTable({events}){
                 headerLess ={true}
                 editable={true}
                 handleUpdateRow={handleUpdate}
-                handleDeleteRow={handleDelete}
+                // handleDeleteRow={handleDelete}
 
                 
             />

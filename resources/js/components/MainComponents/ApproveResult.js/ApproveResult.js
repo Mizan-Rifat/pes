@@ -32,8 +32,17 @@ export default function ApproveResult(props) {
 
     const {
         fetching,
-        submittedResult,
-        error
+        // submittedResult,
+        error,
+        fixture,
+        events,
+        ratings,
+        event_images_sub_by_team1,
+        event_images_sub_by_team2,
+        team1_ratings_images_sub_by_team1,
+        team1_ratings_images_sub_by_team2,
+        team2_ratings_images_sub_by_team1,
+        team2_ratings_images_sub_by_team2,
     } = useSelector(state=>state.addResult)
 
 
@@ -74,51 +83,51 @@ export default function ApproveResult(props) {
                         <Container>
                             <div  style={{marginTop:'120px',marginBottom:'25px'}}>
                                 <Teams 
-                                    fixtureDetails = {submittedResult.fixture} 
+                                    fixtureDetails = {fixture} 
                                     panel='vs'
                                 />
                             </div>
                             <Container>
                                 <Events 
-                                    team1_events={submittedResult.team1_events} 
-                                    team2_events={submittedResult.team2_events} 
+                                    team1_events={events.team1} 
+                                    team2_events={events.team2} 
                                 />
 
                                 <ImageBox 
-                                    title={`Events (sumitted by ${submittedResult.fixture.team1_details.name})`}
-                                    images={submittedResult.event_images_sub_by_team1}
+                                    title={`Events (sumitted by ${fixture.team1_details.name})`}
+                                    images={event_images_sub_by_team1}
                                 />
 
                                 <ImageBox 
-                                    title={`Events (sumitted by ${submittedResult.fixture.team2_details.name})`}
-                                    images={submittedResult.event_images_sub_by_team2}
+                                    title={`Events (sumitted by ${fixture.team2_details.name})`}
+                                    images={event_images_sub_by_team2}
                                 />
                                 
                                 <Ratings
-                                    team1_name={submittedResult.fixture.team1_details.name} 
-                                    team2_name={submittedResult.fixture.team2_details.name} 
-                                    team1_ratings = {submittedResult.team1_ratings}
-                                    team2_ratings = {submittedResult.team2_ratings}
+                                    team1_name={fixture.team1_details.name} 
+                                    team2_name={fixture.team2_details.name} 
+                                    team1_ratings = {ratings.team1}
+                                    team2_ratings = {ratings.team2}
                                 />
 
                                 <ImageBox 
-                                    title={`${submittedResult.fixture.team1_details.name} Ratings (sumitted by ${submittedResult.fixture.team1_details.name})`}
-                                    images={submittedResult.team1_ratings_images_sub_by_team1}
+                                    title={`${fixture.team1_details.name} Ratings (sumitted by ${fixture.team1_details.name})`}
+                                    images={team1_ratings_images_sub_by_team1}
                                 />
 
                                 <ImageBox 
-                                    title={`${submittedResult.fixture.team1_details.name} Ratings (sumitted by ${submittedResult.fixture.team2_details.name})`}
-                                    images={submittedResult.team1_ratings_images_sub_by_team2}
+                                    title={`${fixture.team1_details.name} Ratings (sumitted by ${fixture.team2_details.name})`}
+                                    images={team1_ratings_images_sub_by_team2}
                                 />
 
                                 <ImageBox 
-                                    title={`${submittedResult.fixture.team2_details.name} Ratings (sumitted by ${submittedResult.fixture.team1_details.name})`}
-                                    images={submittedResult.team2_ratings_images_sub_by_team1}
+                                    title={`${fixture.team2_details.name} Ratings (sumitted by ${fixture.team1_details.name})`}
+                                    images={team2_ratings_images_sub_by_team1}
                                 />
 
                                 <ImageBox 
-                                    title={`${submittedResult.fixture.team2_details.name} Ratings (sumitted by ${submittedResult.fixture.team2_details.name})`}
-                                    images={submittedResult.team2_ratings_images_sub_by_team2}
+                                    title={`${fixture.team2_details.name} Ratings (sumitted by ${fixture.team2_details.name})`}
+                                    images={team2_ratings_images_sub_by_team2}
                                 />
 
                                 <div className='text-center py-5'>
