@@ -2,6 +2,7 @@ import React from 'react';
 import {makeStyles} from '@material-ui/core';
 import dateFormat from "dateformat";
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -25,7 +26,10 @@ const useStyles = makeStyles(theme=>({
 export default function Versus({panel,data,vdb,adb}){
     const classes = useStyles();
 
-    const {team1_goals,team2_goals,date,round,leg} = data
+
+    const {user} = useSelector(state => state.session)
+
+    const {team1_goals,team2_goals,date,round,leg,team1_id,team2_id} = data
     return(
         <div className={classes.container}>
             {
@@ -51,10 +55,16 @@ export default function Versus({panel,data,vdb,adb}){
                     </Link>
             }
             {
-                adb && 
+                adb ?
+
+                    user.id == team1_id || user.id == team2_id ?
+                     
                     <Link to={`/addresult/${data.id}`} style={{display:'block'}}>
                         <small className={classes.small}>Add Result</small>
                     </Link>
+                    : ''
+
+                : ''
             }
         </div>
     )

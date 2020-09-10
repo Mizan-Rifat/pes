@@ -106,7 +106,11 @@ class ClubRepository
                 ->where('club_id',$validatedData['club_id'])
                 ->delete();
 
-        return $delete;
+        if($delete){
+            return $validatedData['player_ids'];
+        }
+
+        return [];
 
     }
 
@@ -150,20 +154,23 @@ class ClubRepository
             }],
             'name' => ['max:20','min:2',Rule::unique('clubs')->ignore($club)],
             // 'name' => ['max:20','min:2','unique:clubs,name,'.Auth::user()->club['name']],
-            'owner_id' => ['string'],
+            'owner_id' => [Rule::unique('clubs')->ignore($club),'regex:/^\d{3}-\d{3}-\d{3}$/'],
             'model_id'=>['numeric'],
 
         ]);
+        $validatedData['name'] = strtoupper($validatedData['name']);
+        $validatedData['slug'] = str_replace(' ','',(strtolower($validatedData['name'])));
+
 
         $club->update($validatedData);
 
-        return $club;
+        return $this->model->find($validatedData['id']);
     }
 
     public function createClub($request){
         $validatedData = $request->validate([
             'name' => ['required','max:20','min:2','unique:clubs,name,','regex:/[a-zA-Z][a-zA-Z ]+/'],
-            'owner_id' => ['required','string','regex:/^\d{3}-\d{3}-\d{3}$/'],
+            'owner_id' => ['required','string','regex:/^\d{3}-\d{3}-\d{3}$/','unique:clubs,owner_id'],
             'model_id'=>['required','numeric'],
         ]);
         $validatedData['name'] = strtoupper($validatedData['name']);

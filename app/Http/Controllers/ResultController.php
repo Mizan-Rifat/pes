@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\FixtureResource;
 use App\Http\Resources\MatchEventsResource;
+use App\Http\Resources\MatchImageResource;
 use App\Http\Resources\MatchRatingsResource;
 use App\Http\Resources\MatchResultDetailsResource;
 use App\Http\Resources\PlayerResource;
@@ -57,6 +59,101 @@ class ResultController extends Controller
                 'team2_events'=> MatchEventsResource::collection($team2_events),
                 'team1_ratings' => MatchRatingsResource::collection($fixture->ratings->where('club_id',$fixture->team1_id)),
                 'team2_ratings' => MatchRatingsResource::collection($fixture->ratings->where('club_id',$fixture->team2_id)),
+
+            ]
+        ]);
+    }
+
+    public function getSubmittedResultDetails(Request $request){
+
+        $vd = $request->validate([
+            'fixture_id' => ['required','numeric']
+        ]);
+        
+        $fixture = $this->fixtureRepo->with(['result',"events",'ratings','team1','team2','images'])->where('completed',2)->findOrFail($vd['fixture_id']);
+
+        $team1_events = $fixture->events
+            ->where('club_id',$fixture->team1_id);
+        
+        $team2_events = $fixture->events
+            ->where('club_id',$fixture->team2_id);
+        
+        $team1_ratings = $fixture->ratings
+            ->where('club_id',$fixture->team1_id);
+
+        $team2_ratings = $fixture->ratings
+            ->where('club_id',$fixture->team2_id);
+
+
+        if($request['admin']){
+            return $this->getResultDetailsForAdmin($fixture);
+        }
+
+        $request->merge(['playerDetails'=>1]);
+
+
+        $event_images_sub_by_team1 = $fixture->images
+            ->where('submitted_by',$fixture->team1_id)
+            ->where('field',1)
+            ->map(function($item){
+                return asset('images/events/'.$item->image);
+            })->values();
+
+        $event_images_sub_by_team2 = $fixture->images
+            ->where('submitted_by',$fixture->team2_id)
+            ->where('field',1)
+            ->map(function($item){
+                return asset('images/events/'.$item->image);
+            })->values();
+
+        $team1_ratings_images_sub_by_team1 = $fixture->images
+            ->where('submitted_by',$fixture->team1_id)
+            ->where('field',2)
+            ->map(function($item){
+                return asset('images/ratings/'.$item->image);
+            })->values();
+
+        $team1_ratings_images_sub_by_team2 = $fixture->images
+            ->where('submitted_by',$fixture->team2_id)
+            ->where('field',2)
+            ->map(function($item){
+                return asset('images/ratings/'.$item->image);
+            })->values();
+
+        $team2_ratings_images_sub_by_team1 = $fixture->images
+            ->where('submitted_by',$fixture->team1_id)
+            ->where('field',3)
+            ->map(function($item){
+                return asset('images/ratings/'.$item->image);
+            })->values();
+
+        $team2_ratings_images_sub_by_team2 = $fixture->images
+            ->where('submitted_by',$fixture->team2_id)
+            ->where('field',3)
+            ->map(function($item){
+                return asset('images/ratings/'.$item->image);
+            })->values();
+
+
+        return response()->json([
+            'data'=> [
+                'fixture' => new FixtureResource($fixture),
+                'team1_events'=> MatchEventsResource::collection($team1_events),
+                'team2_events'=> MatchEventsResource::collection($team2_events),
+                'team1_ratings' => MatchRatingsResource::collection($team1_ratings),
+                'team2_ratings' => MatchRatingsResource::collection($team2_ratings),
+
+                'event_images_sub_by_team1'=>$event_images_sub_by_team1,
+                'event_images_sub_by_team2'=>$event_images_sub_by_team2,
+
+                'team1_ratings_images_sub_by_team1'=>$team1_ratings_images_sub_by_team1,
+
+                'team1_ratings_images_sub_by_team2'=>$team1_ratings_images_sub_by_team2,
+
+                'team2_ratings_images_sub_by_team1'=>$team2_ratings_images_sub_by_team1,
+                
+                'team2_ratings_images_sub_by_team2'=>$team2_ratings_images_sub_by_team2,
+
 
             ]
         ]);
@@ -147,11 +244,19 @@ class ResultController extends Controller
 
     public function addMatchResult(Request $request){
 
-        $this->resultRepo->addMatchResult($request);
+       $this->resultRepo->addResultForApproval($request);
 
         return response()->json([
             'message'=>'Result Added Successfully.'
         ]);
 
+    }
+
+    public function approveResult(Request $request){
+        $this->resultRepo->approveResult($request);
+        
+        return response()->json([
+            'message'=>'Result Approved.'
+        ]);
     }
 }

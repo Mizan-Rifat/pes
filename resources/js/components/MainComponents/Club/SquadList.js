@@ -5,7 +5,7 @@ import SearchComp from '@customComponent/SearchComp';
 import {ListGroupItem1} from '@customComponent/ListGroupItem';
 import Notify from '@customComponent/Notify';
 import { useSelector,useDispatch } from 'react-redux';
-import { addPlayerInClub, removePlayerFromClub, updatePlayersOfSquad, testAction } from '../../Redux/actions/clubsAction';
+import { addPlayerInClub, removePlayerFromClub, updatePlayersOfSquad } from '../../Redux/actions/clubsAction';
 import Title from '@customComponent/Title';
 import useTableActions from '../../CustomComponent/useTableActions';
 
@@ -16,7 +16,7 @@ export default function SquadList() {
     const {club,loading} = useSelector(state=>state.clubs)
 
     const tabelActions = {
-        add:testAction,
+        add:addPlayerInClub,
         update:updatePlayersOfSquad,
         delete:removePlayerFromClub,
     }

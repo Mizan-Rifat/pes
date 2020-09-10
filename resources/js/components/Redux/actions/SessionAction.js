@@ -1,3 +1,4 @@
+import { getAction, postAction } from "./actions"
 
 export const fetchingTrue = () =>{
     return {
@@ -82,33 +83,30 @@ export const setSessionUserClub = (club) =>{
 }
 
 
+export const fetchSessionUser = () => (dispatch) =>{
+  
+    const url ='/api/user',
+    actions={
+        loading:fetchingTrue,
+        success:sessionUserFetched,
+        error:setErrors
+    }
+    return getAction(actions,url,dispatch);
+}
 
-export const fetchSessionUser = () => (dispatch) => (
 
-    new Promise((resolve,reject)=>{
+export const updateClubInfo = (data) => (dispatch) => {
+    console.log('ss')
+    const url ='/api/club/info/update',
+    actions={
+        loading:sessionLoadingTrue,
+        success:setSessionUserClub,
+        error:setErrors
+    }
+    return postAction(actions,url,data,dispatch);
+}
 
-        dispatch(fetchingTrue())
 
-        axios.get(`/api/user`)
-        .then(response=>{
-            console.log(response.data)
-            dispatch(sessionUserFetched(response.data.data))
-            resolve()
-            
-        })
-        .catch(error=>{
-            const err = {
-                errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
-                message:error.response.data.message,
-                errorCode:error.response.status
-            }
-
-            dispatch(setErrors(err))
-            reject(err);
-
-        })
-    })
-)
 export const fetchSessionAdmin = () => (dispatch) => (
 
     new Promise((resolve,reject)=>{
@@ -136,40 +134,51 @@ export const fetchSessionAdmin = () => (dispatch) => (
     })
 )
 
-export const loginUser = (formData) => (dispatch) => (
 
-    new Promise((resolve,reject)=>{
+export const loginUser = (formData) => (dispatch) => {
+  
+    const url ='/login'
+    const actions={
+        loading:sessionLoadingTrue,
+        success:userLoggedIn,
+        error:setErrors
+    }
+    const data = {
+        email:formData.email,
+        password:formData.password,
+        remember:formData.remember,
+    }
 
-        dispatch(fetchingTrue())
+    return postAction(actions,url,data,dispatch);
+}
+export const logoutUser = () => (dispatch) => {
+  
+    const url ='/logout'
+    const actions={
+        loading:fetchingTrue,
+        success:userLoggedOut,
+        error:setErrors
+    }
+    return postAction(actions,url,{},dispatch);
+}
+export const registerUser = (formData) => (dispatch) => {
+  
+    const url ='/register'
+    const actions={
+        loading:sessionLoadingTrue,
+        success:userRegistered,
+        error:setErrors
+    }
 
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/login`,{
-                email:formData.email,
-                password:formData.password,
-                remember:formData.remember,
-            },{
-                accept:'Application/Json'
-            })
-            .then(response=>{
-                dispatch(userLoggedIn(response.data))
-                console.log(response.data)
-                resolve();
-            }).catch(error=>{
+    const data = {
+        name:formData.name,
+        email:formData.email,
+        password:formData.password,
+        password_confirmation:formData.password_confirmation,
+    }
 
-                const err = {
-                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
-                    message:error.response.data.message,
-                    errorCode:error.response.status
-                }
-
-                dispatch(setErrors(err))
-
-                reject(err);
-
-            })
-        })
-    })
-)
+    return postAction(actions,url,data,dispatch);
+}
 
 export const loginAdmin = (formData) => (dispatch) => (
 
@@ -205,36 +214,7 @@ export const loginAdmin = (formData) => (dispatch) => (
         })
     })
 )
-export const logoutUser = () => (dispatch) => (
 
-    new Promise((resolve,reject)=>{
-
-        dispatch(fetchingTrue())
-
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/logout`,{},{
-                accept:'Application/Json'
-            })
-            .then(response=>{
-                dispatch(userLoggedOut())
-                console.log(response.data)
-                resolve();
-            }).catch(error=>{
-
-                const err = {
-                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
-                    message:error.response.data.message,
-                    errorCode:error.response.status
-                }
-
-                dispatch(setErrors(err))
-
-                reject(err);
-
-            })
-        })
-    })
-)
 export const logoutAdmin = () => (dispatch) => (
 
     new Promise((resolve,reject)=>{
@@ -266,55 +246,55 @@ export const logoutAdmin = () => (dispatch) => (
     })
 )
 
-export const registerUser = (formData) => (dispatch) => (
+// export const registerUser = (formData) => (dispatch) => (
 
-    new Promise((resolve,reject)=>{
+//     new Promise((resolve,reject)=>{
 
-        dispatch(loadingTrue())
+//         dispatch(loadingTrue())
 
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/register`,{
-                name:formData.name,
-                email:formData.email,
-                password:formData.password,
-                password_confirmation:formData.password_confirmation,
-            })
-            .then(response=>{
-                dispatch(userRegistered(response.data))
-                console.log(response.data)
-                resolve();
-            }).catch(error=>{
+//         axios.get('/sanctum/csrf-cookie').then(response => {
+//             axios.post(`/register`,{
+//                 name:formData.name,
+//                 email:formData.email,
+//                 password:formData.password,
+//                 password_confirmation:formData.password_confirmation,
+//             })
+//             .then(response=>{
+//                 dispatch(userRegistered(response.data))
+//                 console.log(response.data)
+//                 resolve();
+//             }).catch(error=>{
 
-                const err = {
-                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
-                    message:error.response.data.message,
-                    errorCode:error.response.status
-                }
+//                 const err = {
+//                     errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
+//                     message:error.response.data.message,
+//                     errorCode:error.response.status
+//                 }
 
-                dispatch(setErrors(err))
+//                 dispatch(setErrors(err))
 
-                reject(err)
+//                 reject(err)
 
-                // switch (error.response.status) {
-                //     case 406:
-                //         reject(error.response.data.message)
-                //         break;
-                //     case 422:
-                //         // console.log(error.response.data.errors)
-                //         reject(error.response.data.errors)
-                //         break;
-                //     case 500:
-                //         // console.log(error.response.data.message)
-                //         reject({msg:error.response.data.message})
-                //         break;
+//                 // switch (error.response.status) {
+//                 //     case 406:
+//                 //         reject(error.response.data.message)
+//                 //         break;
+//                 //     case 422:
+//                 //         // console.log(error.response.data.errors)
+//                 //         reject(error.response.data.errors)
+//                 //         break;
+//                 //     case 500:
+//                 //         // console.log(error.response.data.message)
+//                 //         reject({msg:error.response.data.message})
+//                 //         break;
                 
-                //     default:
-                //         reject()
-                //         break;
-                // }
+//                 //     default:
+//                 //         reject()
+//                 //         break;
+//                 // }
 
-            })
-        })
-    })
-)
+//             })
+//         })
+//     })
+// )
 

@@ -101,9 +101,10 @@ class ClubController extends Controller
     public function removePlayerFromClub(Request $request){
         $delete = $this->clubRepo->removePlayersFromClub($request);
 
-        if($delete){
+        if(!empty($delete)){
             return response()->json([
                 'message' => 'Player(s) removed successfully.',
+                'data'=>$delete
             ],200);
             }else{
                 return response()->json([
@@ -126,6 +127,11 @@ class ClubController extends Controller
     }
 
     public function create(Request $request){
-        return $this->clubRepo->createClub($request);
+        $club = $this->clubRepo->createClub($request);
+       
+        return response()->json([
+            'message' => 'Club Created',
+            'data'=> new ClubResource($club)
+        ],200);
     }
 }

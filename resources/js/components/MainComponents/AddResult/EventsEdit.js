@@ -12,8 +12,9 @@ export default function EventsEdit({team1_players,team2_players,team1_id,team2_i
                 <EventTable 
                     players={team1_players}
                     club_id={team1_id}
-                    events={events.filter(event=>event.club_id === team1_id)}
+                    events={events.team1}
                     loading={loading}
+                    team={1}
                 />
             </Grid>
 
@@ -21,8 +22,9 @@ export default function EventsEdit({team1_players,team2_players,team1_id,team2_i
                 <EventTable 
                     players={team2_players}
                     club_id={team2_id}
-                    events={events.filter(event=>event.club_id === team2_id)}
+                    events={events.team2}
                     loading={loading}
+                    team={2}
                     />
             </Grid>
         

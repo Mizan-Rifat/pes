@@ -7,8 +7,8 @@ import AdminLayout2 from './AdminLayout2'
 export default function Test() {
   return (
     <div>
-      {/* <Checkbox /> */}
-      <Ajax />
+      <Checkbox />
+      {/* <Ajax /> */}
       {/* <Bulk /> */}
       {/* <AdminLayout2 /> */}
 

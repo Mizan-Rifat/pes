@@ -1,3 +1,5 @@
+import { getAction,postAction } from "./actions"
+
 export const loadingTrue = () =>{
     return {
         type:'ADD_RESULT_LOADING_TRUE',
@@ -9,28 +11,34 @@ export const loadingFalse = () =>{
         type:'ADD_RESULT_LOADING_FALSE',
     }
 }
-export const submitLoadingTrue = () =>{
+export const fetchingTrue = () =>{
     return {
-        type:'ADD_RESULT_SUBMIT_LOADING_TRUE',
+        type:'ADD_RESULT_FETCHING_TRUE',
     }
 }
 
-export const submitLoadingFalse = () =>{
+export const fetchingFalse = () =>{
     return {
-        type:'ADD_RESULT_SUBMIT_LOADING_FALSE',
+        type:'ADD_RESULT_FETCHING_FALSE',
     }
 }
 
-export const addEventToState = (newData) =>{
+export const addTeam1EventToState = (event) =>{
     return {
-        type:'ADD_EVENT_TO_STATE',
-        payload:newData
+        type:'ADD_TEAM1_EVENT_TO_STATE',
+        payload:event
     }
 }
-export const removeEventFromState = (key) =>{
+export const addTeam2EventToState = (event) =>{
+    return {
+        type:'ADD_TEAM2_EVENT_TO_STATE',
+        payload:event
+    }
+}
+export const removeEventFromState = (team,id) =>{
     return {
         type:'REMOVE_EVENT_FROM_STATE',
-        payload:{key}
+        payload:{team,id}
     }
 }
 
@@ -48,37 +56,45 @@ export const fixtureDetailsFetched = (data) =>{
         payload:data
     }
 }
-
-
-export const fetchFixtureDetails = (fixture_id) => {
-    return (dispatch) => {
-        dispatch(loadingTrue())
-        axios.get(`/api/fixture?fixture_id=${fixture_id}&players=1`)
-        .then(response=>{
-
-            dispatch(fixtureDetailsFetched(response.data.data))
-            
-        })
-        .catch(error=>{
-            dispatch(loadingFalse())
-            switch (error.response.status) {
-                    case 422:
-                        console.log(error.response.data.errors)
-                        reject(error.response.data.errors)
-                        break;
-                    case 500:
-                        console.log(error.response.data.message)
-                        reject({msg:error.response.data.message})
-                        break;
-                
-                    default:
-                        break;
-                }
-
-        })
-    } 
+export const submittedResultFetched = (data) =>{
+    return {
+        type:'SUBMITTED_RESULT_FETCHED',
+        payload:data
+    }
+}
+export const resetAddResult = () =>{
+    return {
+        type:'ADD_RESULT_RESET',
+        
+    }
+}
+export const setErrors = (error) =>{
+    return {
+        type:'SET_ADD_RESULT_ERRORS',
+        payload:error
+    }
 }
 
+export const fetchFixtureDetails = (fixture_id) => (dispatch) =>{
+  
+    const url = `/api/fixture?fixture_id=${fixture_id}&players=1`,
+    actions={
+        loading:fetchingTrue,
+        success:fixtureDetailsFetched,
+        error:setErrors
+    }
+    return getAction(actions,url,dispatch);
+}
+export const fetchSubmittedResult = (fixture_id) => (dispatch) =>{
+  
+    const url = `http://127.0.0.1:8000/api/result/submitted?fixture_id=${fixture_id}`,
+    actions={
+        loading:fetchingTrue,
+        success:submittedResultFetched,
+        error:setErrors
+    }
+    return getAction(actions,url,dispatch);
+}
 
 
 export const addEvent = (data,key) => (dispatch) =>(
@@ -118,38 +134,15 @@ export const addRating = (data,key) => (dispatch) =>(
     })
 );
 
-
-export const addMatchResult = (data) => (dispatch) =>(
-
-    new Promise((resolve,reject)=>{
-
-        dispatch(submitLoadingTrue())
-        
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/api/result/add`,data)
-            .then(response=>{
-
-                dispatch(submitLoadingFalse())
-                resolve(response.data.message)
-
-            }).catch(error=>{
-                dispatch(submitLoadingFalse())
-                switch (error.response.status) {
-                    case 422:
-                        console.log(error.response.data.errors)
-                        reject(error.response.data.errors)
-                        break;
-                    case 500:
-                        console.log(error.response.data.message)
-                        reject({msg:error.response.data.message})
-                        break;
-                
-                    default:
-                        break;
-                }
-            })
-        })
-    })
-);
+export const addMatchResult = (data,config) => (dispatch) => {
+    
+    const url ='/api/result/add',
+    actions={
+        loading:loadingTrue,
+        success:loadingFalse,
+        error:setErrors
+    }
+    return postAction(actions,url,data,dispatch,config);
+}
 
 

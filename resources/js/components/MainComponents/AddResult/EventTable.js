@@ -3,8 +3,9 @@ import Mtable from '@customComponent/Mtable';
 import {makeStyles, TextField} from '@material-ui/core';
 import { MTableToolbar } from 'material-table';
 import { useDispatch, useSelector } from 'react-redux';
-import { addEventToState, removeEventFromState } from '../../Redux/actions/resultAddAction';
+import { removeEventFromState, addTeam1EventToState, addTeam2EventToState } from '../../Redux/actions/resultAddAction';
 import Notify from '@customComponent/Notify';
+import { editableEventsTableColumns } from '../../CData/table';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -24,79 +25,16 @@ const useStyles = makeStyles(theme=>({
     },
 }))
 
-export default function EventTable({players,club_id,events,loading}) {
+export default function EventTable({players,club_id,events,loading,team}) {
 
     const classes  = useStyles();
 
     const dispatch = useDispatch();
 
     const toast = Notify();
+
+    const columns = editableEventsTableColumns(players);
   
-
-    const playerLookup = (players) =>{
-        const obj = {};
-        players.map(player=>{
-            obj[player.id] = player.name
-        })
-        return obj;
-    }
-
-
-    const [columns,setColumns] = useState([
-        {
-            title:'Event',
-            field:'event_id',
-            lookup:{
-                1:'Goal',
-                2:'YC',
-                3:'RC',
-                4:'OG' 
-            },
-            
-
-            cellStyle:{
-                padding:'5px',
-                fontSize:'12px',
-                // textAlign:'center'
-            },
-            width:'50px',
-        },
-        {
-            title:'Player',
-            field:'player_id',
-            // field:'player.name',
-            lookup:playerLookup(players),
-            cellStyle:{
-                padding:'5px',
-                fontSize:'12px',
-                // textAlign:'center'
-            }
-        },
-        {
-            title:'Min',
-            field:'minute',
-            cellStyle:{
-                padding:'5px',
-                fontSize:'12px',
-                // textAlign:'center'
-            },
-            
-        },
-        {
-            title:'Assisted',
-            field:'assist_player_id',
-            lookup:{
-                0:'None',
-                ...playerLookup(players)
-            },
-            cellStyle:{
-                padding:'5px',
-                fontSize:'12px',
-                // textAlign:'center'
-                
-            }
-        },
-    ])
 
 
     const handleAddRow = (newData) => (
@@ -134,7 +72,12 @@ export default function EventTable({players,club_id,events,loading}) {
                 assist_player_id:newData.hasOwnProperty('assist_player_id') ? newData.assist_player_id : null 
             }
 
-            dispatch(addEventToState(data))
+            if(team == 1){
+                dispatch(addTeam1EventToState(data))
+            }else{
+                dispatch(addTeam2EventToState(data))
+            }
+            
             resolve()
          
         })
@@ -144,7 +87,7 @@ export default function EventTable({players,club_id,events,loading}) {
 
         new Promise((resolve,reject)=>{
             
-            dispatch(removeEventFromState(oldData.eventKey))
+            dispatch(removeEventFromState(team,oldData.tableData.id))
             resolve()
         })
 

@@ -10983,3 +10983,24 @@ p.p {
   }
 }
 
+.fileContainer {
+  background: unset !important;
+  box-shadow: unset !important;
+  display: block !important;
+  padding: 20px !important;
+}
+
+.uploadPictureContainer {
+  display: block !important;
+  width: 25% !important;
+  margin: 1% !important;
+  padding: 0 !important;
+}
+
+.deleteImage {
+  font-size: unset !important;
+  line-height: unset !important;
+  width: 19px !important;
+  height: 19px !important;
+}
+

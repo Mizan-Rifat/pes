@@ -27,8 +27,9 @@ export default (state=initState,action)=>{
                 ...state,
                 user:{
                     ...state.user,
-                    club:action.payload
+                    club:action.payload,
                 },
+                loading:false
             } 
         case 'SESSION_ADMIN_FETCHED':
             
@@ -43,6 +44,7 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 fetching:false,
+                loading:false
                 // user:action.payload
                
             }
@@ -51,6 +53,7 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 fetching:false,
+                loading:false,
                 admin:action.payload
                
             }
@@ -59,6 +62,7 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 fetching:false,
+                loading:false,
                 user:{}
                
             }
@@ -75,6 +79,7 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 loading:false,
+                fetching:false
                 // users:action.payload
                
             }

@@ -2,7 +2,7 @@ import React,{useState,useEffect} from 'react'
 import { Container, makeStyles,Button } from '@material-ui/core'
 import Events from './Events'
 import Ratings from './Ratings'
-import Teams from './Teams'
+import Teams from '@customComponent/Teams';
 import { fetchResultDetails } from '../../Redux/actions/resultActions'
 import { useSelector, useDispatch } from 'react-redux';
 import Progress from '@customComponent/Progress';

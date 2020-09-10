@@ -91,7 +91,7 @@ export const clubsDeleted = (ids) =>{
         payload:ids
     }
 }
-export const clubsCreated = (club) =>{
+export const clubCreated = (club) =>{
     return {
         type:'CLUB_CREATED',
         payload:club
@@ -225,92 +225,18 @@ export const addClubInTournament = (club_id,tournament_id) => (dispatch) =>(
         })
     })
 );
-export const createClub = (formData) => (dispatch) =>(
 
-    new Promise((resolve,reject)=>{
-        
-        dispatch(loadingTrue())
+export const addPlayerInClub = (newData) => (dispatch) =>{
 
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/api/club/create`,formData).then(response=>{
-                  
-                dispatch(clubCreated(response.data.data))
-                // dispatch(setSessionUserClub(response.data.data))
-                dispatch(loadingFalse())
-                resolve(response.data.message)
+    const url ='/api/club/add/player',
+    actions={
+        loading:loadingTrue,
+        success:playerAddedInClub,
+        error:setErrors
+    }
+    return postAction(actions,url,newData,dispatch);
+};
 
-            }).catch(error=>{
-                const err = {
-                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
-                    message:error.response.data.message,
-                    errorCode:error.response.status
-                }
-    
-                dispatch(setErrors(err))
-    
-                reject(err);
-            })
-        })
-    })
-);
-export const addPlayerInClub = (newData) => (dispatch) =>(
-
-    new Promise((resolve,reject)=>{
-
-        dispatch(loadingTrue())
-
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/api/club/add/player`,newData).then(response=>{
-                  
-                dispatch(playerAddedInClub(response.data.data))
-                resolve(response.data.message)
-
-            }).catch(error=>{
-                
-                const err = {
-                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
-                    message:error.response.data.message,
-                    errorCode:error.response.status
-                }
-    
-                dispatch(setErrors(err))
-    
-                reject(err);
-            })
-        })
-    })
-);
-
-export const updateClubInfo = (newData) => (dispatch) =>
-
-    new Promise((resolve,reject)=>{
-
-        dispatch(loadingTrue())
-
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/api/club/info/update`,{
-                ...newData
-            }).then(response=>{
-                dispatch(clubUpdated(response.data.data))
-                return response;
-            }).then(response=>{
-                dispatch(setSessionUserClub(response.data.data))
-                resolve(response.data.message);
-            }).catch(error=>{
-                const err = {
-                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
-                    message:error.response.data.message,
-                    errorCode:error.response.status
-                }
-    
-                dispatch(setErrors(err))
-    
-                reject(err);
-
-            })
-        })
-    });
-        
 
 export const deleteClubs = (ids) => (dispatch) =>(
 
@@ -364,64 +290,49 @@ export const deleteClubsFromTournament = (club_ids,tournament_id) => (dispatch) 
     })
 );
 
-export const removePlayerFromClub = (data) => (dispatch) =>(
-
-    new Promise((resolve,reject)=>{
-        dispatch(loadingTrue())
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/api/club/player/remove`,data)
-            .then(response=>{
-                dispatch(playersRemovedFromClub(data.player_ids))
-                resolve(response.data.message)
-            }).catch(error=>{
-                
-                const err = {
-                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
-                    message:error.response.data.message,
-                    errorCode:error.response.status
-                }
-    
-                dispatch(setErrors(err))
-    
-                reject(err);
-                
-            })
-        })
-    })
-);
-
-export const testAction = (data) => (dispatch) => {
-    const url ='/api/club/add/player',
+export const removePlayerFromClub = (data) => (dispatch) =>{
+    console.log({data})
+    const url ='/api/club/player/remove',
     actions={
         loading:loadingTrue,
-        success:playerAddedInClub,
+        success:playersRemovedFromClub,
+        error:setErrors
+    }
+    return postAction(actions,url,data,dispatch);
+}
+
+export const testAction = (data) => (dispatch) => {
+    const url ='/api/club/create',
+    actions={
+        loading:loadingTrue,
+        success:clubCreated,
         error:setErrors
     }
     return postAction(actions,url,data,dispatch);
 }
 
 
-export const updatePlayersOfSquad = (newData) => (dispatch) =>
+export const createClub = (data) => (dispatch) => {
+    const url ='/api/club/create',
+    actions={
+        loading:loadingTrue,
+        success:clubCreatedSuccess,
+        error:setErrors
+    }
+    return postAction(actions,url,data,dispatch);
+}
 
-    new Promise((resolve,reject)=>{
+export const updatePlayersOfSquad = (newData) => (dispatch) => {
+    const url ='/api/club/player/update',
+    actions={
+        loading:loadingTrue,
+        success:playerUpdated,
+        error:setErrors
+    }
+    return postAction(actions,url,newData,dispatch);
+}
 
-        dispatch(loadingTrue())
-
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/api/club/player/update`,newData).then(response=>{
-                dispatch(playerUpdated(response.data.data))
-                resolve(response.data.message);
-            }).catch(error=>{
-                const err = {
-                    errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
-                    message:error.response.data.message,
-                    errorCode:error.response.status
-                }
-    
-                dispatch(setErrors(err))
-    
-                reject(err);
-
-            })
-        })
-    });
+export const clubCreatedSuccess = (data) => (dispatch) => {
+    dispatch(setSessionUserClub(data))
+    dispatch(loadingFalse())
+}

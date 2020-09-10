@@ -1,4 +1,5 @@
 const initState = {
+    fetching:true,
     loading:true,
     detailPanelLoading:true,
     results:[],

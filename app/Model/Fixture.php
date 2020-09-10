@@ -27,4 +27,7 @@ class Fixture extends Model
     public function ratings(){
         return $this->hasMany('App\Model\MatchRating');
     }
+    public function images(){
+        return $this->hasMany('App\Model\MatchImage');
+    }
 }

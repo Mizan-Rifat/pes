@@ -5,6 +5,7 @@ import Mtable from '@customComponent/Mtable'
 import SportsSoccerIcon from '@material-ui/icons/SportsSoccer';
 import { FootballIcon,RedCardIcon,AssistIcon,YellowCardIcon } from '@customComponent/Icons';
 import { MTableToolbar } from 'material-table';
+import { ratingsTableColumns } from '../../CData/table';
 
 
 const useStyles = makeStyles(theme=>({
@@ -29,31 +30,32 @@ export default function Ratings({team1_name,team2_name,team1_ratings,team2_ratin
 
     const classes  = useStyles();
    
+    const columns = ratingsTableColumns();
 
 
-    const [columns, setcolumns] = useState([
-        {
-            title:'Player',
-            field:'player.name',
-            cellStyle:{
-                padding:'5px',
-                fontSize:'12px',
-                // textAlign:'center'
+    // const [columns, setcolumns] = useState([
+    //     {
+    //         title:'Player',
+    //         field:'player.name',
+    //         cellStyle:{
+    //             padding:'5px',
+    //             fontSize:'12px',
+    //             // textAlign:'center'
                 
-            },
-            editable:'never'
-        },
-        {
-            title:'Rating',
-            field:'rating',
-            cellStyle:{
-                padding:'5px',
-                fontSize:'12px',
-                // textAlign:'center'
+    //         },
+    //         editable:'never'
+    //     },
+    //     {
+    //         title:'Rating',
+    //         field:'rating',
+    //         cellStyle:{
+    //             padding:'5px',
+    //             fontSize:'12px',
+    //             // textAlign:'center'
                 
-            }
-        },
-    ])
+    //         }
+    //     },
+    // ])
 
 
 

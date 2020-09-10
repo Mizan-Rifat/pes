@@ -33,6 +33,9 @@ class UserRepository
             ],
             'password' => ['nullable','confirmed','min:8'],
             'fbID'=>['nullable','unique:users,fbID,'.Auth::id()]
+        ],
+        [
+            'fbID.unique' => 'The facebook id has already been taken.'
         ]);
 
         unset($validatedData['old_password']);
