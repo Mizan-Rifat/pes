@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { Input, IconButton } from '@material-ui/core';
@@ -46,7 +46,7 @@ const useStyles = makeStyles(theme => ({
 
 
 
-export default function SearchComp2({handleChange}) {
+export default function SearchComp2({defaultValue,handleChange}) {
   const classes = useStyles();
 
   const searchurl = '/api/clubmodel/search'
@@ -54,11 +54,10 @@ export default function SearchComp2({handleChange}) {
   const {id:tournament_id} = useSelector(state=>state.info.tournament)
   const dispatch = useDispatch();
 
-  const [query, setquery] = useState('');
+  const [query, setquery] = useState(defaultValue);
+  const [hideList, setHideList] = useState(true);
 
   const [state, setstate] = useState([])
-
-
 
   useEffect(() => {
     let cancel;
@@ -85,14 +84,15 @@ export default function SearchComp2({handleChange}) {
 
   const handleQueryChange = (e) =>{
     setquery(e.target.value)
-    
+    setHideList(false)
     
   }
 
 
   const handleAdd = (item)=>{
-
+    setHideList(true)
     setquery(item.name)
+    
     console.log({item})
     handleChange('club_model',item.name)
     handleChange('model_id',item.id)
@@ -101,18 +101,30 @@ export default function SearchComp2({handleChange}) {
 
   }
 
+  useEffect(()=>{
+    if(query == undefined){
+        setquery('')
+    }
+  },[query])
+
   
-
-
 
   return (
     <div style={{position:'relative'}} >
 
-      <Input value={query} onChange={handleQueryChange} className={classes.formControl} placeholder='Search'/>
+      <Input 
+        value={query} 
+        onChange={handleQueryChange} 
+        className={classes.formControl} 
+        placeholder='Search'
+        // onBlur={()=>setHideList(true)}
+      />
 
 
       <div className={clsx(classes.list,'list-group')} >
         {
+          !hideList &&
+
           state.map((item, index) => (
 
                 <div
@@ -136,6 +148,22 @@ export default function SearchComp2({handleChange}) {
                     
                 </div>
           ))
+        }
+        {
+            query != '' && state.length == 0  ?
+
+                <div
+                    className={clsx('list-group-item list-group-item-action',classes.listContainer)}
+                    style={{ cursor: 'pointer' }}
+                >
+                  <div className={classes.cont}>
+                      No Result Found
+                    
+                  </div>
+                    
+                </div>
+            : 
+            ''
         }
       </div>
 

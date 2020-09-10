@@ -1,12 +1,19 @@
 const initState = {
-    loading:true,
-    submitLoading:false,
+    fetching:true,
+    loading:false,
     fixture:{},
-    events:[],
+    events:{
+        team1:[],
+        team2:[],
+    },
     eventKey:0,
-    ratings:{},
+    ratings:{
+        team1:[],
+        team2:[],
+    },
     error:{},
-    success:''
+    success:'',
+    submittedResult:{}
 };
 
 export default (state=initState,action)=>{
@@ -16,24 +23,48 @@ export default (state=initState,action)=>{
             
             return {
                 ...state,
-                loading:false,
+                fetching:false,
                 fixture:action.payload,
                 
             }
-        case 'ADD_EVENT_TO_STATE':
+        case 'SUBMITTED_RESULT_FETCHED':
+            
+            return {
+                ...state,
+                fetching:false,
+                submittedResult:action.payload,
+                
+            }
+        case 'ADD_TEAM1_EVENT_TO_STATE':
             
             return {
                 ...state,
                 eventKey:state.eventKey + 1,
-                events:[...state.events,{...action.payload,eventKey:state.eventKey}],
+                events:{
+                    ...state.events,
+                    team1:[...state.events.team1,action.payload]
+                },
                 
+            }
+        case 'ADD_TEAM2_EVENT_TO_STATE':
+            
+            return {
+                ...state,
+                eventKey:state.eventKey + 1,
+                events:{
+                    ...state.events,
+                    team2:[...state.events.team2,action.payload]
+                },
             }
         
         case 'REMOVE_EVENT_FROM_STATE':
             
             return {
                 ...state,
-                events:state.events.filter(event=> event.eventKey != action.payload.key),
+                events:{
+                    ...state.events,
+                    [`team${action.payload.team}`]:state.events[`team${action.payload.team}`].filter(event=> event.tableData.id != action.payload.id),
+                }
                 
             }
 
@@ -58,6 +89,15 @@ export default (state=initState,action)=>{
                 
             }
         
+        
+        case 'EVENT_UPDATED':
+        
+            return {
+                ...state,
+                loading:false,
+                fixture:action.payload,
+                
+            }
        
         case 'ADD_RESULT_LOADING_TRUE':
             
@@ -71,18 +111,29 @@ export default (state=initState,action)=>{
                 ...state,
                 loading:false
             }
-        case 'ADD_RESULT_SUBMIT_LOADING_TRUE':
+        case 'ADD_RESULT_FETCHING_TRUE':
         
             return {
                 ...state,
-                submitLoading:true
+                fetching:true
             }
-        case 'ADD_RESULT_SUBMIT_LOADING_FALSE':
+        case 'ADD_RESULT_FETCHING_FALSE':
             
             return {
                 ...state,
-                submitLoading:false
+                fetching:false
             }
+        case 'SET_ADD_RESULT_ERRORS':
+            
+            return {
+                ...state,
+                loading:false,
+                fetching:false,
+                error:action.payload
+            }
+        case 'ADD_RESULT_RESET':
+            
+            return initState
        
     
         default:

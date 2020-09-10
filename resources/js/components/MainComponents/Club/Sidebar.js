@@ -14,8 +14,7 @@ const useStyles = makeStyles(theme=>({
 export default function Sidebar({club}) {
     const classes =useStyles();
 
-    const clubName = 'FC BARCELONA';
-    const clubOwner = 'MIZAN RIFAT';
+    console.log({club})
 
     return (
         <div>

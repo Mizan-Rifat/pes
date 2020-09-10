@@ -2,6 +2,7 @@
 
 use App\Model\ClubTournament;
 use App\Http\Resources\ClubResource;
+use App\Http\Resources\MatchImageResource;
 use App\Http\Resources\MatchResultResource;
 use App\Http\Resources\OfficialResource;
 use App\Http\Resources\PlayerResource;
@@ -9,6 +10,7 @@ use App\Http\Resources\UserResource;
 use App\Model\Club;
 use App\Model\ClubModel;
 use App\Model\Fixture;
+use App\Model\MatchImage;
 use App\Model\MatchRating;
 use App\Model\Official;
 use App\Model\Player;
@@ -41,8 +43,8 @@ Route::middleware('auth:sanctum_admin')->get('/admin', function (Request $reques
 });
 
 Route::get('/test',function(Request $request){
-    $user = User::with('club')->findOrFail(52);
-    return $user;
+    return Fixture::find(34)->team1_id;
+
 });
 
 Route::get('/rename',function(Request $request){
@@ -131,15 +133,18 @@ Route::get('/clubmodels','ClubController@getAllModels');
 // -----------results-----------
 
 Route::get('/result','ResultController@getResultDetails');  // ?id return:single match details
+Route::get('/result/submitted','ResultController@getSubmittedResultDetails');  // ?id return:single match details
 
 Route::post('/result/update/event','ResultController@matchEventUpdate'); 
 Route::post('/result/delete/event','ResultController@deleteMatchEvent'); 
+
 Route::post('/result/delete/rating','ResultController@deleteMatchRating'); 
 Route::post('/result/add/event','ResultController@addMatchEvent'); 
 Route::post('/result/add/rating','ResultController@addMatchRating'); 
 Route::post('/result/add','ResultController@addMatchResult'); 
 
 Route::get('/resultdetails','ResultController@getResultDetails');  // ?id return:events,ratings,team1,team2
+Route::post('/result/approve','ResultController@approveResult');  // ?id return:events,ratings,team1,team2
 
 
 // -----------results_End----------

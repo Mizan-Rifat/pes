@@ -10,7 +10,7 @@ import Registration from '@components/AuthComponent/Registration';
 import Dashboard from '@components/AdminComponents/Dashboard';
 import Tournament from '@components/AdminComponents/views/Tournaments/Tournament';
 import MTournament from '@components/MainComponents/Tournament/MTournament';
-import Test from '../components/Test/Test';
+import Test from './Test/Test';
 import Users from '@components/AdminComponents/views/Users/Users';
 import { SnackbarProvider } from 'notistack';
 // import TournamentDashboard from './AdminComponents/views/Tournaments/TournamentDashboard';
@@ -24,6 +24,7 @@ import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import { purple,pink,red } from '@material-ui/core/colors';
 import LandingPage from './MainComponents/Landing'
 import Profile from './MainComponents/Profile/Profile';
+import ApproveResult from './MainComponents/ApproveResult.js/ApproveResult';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -108,6 +109,7 @@ export default function Routes() {
                             <Route path='/addresult/:match_id' component={AddResult} />
                             <Route path='/test' component={Test} />
                             <Route path='/profile' component={Profile} />
+                            <Route path='/result/approve/:match_id' component={ApproveResult} />
                             
                         </Switch>
                     </MainLayout>

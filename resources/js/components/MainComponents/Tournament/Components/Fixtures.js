@@ -85,7 +85,7 @@ export default function Fixtures() {
 
                 <div className='responsiveTable frTable'>
                     <Mtable
-                        headerLess={true} 
+                        // headerLess={true} 
                         columns={columns}
                         data={fixtures}
                         editable={false}

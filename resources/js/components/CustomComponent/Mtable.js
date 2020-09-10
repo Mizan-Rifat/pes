@@ -24,14 +24,14 @@ const theme1 = {
       },
     },
 
-    // MuiTableCell:{
-    //   root:{
-    //     padding:'5px'
-    //   },
-    //   head:{
-    //     padding:'16px 5px'
-    //   }
-    // }
+    MuiTypography:{
+      h6:{
+        fontSize:'14px',
+        fontWeight:700
+      }
+    },
+    
+
 
 }
 
@@ -46,6 +46,16 @@ const theme2 = {
             borderBottom:'none'
           }
     }
+  
+};
+const theme3 = {
+
+  MuiToolbar:{
+    root:{
+      padding:'0 !important',
+      minHeight:'unset !important'
+    }
+  }
   
 };
 
@@ -74,7 +84,8 @@ export default function Mtable(props) {
     const theme = createMuiTheme({
       overrides:{
         ...theme1,
-        ...(hoverable && theme2)
+        ...(hoverable && theme2),
+        ...(headerLess && theme3)
       }
     })
 
@@ -92,7 +103,8 @@ console.log({theme})
                 options={{
                     search:search,
                     actionsColumnIndex: -1,
-                    headerStyle: headerLess ? {backgroundColor:'#eee'} : headerStyle,
+                    headerStyle: headerStyle,
+                    // headerStyle: headerLess ? {backgroundColor:'#eee'} : headerStyle,
                     pageSize:pageSize,
                     draggable:draggable,
                     selection: editMode && selectMode,
@@ -100,12 +112,9 @@ console.log({theme})
                     sorting:sorting,
                     thirdSortClick:thirdSortClick,
                     addRowPosition: addLast ? 'last' : 'first',
-                    // rowStyle: (rowData, index) => {
-                    //   if (index % 2) {
-                    //       return {backgroundColor: "#f2f2f2"}
-                    //   }
+                    padding:'dense',
                     rowStyle:{
-                      border:'none !important'
+                      fontSize:'12px'
                     }
                       
                     
@@ -147,13 +156,13 @@ console.log({theme})
                 components={{
 
                     ...components,
-                  //   Toolbar: props => (
-
-                  //     <div className='detailTable'>
-                  //         <MTableToolbar {...props} />
-                  //     </div>
-                       
-                  // ),
+                    // Toolbar: props => (
+    
+                    //         <div className='detailTable'>
+                    //             <MTableToolbar {...props}  />
+                    //         </div>
+                            
+                    //       ),
                     EditRow: 
                     
                     handleBulkUpdate ? 

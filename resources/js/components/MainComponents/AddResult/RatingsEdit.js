@@ -5,6 +5,7 @@ import { MTableToolbar } from 'material-table';
 import { useDispatch } from 'react-redux';
 import { addRatingToState, updateRatingToState } from '../../Redux/actions/resultAddAction';
 import clsx from 'clsx';
+import { editableRatingsTableColumns } from '../../CData/table';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -30,7 +31,7 @@ export default function RatingsEdit({team1_players,team2_players,team1_id,team2_
 
     return (
         <Grid container spacing={3} className={clsx(classes.container,className)} >
-            <Grid item sm={6} >
+            <Grid item sm={4} >
                 
                 <RatingsTable 
                    players={team1_players}
@@ -41,7 +42,11 @@ export default function RatingsEdit({team1_players,team2_players,team1_id,team2_
                 />
             </Grid>
 
-            <Grid item sm={6}>
+            <Grid item sm={4} >
+                
+            </Grid>
+
+            <Grid item sm={4}>
                 <RatingsTable 
                     players={team2_players}
                     club_id={team2_id}
@@ -49,6 +54,8 @@ export default function RatingsEdit({team1_players,team2_players,team1_id,team2_
                     ratings={ratings.team2}
                     />
             </Grid>
+
+            
         
         </Grid>
     )
@@ -58,55 +65,7 @@ function RatingsTable({players,club_id,team,ratings}){
 
     const dispatch = useDispatch();
 
-    const playerLookup = (players) =>{
-        const obj = {};
-        players.map(player=>{
-            obj[player.id] = player.name
-        })
-        return obj;
-    }
-    const ratingLookup = () =>{
-        const obj = {};
-        for (let index = 0; index < 11; index++) {
-            obj[index] = index
-            
-        }
-        return obj;
-    }
-
-
-
-    const [columns,setColumns] = useState([
-        {
-            title:'Player',
-            field:'player_id',
-            lookup:playerLookup(players),
-            cellStyle:{
-                padding:'8px',
-                fontSize:'12px',
-                textAlign:'center'
-                
-            },
-            headerStyle:{
-                textAlign:'center'
-            },
-            editable:'never'
-        },
-        {
-            title:'Rating',
-            field:'rating',
-            lookup:ratingLookup(),
-            cellStyle:{
-                padding:'8px',
-                fontSize:'12px',
-                textAlign:'center'
-                
-            },
-            headerStyle:{
-                textAlign:'center'
-            },
-        },
-    ])
+    const columns = editableRatingsTableColumns(players);
 
     const handleBulkUpdate = (changes) => (
 

@@ -133,23 +133,6 @@ export default function PersonalInfo({user}) {
 
     return (
         <>
-            {/* {
-                false ?
-                    <div className={classes.wrapper}>
-                        
-                            <KeyValueComp 
-                                fields={passFields}
-                                value={passValue}
-                                initEditMode={true}
-                                saveAction={updateUser}
-                                getEM={updateUser}
-                            />
-                            
-                            <Link onClick={()=>setPassCM(false)} className={classes.link}>Go Back</Link>
-                        
-                    </div>
-                : */}
-            
                     <div className={classes.wrapper}>
 
                         

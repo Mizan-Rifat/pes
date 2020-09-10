@@ -1,10 +1,12 @@
 import React, { useState,useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import KeyValueComp from '../../CustomComponent/KeyValueComp';
-import {Link} from 'react-router-dom';
 import { Button } from '@material-ui/core';
-import { updateClubInfo, createClub } from '../../Redux/actions/clubsAction';
+import { createClub } from '../../Redux/actions/clubsAction';
+import { updateClubInfo} from '../../Redux/actions/SessionAction';
 import { useSelector } from 'react-redux';
+import {Link,useHistory} from 'react-router-dom';
+
 
 const useStyles = makeStyles((theme) => ({
     container:{
@@ -39,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
     tabHeader:{
         boxShadow:'unset',
         background:'unset'
-    }
+    },
 
 }))
 
@@ -48,7 +50,7 @@ export default function ClubInfo({user}) {
     const [editMode,setEditMode] = useState(false)
     const [createMode,setCreateMode] = useState(false)
 
-    
+    const history = useHistory();
 
     const [fields, setFields] = useState([
         {
@@ -115,8 +117,14 @@ export default function ClubInfo({user}) {
                             saveAction={createMode ? createClub : updateClubInfo}
 
                         />
+
+                        {
+                            user.club != null &&
+
+                            <Link to={`/club/${user.club.slug}`} className={classes.link}>Visit Club</Link>
+                        }
                         
-                    
+                        
                 </div>
 
                 :

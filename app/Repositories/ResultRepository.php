@@ -2,11 +2,16 @@
 
 namespace App\Repositories;
 
+use App\Model\Fixture;
 use App\Model\MatchDetails;
 use App\Model\MatchRating;
 use App\Model\Result;
 use App\Repositories\Traits\BaseRepository;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+
 
 class ResultRepository
 {
@@ -88,103 +93,175 @@ class ResultRepository
     }
 
 
-    public function addMatchResult($request){
-        
-        $validatedData = $request->validate([
-            'fixture_id'=>['required','integer','exists:fixtures,id,completed,0'],
 
-            'ratings'=>['array','min:22'],
-            'events.*.event_id' => ['required','integer'],
-            'events.*.player_id' => ['required','integer'],
-            'events.*.club_id' => ['required','integer'],
-            'events.*.minute' => ['required','integer','max:120','min:1'],
-            'events.*.assist_player_id' => ['integer','different:events.*.player_id','nullable'],
+
+public function addResultForApproval($request){
+
+        Validator::make($request->all(),[
+
+            'fixture_id'=>['required','integer',
+                            Rule::exists('fixtures','id')->where(function($query){
+                                $query->whereIn('completed',[0,2]);
+                            })],
+
+            'eventsImages'=>['required','array'],
+            'team1ratingsImages'=>['required','array'],
+            'team2ratingsImages'=>['required','array'],
+
+            'eventsImages.*'=>['mimes:jpeg,jpg,png'],
+            'team1ratingsImages.*'=>['mimes:jpeg,jpg,png'],
+            'team2ratingsImages.*'=>['mimes:jpeg,jpg,png']
             
-            'ratings.*.club_id'=>['required','integer',],
-            'ratings.*.player_id'=>['required','integer',],
-            'ratings.*.rating'=>['required','integer','max:10','min:0'],
+        ])->validate();
 
-            
-        ]);
-        $fixture = $this->fixtureRepo()->findOrFail($validatedData['fixture_id']);
+        $fixture = Fixture::find($request['fixture_id']);
+
+        if($fixture->team1_id != Auth::id() && $fixture->team2_id != Auth::id()){
+            abort(403,'Permission Denied');
+        }
+
+        $eventsImages = collect($request['eventsImages'])->map(function($item) use($request){
+            $item->store('events');
+            return [
+                'image'=>$item->hashName(),
+                'fixture_id'=>$request['fixture_id'],
+                'submitted_by'=>Auth::id(),
+                'field'=>1
+            ];
+
+        })->toArray();
+        
+        $team1ratingsImages = collect($request['team1ratingsImages'])->map(function($item) use($request){
+            $item->store('ratings');
+            return [
+                'image'=>$item->hashName(),
+                'fixture_id'=>$request['fixture_id'],
+                'submitted_by'=>Auth::id(),
+                'field'=>2
+            ];
+
+        })->toArray();
+
+        $team2ratingsImages = collect($request['team2ratingsImages'])->map(function($item) use($request){
+            $item->store('ratings');
+            return [
+                'image'=>$item->hashName(),
+                'fixture_id'=>$request['fixture_id'],
+                'submitted_by'=>Auth::id(),
+                'field'=>3
+            ];
+
+        })->toArray();
+
+        $images = [...$eventsImages,...$team1ratingsImages,...$team2ratingsImages];
+
         
 
-        $match_status = 0;
-        $team1_goals = 0;
-        $team2_goals = 0;
 
-        if(isset($validatedData['events'])){
+        if($fixture->team1_id == Auth::id()){
+            $events = collect(json_decode($request->events, true))->collapse()->map(function($item) use($request){
+                $item['fixture_id'] = $request['fixture_id'];
+                unset($item['tableData']);
+                return $item;
+            })->toArray();
 
-            $events = collect($validatedData['events']);
+            $ratings = collect(json_decode($request->ratings, true))->collapse()->map(function($item) use($request){
+                            $item['fixture_id'] = $request['fixture_id'];
 
-            foreach ($validatedData['events'] as $index => $event) {
-           
-                $validatedData['events'][$index] = array_merge($event,['fixture_id'=>$validatedData['fixture_id']]);
-               
-            }
+                            unset($item['tableData']);
+                            return $item;
+                        })->toArray();
 
-            $team1_goal = $events
-                        ->where('event_id',1)
+            $eventRules = [
+            '*.player_id' => 'required|numeric', 
+            '*.club_id' => 'required|numeric', 
+            '*.minute' => 'required|numeric|max:120|min:1', 
+            '*.minute' => 'numeric|different:team1.*.player_id|nullable', 
+            ];
+
+            $ratingsRules = [
+                '*.club_id'=>'required|numeric',
+                '*.player_id'=>'required|numeric',
+                '*.rating'=>'required|numeric|max:10|min:0',
+
+            ];
+
+            Validator::make($events, $eventRules)->validate();
+            Validator::make($ratings, $ratingsRules)->validate();
+
+            DB::table('match_details')->insert($events);
+            DB::table('match_ratings')->insert($ratings);
+        }
+
+        DB::table('match_images')->insert($images);
+        $fixture->completed = 2;
+        $fixture->save();
+    
+
+}
+
+public function approveResult($request){
+
+    $validatedData = $request->validate([
+
+        'fixture_id'=>['required','integer',
+                            Rule::exists('fixtures','id')->where(function($query){
+                                $query->whereIn('completed',[2]);
+                            })],
+    ]);
+
+    $fixture = $this->fixtureRepo()->with('events')->findOrFail($validatedData['fixture_id']);
+
+    $events = $fixture->events;
+
+    $match_status = 0;
+    $team1_goals = 0;
+    $team2_goals = 0;
+
+    $team1_goal = $events
+                    ->where('event_id',1)
+                    ->where('club_id',$fixture->team1_id)
+                    ->count();
+
+    $team1_own_goal = $events
+                        ->where('event_id',4)
                         ->where('club_id',$fixture->team1_id)
                         ->count();
 
-            $team1_own_goal = $events
-                            ->where('event_id',4)
-                            ->where('club_id',$fixture->team1_id)
-                            ->count();
+    $team2_goal = $events
+                    ->where('event_id',1)
+                    ->where('club_id',$fixture->team2_id)
+                    ->count();
 
-            $team2_goal = $events
-                        ->where('event_id',1)
+    $team2_own_goal = $events
+                        ->where('event_id',4)
                         ->where('club_id',$fixture->team2_id)
                         ->count();
 
-            $team2_own_goal = $events
-                            ->where('event_id',4)
-                            ->where('club_id',$fixture->team2_id)
-                            ->count();
 
-
-            $team1_goals = $team1_goal + $team2_own_goal;
-            $team2_goals = $team2_goal + $team1_own_goal;
-                    
-
-
-            if($team1_goals > $team2_goals){
-                $match_status = $fixture->team1_id;
-            }
-            if($team1_goals < $team2_goals){
-                $match_status = $fixture->team2_id;
-            }
-            // dd($validatedData['events']);
-            DB::table('match_details')->insert($validatedData['events']);
-            
-            DB::table('match_results')->insert([
-                'fixture_id'=>$validatedData['fixture_id'],
-                'match_status'=>$match_status,
-                'team1_goals'=>$team1_goals,
-                'team2_goals'=>$team2_goals,
-            ]);
-        }
-
-        if(isset($validatedData['ratings'])){
-
-            foreach ($validatedData['ratings'] as $index => $rating) {
-                unset($rating['tableData']);
-           
-                $validatedData['ratings'][$index] = array_merge($rating,['fixture_id'=>$validatedData['fixture_id']]);
-               
-            }
-
-
-            DB::table('match_ratings')->insert($validatedData['ratings']);
-        }
-
-        $fixture->completed = 1;
-        $fixture->save();
-
-
+    $team1_goals = $team1_goal + $team2_own_goal;
+    $team2_goals = $team2_goal + $team1_own_goal;
+                
+    if($team1_goals > $team2_goals){
+        $match_status = $fixture->team1_id;
+    }
+    if($team1_goals < $team2_goals){
+        $match_status = $fixture->team2_id;
     }
 
- 
-    
+    DB::table('match_results')->insert([
+        'fixture_id'=>$validatedData['fixture_id'],
+        'match_status'=>$match_status,
+        'team1_goals'=>$team1_goals,
+        'team2_goals'=>$team2_goals,
+    ]);
+
+    $fixture->completed = 1;
+    $fixture->save();
+
+
+}
+
+
+
 }

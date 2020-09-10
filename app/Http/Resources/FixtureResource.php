@@ -11,6 +11,7 @@ class FixtureResource extends JsonResource
     
     public function toArray($request)
     {
+        $completed = [false,true,'pending'];
         return [
 
             'id' => $this->id,
@@ -47,7 +48,7 @@ class FixtureResource extends JsonResource
             // 'group'=>$this->group_ === null ? 'none' : $this->group_,
             'round'=>$this->round,
             'leg'=>$this->leg,
-            'completed'=>$this->completed,
+            'completed'=>$completed[$this->completed],
 
         ];
     }

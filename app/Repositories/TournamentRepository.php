@@ -88,6 +88,7 @@ class TournamentRepository
                         'team2',
                         'result'
                     ]);
+
                     
         return $results;
     }

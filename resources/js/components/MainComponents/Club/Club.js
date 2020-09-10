@@ -14,9 +14,7 @@ export default function Club(props) {
     const slug=props.match.params.slug
 
     useEffect(() => {
-        if(club.length != 0 && club.slug != slug){
             dispatch(fetchClub(slug))
-        }
     }, [slug])
 
 

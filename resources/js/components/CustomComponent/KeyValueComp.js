@@ -42,6 +42,8 @@ export default function KeyValueComp({fields,value,saveAction,editMode,setEditMo
 
     const [formData, setFormData] = useState({})
 
+    const [error, seterror] = useState({})
+
     const handleChange = (label,value) => {
         setFormData({
             ...formData,
@@ -56,9 +58,17 @@ export default function KeyValueComp({fields,value,saveAction,editMode,setEditMo
             setEditMode(false)
         })
         .catch(error=>{
-            console.log('hs',error)
+            seterror(error)
+            toast(error.message,'error')
         })
 
+    }
+
+    const hasError = (field) =>{
+      if(error.errorCode === 422){
+        return error.errors.hasOwnProperty(field)
+      }
+      return false
     }
     
 
@@ -121,7 +131,7 @@ export default function KeyValueComp({fields,value,saveAction,editMode,setEditMo
                                     {
                                         field.search ?
 
-                                        <SearchComp2 handleChange={handleChange}/>
+                                        <SearchComp2 defaultValue={value[field.name]} handleChange={handleChange}/>
 
                                         :
                                     
@@ -133,7 +143,7 @@ export default function KeyValueComp({fields,value,saveAction,editMode,setEditMo
                                             type={field.type}
                                             options={field.options}
                                             handleChange={handleChange}
-                                            // error={''}
+                                            error={hasError(field.name) ? error.errors[field.name][0] : ''}
                                         />
                                     }
                                     
@@ -154,42 +164,3 @@ export default function KeyValueComp({fields,value,saveAction,editMode,setEditMo
     )
 }
 
-function ChooseLogo(){
-
-    const logos = [
-        "http://127.0.0.1:8000/images/teams/e_000001_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000002_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000003_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000004_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000005_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000006_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000007_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000008_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000009_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000010_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000011_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000012_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000013_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000014_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000015_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000016_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000017_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000019_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000020_r_l.png",
-        "http://127.0.0.1:8000/images/teams/e_000021_r_l.png"
-        ]
-
-    return(
-        <Grid conaiter spacing={3}>
-
-            {
-                logos.map((logo,index)=>(
-                    <Grid item xs={6}>
-                        <img src={logo} key={index} style={{height:'100px',width:'100px'}} />
-                    </Grid>
-                ))
-            }
-            
-        </Grid>
-    )
-}
