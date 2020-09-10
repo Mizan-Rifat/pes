@@ -11,6 +11,9 @@ const initState = {
         team1:[],
         team2:[],
     },
+    eventsImages:[],
+    ratings1Images:[],
+    ratings2Images:[],
     error:{},
     success:'',
     submittedResult:{}
@@ -32,9 +35,41 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 fetching:false,
-                submittedResult:action.payload,
+                fixture:action.payload.fixture,
+                events:{
+                    team1:action.payload.team1_events,
+                    team2:action.payload.team2_events,
+                },
+                ratings:{
+                    team1:action.payload.team1_ratings,
+                    team2:action.payload.team2_ratings,
+                },
+                event_images_sub_by_team1:action.payload.event_images_sub_by_team1,
+                event_images_sub_by_team2:action.payload.event_images_sub_by_team2,
+                team1_ratings_images_sub_by_team1:action.payload.team1_ratings_images_sub_by_team1,
+                team1_ratings_images_sub_by_team2:action.payload.team1_ratings_images_sub_by_team2,
+                team2_ratings_images_sub_by_team1:action.payload.team2_ratings_images_sub_by_team1,
+                team2_ratings_images_sub_by_team2:action.payload.team2_ratings_images_sub_by_team2,
                 
             }
+        case 'SET_IMAGES':
+            return {
+                ...state,
+                [action.payload.label]:action.payload.images
+
+            }
+        case 'ADD_EVENT_TO_STATE':
+            
+            return {
+                ...state,
+                events:{
+                    ...state.events,
+                    // [action.payload.label]:[...state.events[action.payload.label],action.payload.event]
+                    [action.payload.label]:[...state.events[action.payload.label],action.payload.event]
+                },
+                
+            }
+
         case 'ADD_TEAM1_EVENT_TO_STATE':
             
             return {
@@ -95,7 +130,10 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 loading:false,
-                fixture:action.payload,
+                events:{
+                    team1:state.events.team1.map(item=>item.id == action.payload.id ? action.payload : item),
+                    team2:state.events.team2.map(item=>item.id == action.payload.id ? action.payload : item)
+                },
                 
             }
        

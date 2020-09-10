@@ -173,12 +173,12 @@ class ResultController extends Controller
 
 
 
-    public function matchEventUpdate(Request $request){
-        $event = $this->resultRepo->matchEventUpdate($request);
+    public function updateMatchEvent(Request $request){
+        $event = $this->resultRepo->updateMatchEvent($request);
         
         return response()->json([
             'message'=>'Update Successfull',
-            'event'=>new MatchEventsResource($event)
+            'data'=>new MatchEventsResource($event)
         ],200);
     }
 
@@ -222,7 +222,7 @@ class ResultController extends Controller
 
         return response()->json([
             'message'=>'Event Created',
-            'event'=>new MatchEventsResource($event)
+            'data'=>new MatchEventsResource($event)
         ],200);
 
     

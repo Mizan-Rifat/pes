@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import ImageUploader from "react-images-upload";
+import { useSelector, useDispatch } from "react-redux";
+import { addImages } from "../Redux/actions/resultAddAction";
 
 const ImageUpload = props => {
 
   const [pictures, setPictures] = useState([]);
 
+  const dispatch = useDispatch();
+
   const onDrop = picture => {
     setPictures(picture);
-    props.setImage(picture)
+    dispatch(addImages(props.label,picture))
   };
   return (
     <ImageUploader
