@@ -48,7 +48,7 @@ class FixtureResource extends JsonResource
             // 'group'=>$this->group_ === null ? 'none' : $this->group_,
             'round'=>$this->round,
             'leg'=>$this->leg,
-            'completed'=>$completed[$this->completed],
+            'completed'=>$this->completed,
 
         ];
     }

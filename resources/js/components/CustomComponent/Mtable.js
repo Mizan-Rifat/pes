@@ -89,7 +89,6 @@ export default function Mtable(props) {
       }
     })
 
-console.log({theme})
     return (
       <ThemeProvider theme={theme}>
         <MaterialTable

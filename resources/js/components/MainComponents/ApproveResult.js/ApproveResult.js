@@ -8,8 +8,13 @@ import { fetchResultDetails } from '../../Redux/actions/resultActions'
 import { useSelector, useDispatch } from 'react-redux';
 import Progress from '@customComponent/Progress';
 import { useHistory } from 'react-router-dom'
-import { fetchSubmittedResult, submittedResultFetched } from '../../Redux/actions/resultAddAction';
+import { fetchSubmittedResult, submittedResultFetched, approveResult } from '../../Redux/actions/resultAddAction';
 import ImageBox from './ImageBox';
+import EventsEdit from '../AddResult/EventsEdit';
+import clsx from 'clsx';
+import RatingsEdit from '../AddResult/RatingsEdit';
+import Notify from '@customComponent/Notify';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -21,6 +26,10 @@ const useStyles = makeStyles(theme=>({
         // justifyContent: 'center',
         alignItems: 'center',
         height: '100%',
+    },
+    disable:{
+        pointerEvents:'none',
+        opacity:'.5'
     }
 }))
 
@@ -29,29 +38,28 @@ export default function ApproveResult(props) {
     const classes  = useStyles();
 
     const history = useHistory();
-
     const {
         fetching,
-        // submittedResult,
+        loading,
         error,
         fixture,
         events,
         ratings,
-        event_images_sub_by_team1,
-        event_images_sub_by_team2,
-        team1_ratings_images_sub_by_team1,
-        team1_ratings_images_sub_by_team2,
-        team2_ratings_images_sub_by_team1,
-        team2_ratings_images_sub_by_team2,
+        images,
     } = useSelector(state=>state.addResult)
 
-
+    const [success, setsuccess] = useState(false)
     const dispatch = useDispatch();
-
+    const toast = Notify();
+    
     const match_id = props.match.params.match_id;
 
     const handleApproveResult = ()=>{
-
+        dispatch(approveResult({fixture_id:fixture.id}))
+        .then(response=>{
+            toast(response,'success')
+            setsuccess(true)
+        })
     }
 
     useEffect(()=>{
@@ -88,56 +96,79 @@ export default function ApproveResult(props) {
                                 />
                             </div>
                             <Container>
-                                <Events 
-                                    team1_events={events.team1} 
-                                    team2_events={events.team2} 
+
+                                <EventsEdit 
+                                    events={events} 
+                                    team1_id={fixture.team1_id}
+                                    team2_id={fixture.team2_id}
+                                    team1_players={fixture.team1_details.players} 
+                                    team2_players={fixture.team2_details.players}
+                                    loading={loading}
+                                    className={clsx({[classes.disable] : loading })} 
                                 />
 
-                                <ImageBox 
+                                 <ImageBox 
                                     title={`Events (sumitted by ${fixture.team1_details.name})`}
-                                    images={event_images_sub_by_team1}
+                                    images={images.filter(item=>item.submitted_by == fixture.team1_id && item.field == 'event')}
                                 />
 
                                 <ImageBox 
                                     title={`Events (sumitted by ${fixture.team2_details.name})`}
-                                    images={event_images_sub_by_team2}
+                                    images={images.filter(item=>item.submitted_by == fixture.team2_id && item.field == 'event')}
                                 />
-                                
-                                <Ratings
-                                    team1_name={fixture.team1_details.name} 
-                                    team2_name={fixture.team2_details.name} 
-                                    team1_ratings = {ratings.team1}
-                                    team2_ratings = {ratings.team2}
+
+                                <RatingsEdit
+                                    ratings={ratings}
+                                    team1_id={fixture.team1_id}
+                                    team2_id={fixture.team2_id} 
+                                    team1_players={fixture.team1_details.players} 
+                                    team2_players={fixture.team2_details.players}
+                                    loading={loading} 
+                                    className={clsx({[classes.disable] : loading })} 
                                 />
 
                                 <ImageBox 
                                     title={`${fixture.team1_details.name} Ratings (sumitted by ${fixture.team1_details.name})`}
-                                    images={team1_ratings_images_sub_by_team1}
+                                    images={images.filter(item=>item.submitted_by == fixture.team1_id && item.field == 'team1_Rating')}
                                 />
 
                                 <ImageBox 
                                     title={`${fixture.team1_details.name} Ratings (sumitted by ${fixture.team2_details.name})`}
-                                    images={team1_ratings_images_sub_by_team2}
+                                    images={images.filter(item=>item.submitted_by == fixture.team2_id && item.field == 'team1_Rating')}
                                 />
 
                                 <ImageBox 
                                     title={`${fixture.team2_details.name} Ratings (sumitted by ${fixture.team1_details.name})`}
-                                    images={team2_ratings_images_sub_by_team1}
+                                    images={images.filter(item=>item.submitted_by == fixture.team1_id && item.field == 'team2_Rating')}
                                 />
 
                                 <ImageBox 
                                     title={`${fixture.team2_details.name} Ratings (sumitted by ${fixture.team2_details.name})`}
-                                    images={team2_ratings_images_sub_by_team2}
+                                    images={images.filter(item=>item.submitted_by == fixture.team2_id && item.field == 'team2_Rating')}
                                 />
 
                                 <div className='text-center py-5'>
-                                    <SubmitBtn 
-                                        label='Submit Result'
-                                        handleSubmit={handleApproveResult}
-                                        disabled={false}
-                                        progressStyle={{left:'41%',top:'20%'}}
-                                    />
-                                </div>
+                        
+                                    {
+                                            success ?
+                                        
+                                                
+                                                <div>
+                                                    <CheckCircleIcon style={{color:'green'}} />
+                                                    <div>Result Approved.</div>
+                                                </div>
+                                            :
+                                                <SubmitBtn 
+                                                    label='Approve Result'
+                                                    handleSubmit={handleApproveResult}
+                                                    disabled={fixture.completed != 2}
+                                                    submitDisabled={loading}
+                                                    progressStyle={{left:'41%',top:'20%'}}
+                                                />
+
+                                            
+                                        }
+                                </div> 
 
                                 
                             </Container>

@@ -2,15 +2,10 @@ const initState = {
     fetching:true,
     loading:false,
     fixture:{},
-    events:{
-        team1:[],
-        team2:[],
-    },
+    events:[],
     eventKey:0,
-    ratings:{
-        team1:[],
-        team2:[],
-    },
+    ratings:[],
+    images:[],
     eventsImages:[],
     ratings1Images:[],
     ratings2Images:[],
@@ -25,7 +20,7 @@ export default (state=initState,action)=>{
         case 'FIXTURE_DETAILS_FETCHED':
             
             return {
-                ...state,
+                ...initState,
                 fetching:false,
                 fixture:action.payload,
                 
@@ -33,23 +28,18 @@ export default (state=initState,action)=>{
         case 'SUBMITTED_RESULT_FETCHED':
             
             return {
-                ...state,
+                ...initState,
                 fetching:false,
                 fixture:action.payload.fixture,
-                events:{
-                    team1:action.payload.team1_events,
-                    team2:action.payload.team2_events,
-                },
-                ratings:{
-                    team1:action.payload.team1_ratings,
-                    team2:action.payload.team2_ratings,
-                },
-                event_images_sub_by_team1:action.payload.event_images_sub_by_team1,
-                event_images_sub_by_team2:action.payload.event_images_sub_by_team2,
-                team1_ratings_images_sub_by_team1:action.payload.team1_ratings_images_sub_by_team1,
-                team1_ratings_images_sub_by_team2:action.payload.team1_ratings_images_sub_by_team2,
-                team2_ratings_images_sub_by_team1:action.payload.team2_ratings_images_sub_by_team1,
-                team2_ratings_images_sub_by_team2:action.payload.team2_ratings_images_sub_by_team2,
+                events:action.payload.events,
+                ratings:action.payload.ratings,
+                images:action.payload.images,
+                // event_images_sub_by_team1:action.payload.event_images_sub_by_team1,
+                // event_images_sub_by_team2:action.payload.event_images_sub_by_team2,
+                // team1_ratings_images_sub_by_team1:action.payload.team1_ratings_images_sub_by_team1,
+                // team1_ratings_images_sub_by_team2:action.payload.team1_ratings_images_sub_by_team2,
+                // team2_ratings_images_sub_by_team1:action.payload.team2_ratings_images_sub_by_team1,
+                // team2_ratings_images_sub_by_team2:action.payload.team2_ratings_images_sub_by_team2,
                 
             }
         case 'SET_IMAGES':
@@ -58,48 +48,39 @@ export default (state=initState,action)=>{
                 [action.payload.label]:action.payload.images
 
             }
+        case 'IMAGE_ADDED':
+            return {
+                ...state,
+                loading:false,
+                images:action.payload
+
+            }
+        case 'IMAGE_DELETED':
+            return {
+                ...state,
+                loading:false,
+                images:state.images.filter(item=> item.id != action.payload.id)
+
+            }
         case 'ADD_EVENT_TO_STATE':
             
             return {
                 ...state,
-                events:{
-                    ...state.events,
-                    // [action.payload.label]:[...state.events[action.payload.label],action.payload.event]
-                    [action.payload.label]:[...state.events[action.payload.label],action.payload.event]
-                },
-                
-            }
-
-        case 'ADD_TEAM1_EVENT_TO_STATE':
-            
-            return {
-                ...state,
+                loading:false,
                 eventKey:state.eventKey + 1,
-                events:{
+                events:[
                     ...state.events,
-                    team1:[...state.events.team1,action.payload]
-                },
+                    action.payload
+                ],
                 
-            }
-        case 'ADD_TEAM2_EVENT_TO_STATE':
-            
-            return {
-                ...state,
-                eventKey:state.eventKey + 1,
-                events:{
-                    ...state.events,
-                    team2:[...state.events.team2,action.payload]
-                },
             }
         
         case 'REMOVE_EVENT_FROM_STATE':
             
             return {
                 ...state,
-                events:{
-                    ...state.events,
-                    [`team${action.payload.team}`]:state.events[`team${action.payload.team}`].filter(event=> event.tableData.id != action.payload.id),
-                }
+                loading:false,
+                events:state.events.filter(item=>item.id != action.payload.id)
                 
             }
 
@@ -107,10 +88,7 @@ export default (state=initState,action)=>{
             
                 return {
                     ...state,
-                    ratings:{
-                        ...state.ratings,
-                        [`team${action.payload.team}`] : action.payload.ratings
-                    },
+                    ratings:[...state.ratings,...action.payload]
                     
                 }
 
@@ -135,6 +113,19 @@ export default (state=initState,action)=>{
                     team2:state.events.team2.map(item=>item.id == action.payload.id ? action.payload : item)
                 },
                 
+            }
+        case 'RATINGS_UPDATED':
+        
+            return {
+                ...state,
+                ratings:state.ratings.map(item=>item.id == action.payload.id ? action.payload : item)
+            }
+        case 'RATINGS_EDITED':
+        
+            return {
+                ...state,
+                loading:false,
+                ratings:action.payload
             }
        
         case 'ADD_RESULT_LOADING_TRUE':

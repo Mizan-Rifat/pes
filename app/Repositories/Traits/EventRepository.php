@@ -34,7 +34,7 @@ trait EventRepository
             'player_id'=>['required','numeric','exists:players,id'],
             'event_id'=>['required','numeric','max:3','min:1'],
             'minute'=>['required','numeric','max:120','min:1'],
-            'assist_player_id'=>['numeric','exists:players,id','different:player_id'],
+            'assist_player_id'=>['nullable','numeric','exists:players,id','different:player_id'],
         ]);
 
 

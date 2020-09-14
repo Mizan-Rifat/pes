@@ -4,12 +4,15 @@ namespace App\Repositories;
 
 use App\Model\Fixture;
 use App\Model\MatchDetails;
+use App\Model\MatchImage;
 use App\Model\MatchRating;
 use App\Model\Result;
 use App\Repositories\Traits\BaseRepository;
 use App\Repositories\Traits\EventRepository;
+use File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -27,6 +30,35 @@ class ResultRepository
 
     public function fixtureRepo(){
         return new FixtureRepository();
+    }
+
+    public function updateMatchRatings($request){
+
+        $validatedData = $request->validate([
+            'fixture_id'=>['required','numeric','exists:fixtures,id'],
+            'ratings' => ['required','array'],
+            'ratings*.club_id'=>'required|numeric',
+            'ratings*.player_id'=>'required|numeric',
+            'ratings*.rating'=>'required|numeric|max:10|min:0',
+            'ratings*.fixture_id' => ['required','numeric'],
+        ]);
+
+
+        foreach ($validatedData['ratings'] as $key => $value) {
+            DB::table('match_ratings')
+            ->where('id',$value['id'])
+            ->update([
+                'club_id'=>$value['club_id'],
+                'player_id'=>$value['player_id'],
+                'rating'=>$value['rating'],
+            ]);
+        }
+
+        $fixture = $this->fixtureRepo()->with(['ratings'])->where('completed',2)->findOrFail($validatedData['fixture_id']);
+        
+        return $fixture->ratings;
+
+     
     }
 
     
@@ -60,11 +92,11 @@ class ResultRepository
 
 public function addResultForApproval($request){
 
-        Validator::make($request->all(),[
+        $validatedData =  Validator::make($request->all(),[
 
             'fixture_id'=>['required','integer',
                             Rule::exists('fixtures','id')->where(function($query){
-                                $query->whereIn('completed',[0,2]);
+                                $query->whereIn('completed',[0,3,4]);
                             })],
 
             'eventsImages'=>['required','array'],
@@ -77,39 +109,46 @@ public function addResultForApproval($request){
             
         ])->validate();
 
-        $fixture = Fixture::find($request['fixture_id']);
+
+        $fixture = Fixture::find($validatedData['fixture_id']);
 
         if($fixture->team1_id != Auth::id() && $fixture->team2_id != Auth::id()){
             abort(403,'Permission Denied');
         }
 
-        $eventsImages = collect($request['eventsImages'])->map(function($item) use($request){
-            $item->store('events');
+        $completed = 2;
+
+        if($fixture->completed == 0){
+            $completed = $fixture->team1_id == Auth::id() ? 3 : 4;
+        }
+
+        $eventsImages = collect($validatedData['eventsImages'])->map(function($item) use($validatedData){
+            $item->store('match_events');
             return [
                 'image'=>$item->hashName(),
-                'fixture_id'=>$request['fixture_id'],
+                'fixture_id'=>$validatedData['fixture_id'],
                 'submitted_by'=>Auth::id(),
                 'field'=>1
             ];
 
         })->toArray();
         
-        $team1ratingsImages = collect($request['team1ratingsImages'])->map(function($item) use($request){
-            $item->store('ratings');
+        $team1ratingsImages = collect($validatedData['team1ratingsImages'])->map(function($item) use($validatedData){
+            $item->store('match_events');
             return [
                 'image'=>$item->hashName(),
-                'fixture_id'=>$request['fixture_id'],
+                'fixture_id'=>$validatedData['fixture_id'],
                 'submitted_by'=>Auth::id(),
                 'field'=>2
             ];
 
         })->toArray();
 
-        $team2ratingsImages = collect($request['team2ratingsImages'])->map(function($item) use($request){
-            $item->store('ratings');
+        $team2ratingsImages = collect($validatedData['team2ratingsImages'])->map(function($item) use($validatedData){
+            $item->store('match_events');
             return [
                 'image'=>$item->hashName(),
-                'fixture_id'=>$request['fixture_id'],
+                'fixture_id'=>$validatedData['fixture_id'],
                 'submitted_by'=>Auth::id(),
                 'field'=>3
             ];
@@ -118,115 +157,154 @@ public function addResultForApproval($request){
 
         $images = [...$eventsImages,...$team1ratingsImages,...$team2ratingsImages];
 
-        
-
-
         if($fixture->team1_id == Auth::id()){
-            $events = collect(json_decode($request->events, true))->collapse()->map(function($item) use($request){
-                $item['fixture_id'] = $request['fixture_id'];
-                unset($item['tableData']);
-                return $item;
-            })->toArray();
+            $events = json_decode($request->events, true);
 
-            $ratings = collect(json_decode($request->ratings, true))->collapse()->map(function($item) use($request){
-                            $item['fixture_id'] = $request['fixture_id'];
-
-                            unset($item['tableData']);
-                            return $item;
-                        })->toArray();
+            $ratings = json_decode($request->ratings, true);
 
             $eventRules = [
             '*.player_id' => 'required|numeric', 
+            '*.event_id' => 'required|numeric|min:1|max:4', 
             '*.club_id' => 'required|numeric', 
             '*.minute' => 'required|numeric|max:120|min:1', 
-            '*.minute' => 'numeric|different:team1.*.player_id|nullable', 
+            '*.assist_player_id' => 'numeric|different:team1.*.player_id|nullable', 
+            '*.fixture_id' => ['required','numeric',Rule::in([$validatedData['fixture_id']])], 
             ];
 
             $ratingsRules = [
                 '*.club_id'=>'required|numeric',
                 '*.player_id'=>'required|numeric',
                 '*.rating'=>'required|numeric|max:10|min:0',
+                '*.fixture_id' => ['required','numeric',Rule::in([$validatedData['fixture_id']])],
 
             ];
 
-            Validator::make($events, $eventRules)->validate();
-            Validator::make($ratings, $ratingsRules)->validate();
+            $validatedEvents = Validator::make($events, $eventRules)->validate();
+            $validatedRatings = Validator::make($ratings, $ratingsRules)->validate();
 
-            DB::table('match_details')->insert($events);
-            DB::table('match_ratings')->insert($ratings);
+            DB::table('match_details')->insert($validatedEvents);
+            DB::table('match_ratings')->insert($validatedRatings);
         }
 
+        
+
         DB::table('match_images')->insert($images);
-        $fixture->completed = 2;
+        $fixture->completed = $completed;
         $fixture->save();
     
 }
 
-public function getEvents(){
-    
-}
+    public function deleteImage($request){
+        $validatedData = $request->validate([
+            'id'=>['required','numeric'],
+        ]);
 
-public function approveResult($request){
+        unlink(public_path('/images/match_events/'.MatchImage::find($validatedData['id'])->image));
 
-    $validatedData = $request->validate([
+        return MatchImage::destroy($validatedData['id']);
+    }
 
-        'fixture_id'=>['required','integer',
-                            Rule::exists('fixtures','id')->where(function($query){
-                                $query->whereIn('completed',[2]);
-                            })],
-    ]);
 
-    $fixture = $this->fixtureRepo()->with('events')->findOrFail($validatedData['fixture_id']);
+    public function approveResult($request){
 
-    $events = $fixture->events;
+        $validatedData = $request->validate([
 
-    $match_status = 0;
-    $team1_goals = 0;
-    $team2_goals = 0;
+            'fixture_id'=>['required','integer',
+                                Rule::exists('fixtures','id')->where(function($query){
+                                    $query->whereIn('completed',[2]);
+                                })],
+        ]);
 
-    $team1_goal = $events
-                    ->where('event_id',1)
-                    ->where('club_id',$fixture->team1_id)
-                    ->count();
+        $fixture = $this->fixtureRepo()->with('events')->findOrFail($validatedData['fixture_id']);
 
-    $team1_own_goal = $events
-                        ->where('event_id',4)
+        $events = $fixture->events;
+
+        $match_status = 0;
+        $team1_goals = 0;
+        $team2_goals = 0;
+
+        $team1_goal = $events
+                        ->where('event_id',1)
                         ->where('club_id',$fixture->team1_id)
                         ->count();
 
-    $team2_goal = $events
-                    ->where('event_id',1)
-                    ->where('club_id',$fixture->team2_id)
-                    ->count();
+        $team1_own_goal = $events
+                            ->where('event_id',4)
+                            ->where('club_id',$fixture->team1_id)
+                            ->count();
 
-    $team2_own_goal = $events
-                        ->where('event_id',4)
+        $team2_goal = $events
+                        ->where('event_id',1)
                         ->where('club_id',$fixture->team2_id)
                         ->count();
 
+        $team2_own_goal = $events
+                            ->where('event_id',4)
+                            ->where('club_id',$fixture->team2_id)
+                            ->count();
 
-    $team1_goals = $team1_goal + $team2_own_goal;
-    $team2_goals = $team2_goal + $team1_own_goal;
-                
-    if($team1_goals > $team2_goals){
-        $match_status = $fixture->team1_id;
+
+        $team1_goals = $team1_goal + $team2_own_goal;
+        $team2_goals = $team2_goal + $team1_own_goal;
+                    
+        if($team1_goals > $team2_goals){
+            $match_status = $fixture->team1_id;
+        }
+        if($team1_goals < $team2_goals){
+            $match_status = $fixture->team2_id;
+        }
+
+        DB::table('match_results')->insert([
+            'fixture_id'=>$validatedData['fixture_id'],
+            'match_status'=>$match_status,
+            'team1_goals'=>$team1_goals,
+            'team2_goals'=>$team2_goals,
+        ]);
+
+        $fixture->completed = 1;
+        $fixture->save();
+
+
     }
-    if($team1_goals < $team2_goals){
-        $match_status = $fixture->team2_id;
+
+    public function addImage($request){
+        
+
+        $validatedData =  Validator::make($request->all(),[
+
+            'fixture_id'=>['required','integer',
+                            Rule::exists('fixtures','id')->where(function($query){
+                                $query->whereIn('completed',[0,2]);
+                            })],
+            'field'=>['required','numeric','max:3','min:1'],
+            'images'=>['required','array'],
+            'images.*'=>['mimes:jpeg,jpg,png'],
+            
+        ])->validate();
+
+
+        $fixture = Fixture::find($validatedData['fixture_id']);
+
+        if($fixture->team1_id != Auth::id() && $fixture->team2_id != Auth::id()){
+            abort(403,'Permission Denied');
+        }
+
+        $images = collect($validatedData['images'])->map(function($item) use($validatedData){
+            $item->store('match_events');
+            return [
+                'image'=>$item->hashName(),
+                'fixture_id'=>$validatedData['fixture_id'],
+                'submitted_by'=>Auth::id(),
+                'field'=>$validatedData['field']
+            ];
+
+        })->toArray();
+
+        DB::table('match_images')->insert($images);
+
+        return $fixture->images;
+       
     }
-
-    DB::table('match_results')->insert([
-        'fixture_id'=>$validatedData['fixture_id'],
-        'match_status'=>$match_status,
-        'team1_goals'=>$team1_goals,
-        'team2_goals'=>$team2_goals,
-    ]);
-
-    $fixture->completed = 1;
-    $fixture->save();
-
-
-}
 
 
 

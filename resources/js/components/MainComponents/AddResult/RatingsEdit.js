@@ -3,7 +3,7 @@ import { Grid,makeStyles } from '@material-ui/core'
 import Mtable from '@customComponent/Mtable'
 import { MTableToolbar } from 'material-table';
 import { useDispatch } from 'react-redux';
-import { addRatingToState, updateRatingToState } from '../../Redux/actions/resultAddAction';
+import { addRatingToState, updateRatingToState, ratingsUpdated, updateRatings } from '../../Redux/actions/resultAddAction';
 import clsx from 'clsx';
 import { editableRatingsTableColumns } from '../../CData/table';
 
@@ -25,10 +25,10 @@ const useStyles = makeStyles(theme=>({
     },
 }))
 
-export default function RatingsEdit({team1_players,team2_players,team1_id,team2_id,ratings,className}) {
+export default function RatingsEdit({team1_players,team2_players,team1_id,team2_id,ratings,className,fixture_id,loading,updateMode,editable}) {
 
     const classes  = useStyles();
-
+   
     return (
         <Grid container spacing={3} className={clsx(classes.container,className)} >
             <Grid item sm={4} >
@@ -37,8 +37,10 @@ export default function RatingsEdit({team1_players,team2_players,team1_id,team2_
                    players={team1_players}
                    club_id={team1_id}
                    team={1}
-                   ratings={ratings.team1}
-                
+                   ratings={ratings.filter(item=>item.club_id == team1_id)}
+                   fixture_id={fixture_id}
+                   updateMode={updateMode}
+                   editable={editable}
                 />
             </Grid>
 
@@ -51,8 +53,11 @@ export default function RatingsEdit({team1_players,team2_players,team1_id,team2_
                     players={team2_players}
                     club_id={team2_id}
                     team={2}
-                    ratings={ratings.team2}
-                    />
+                    ratings={ratings.filter(item=>item.club_id == team2_id)}
+                    fixture_id={fixture_id}
+                    updateMode={updateMode}
+                    editable={editable}
+                />
             </Grid>
 
             
@@ -61,7 +66,7 @@ export default function RatingsEdit({team1_players,team2_players,team1_id,team2_
     )
 }
 
-function RatingsTable({players,club_id,team,ratings}){
+function RatingsTable({players,club_id,team,ratings,fixture_id,updateMode,editable}){
 
     const dispatch = useDispatch();
 
@@ -71,15 +76,20 @@ function RatingsTable({players,club_id,team,ratings}){
 
         new Promise((resolve,reject)=>{
          
-        console.log({changes})
             const updatedData = ratings.map((item,index)=>(
                 Object.keys(changes).includes(index.toString()) ? 
                     changes[index].newData
                     :
                     item
             ))
-          
-            dispatch(addRatingToState(updatedData,team))
+
+            if(updateMode){
+                dispatch(updateRatings({fixture_id,ratings:updatedData}))
+            }else{
+                updatedData.map(item=>{
+                    dispatch(ratingsUpdated(item))    
+                })
+            }
             resolve();
   
         })
@@ -87,16 +97,19 @@ function RatingsTable({players,club_id,team,ratings}){
 
     useEffect(()=>{
 
-        const newData = players.map(player=>({
-            player_id:player.id,
-            rating:0,
-            club_id
-        }))
-
-        dispatch(addRatingToState(newData,team))
+        if(ratings.length == 0){
+            const newData = players.map((player,index)=>({
+                id:team == 2 ? index + 30  : index,
+                player_id:player.id,
+                rating:0,
+                club_id,
+                fixture_id
+            }))
+    
+            dispatch(addRatingToState(newData))
+        }
 
     },[])
-
 
 
 
@@ -104,12 +117,13 @@ function RatingsTable({players,club_id,team,ratings}){
     const classes  = useStyles();
 
     return(
+
         <Mtable 
             columns={columns}
             data={ratings}
             search={false}
             title='Ratings'
-            handleBulkUpdate={handleBulkUpdate}
+            handleBulkUpdate={editable ? handleBulkUpdate : false }
             header={{padding:'8px'}}
             edit={true}
             sorting={false}
