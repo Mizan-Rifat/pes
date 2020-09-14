@@ -1,15 +1,19 @@
-import React,{useState,useEffect} from 'react'
-import { Container, makeStyles,Button } from '@material-ui/core'
-import Events from './Events'
-import Ratings from './Ratings'
-import Teams from '@customComponent/Teams';
-import SubmitBtn from '@customComponent/SubmitBtn';
-import { fetchResultDetails } from '../../Redux/actions/resultActions'
+import React,{useState, useEffect} from 'react'
+import { Container, makeStyles, Button, CircularProgress } from '@material-ui/core'
+import RatingsEdit from './RatingsEdit'
+import EventsEdit from './EventsEdit';
 import { useSelector, useDispatch } from 'react-redux';
+import { fetchFixtureDetails, addMatchResult,loadingTrue, resetAddResult, fetchSubmittedResult } from '../../Redux/actions/resultAddAction';
+import clsx from 'clsx';
+import SubmitBtn from '@customComponent/SubmitBtn';
 import Progress from '@customComponent/Progress';
-import { useHistory } from 'react-router-dom'
-import { fetchSubmittedResult, submittedResultFetched } from '../../Redux/actions/resultAddAction';
-import ImageBox from './ImageBox';
+import Notify from '@customComponent/Notify';
+import { useHistory,Link } from 'react-router-dom';
+import Restricted from '@customComponent/Restricted';
+import Teams from '@customComponent/Teams';
+import ImageUpload from '../../CustomComponent/ImageUpload';
+import ImageBox from '../ApproveResult.js/ImageBox';
+
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -21,130 +25,217 @@ const useStyles = makeStyles(theme=>({
         // justifyContent: 'center',
         alignItems: 'center',
         height: '100%',
+    },
+    disable:{
+        pointerEvents:'none',
+        opacity:'.5'
     }
 }))
 
 
-export default function ApproveResult(props) {
+export default function EditResult(props) {
     const classes  = useStyles();
 
+    const toast = Notify();
     const history = useHistory();
 
+    const [btnDisable, setBtnDisable] = useState(true)
+
+    const match_id = props.match.params.match_id
+
     const {
-        fetching,
-        // submittedResult,
-        error,
         fixture,
         events,
         ratings,
-        event_images_sub_by_team1,
-        event_images_sub_by_team2,
-        team1_ratings_images_sub_by_team1,
-        team1_ratings_images_sub_by_team2,
-        team2_ratings_images_sub_by_team1,
-        team2_ratings_images_sub_by_team2,
-    } = useSelector(state=>state.addResult)
+        eventsImages,
+        ratings1Images,
+        ratings2Images,
+        eventKey,
+        ratingKey,
+        loading,
+        fetching,
+        images
+    } = useSelector(state => state.addResult)
 
-
+    const {user} = useSelector(state => state.session)
     const dispatch = useDispatch();
-
-    const match_id = props.match.params.match_id;
-
-    const handleApproveResult = ()=>{
-
-    }
 
     useEffect(()=>{
         dispatch(fetchSubmittedResult(match_id))
     },[])
+    
+    useEffect(()=>{
+        if(Object.keys(ratings).length > 0){
+            let t1 = ratings.filter(rating=>rating.club_id == fixture.team1_id && rating.rating != 0).length;
+            let t2 = ratings.filter(rating=>rating.club_id == fixture.team2_id && rating.rating != 0).length;
+            if(t1 > 10 && t2 > 10){
+                setBtnDisable(false)
+            }else{
+                setBtnDisable(true)
+            }
+        }   
+    },[ratings])
+
+  
 
     return (
-        <>
+        <Container>
             {
-                fetching ?
-
-                <Progress />
-                :
-
+                fetching ? <Progress size={30} /> : 
                 <>
 
                     {
-                        Object.keys(error).length > 0 ? 
+                        fixture.completed === true ? 
 
-                        <div className='text-center mt-5'>
-                            <h5>Result not found.</h5>
-                            <Button variant='contained' color='secondary' onClick={()=>history.goBack()} className='my-4' >
-                                Go Back
-                            </Button>
-                        </div>
-
+                        <Restricted msg='The Result Of This Match Has Already Been Added.' />
                         :
 
-                        <Container>
-                            <div  style={{marginTop:'120px',marginBottom:'25px'}}>
-                                <Teams 
-                                    fixtureDetails = {fixture} 
-                                    panel='vs'
-                                />
-                            </div>
-                            <Container>
-                                <Events 
-                                    team1_events={events.team1} 
-                                    team2_events={events.team2} 
-                                />
+                        <>
 
-                                <ImageBox 
-                                    title={`Events (sumitted by ${fixture.team1_details.name})`}
-                                    images={event_images_sub_by_team1}
-                                />
+                        {
+                        
+                            fixture.team1_id != user.club.id && fixture.team2_id != user.club.id ?
 
-                                <ImageBox 
-                                    title={`Events (sumitted by ${fixture.team2_details.name})`}
-                                    images={event_images_sub_by_team2}
-                                />
-                                
-                                <Ratings
-                                    team1_name={fixture.team1_details.name} 
-                                    team2_name={fixture.team2_details.name} 
-                                    team1_ratings = {ratings.team1}
-                                    team2_ratings = {ratings.team2}
-                                />
+                            // false ?
 
-                                <ImageBox 
-                                    title={`${fixture.team1_details.name} Ratings (sumitted by ${fixture.team1_details.name})`}
-                                    images={team1_ratings_images_sub_by_team1}
-                                />
+                                <Restricted msg="You Can't Add Result Of This Match." />
 
-                                <ImageBox 
-                                    title={`${fixture.team1_details.name} Ratings (sumitted by ${fixture.team2_details.name})`}
-                                    images={team1_ratings_images_sub_by_team2}
-                                />
-
-                                <ImageBox 
-                                    title={`${fixture.team2_details.name} Ratings (sumitted by ${fixture.team1_details.name})`}
-                                    images={team2_ratings_images_sub_by_team1}
-                                />
-
-                                <ImageBox 
-                                    title={`${fixture.team2_details.name} Ratings (sumitted by ${fixture.team2_details.name})`}
-                                    images={team2_ratings_images_sub_by_team2}
-                                />
-
-                                <div className='text-center py-5'>
-                                    <SubmitBtn 
-                                        label='Submit Result'
-                                        handleSubmit={handleApproveResult}
-                                        disabled={false}
-                                        progressStyle={{left:'41%',top:'20%'}}
+                            :
+                        
+                            <div className={clsx({[classes.disable]:loading})}>
+                                <div  style={{marginTop:'120px',marginBottom:'25px'}}>
+                                    <Teams 
+                                        panel='vs'
+                                        fixtureDetails={fixture}
                                     />
                                 </div>
+                                <Container>
 
-                                
-                            </Container>
-                        </Container>
-                    }   
+                                    {
+                                        fixture.team2_id != user.club.id ?
+                                        
+                                        <>
+                                            <EventsEdit
+                                                events={events} 
+                                                team1_id={fixture.team1_id}
+                                                team2_id={fixture.team2_id}
+                                                team1_players={fixture.team1_details.players} 
+                                                team2_players={fixture.team2_details.players}
+                                                loading={loading}
+                                                className={clsx({[classes.disable] : loading })}
+                                                fixture_id={fixture.id}
+                                                eventKey={eventKey}
+                                                updateMode={true}
+                                                editable={true} 
+                                            />
+                                            <ImageBox 
+                                                title={`Events`}
+                                                images={images.filter(item=>item.submitted_by == fixture.team1_id && item.field == 'event')}
+                                                loading={loading}
+                                                updateMode={true}
+                                            />
+
+                                        </>
+                                        :
+                                        <ImageBox 
+                                            title={`Events`}
+                                            images={images.filter(item=>item.submitted_by == fixture.team2_id && item.field == 'event')}
+                                            loading={loading}
+                                            className={clsx({[classes.disable] : loading })}
+                                            updateMode={true}
+                                        />
+
+                                    }
+
+
+                                    <ImageUpload 
+                                        buttonText='Upload Event images'
+                                        label='eventsImages'
+                                        updateMode={true}
+                                        fixture_id={fixture.id}
+                                    />
+
+                                    {
+                                        fixture.team2_id != user.club.id ?
+                                        <>
+                                            <RatingsEdit
+                                                ratings={ratings}
+                                                team1_id={fixture.team1_id}
+                                                team2_id={fixture.team2_id} 
+                                                team1_players={fixture.team1_details.players} 
+                                                team2_players={fixture.team2_details.players}
+                                                loading={loading} 
+                                                className={clsx({[classes.disable] : loading })}
+                                                fixture_id={fixture.id} 
+                                                ratingKey={ratingKey}
+                                                updateMode={true}
+                                                editable={true}
+                                                 
+                                            />
+
+                                            <ImageBox 
+                                                title={`${fixture.team1_details.name} Ratings`}
+                                                images={images.filter(item=>item.submitted_by == fixture.team1_id && item.field == 'team1_Rating')}
+                                                loading={loading}
+                                                className={clsx({[classes.disable] : loading })}
+                                                updateMode={true}
+                                            />
+
+                                            <ImageBox 
+                                                title={`${fixture.team2_details.name} Ratings`}
+                                                images={images.filter(item=>item.submitted_by == fixture.team1_id && item.field == 'team2_Rating')}
+                                                loading={loading}
+                                                className={clsx({[classes.disable] : loading })}
+                                                updateMode={true}
+                                            />
+
+                                            
+
+                                        </>
+
+                                        :
+                                        <>
+
+                                            <ImageBox 
+                                                title={`${fixture.team1_details.name} Ratings`}
+                                                images={images.filter(item=>item.submitted_by == fixture.team2_id && item.field == 'team1_Rating')}
+                                                className={clsx({[classes.disable] : loading })}
+                                                updateMode={true}
+                                            />
+                                            
+
+                                            <ImageBox 
+                                                title={`${fixture.team2_details.name} Ratings`}
+                                                images={images.filter(item=>item.submitted_by == fixture.team2_id && item.field == 'team2_Rating')}
+                                                className={clsx({[classes.disable] : loading })}
+                                                updateMode={true}
+                                            />
+                                        </>
+                                    }
+
+                                    <ImageUpload 
+                                        buttonText='Upload team1 ratings images'
+                                        label='ratings1Images'
+                                        updateMode={true}
+                                        fixture_id={fixture.id}
+                                    />
+                                    <ImageUpload 
+                                        buttonText='Upload team2 ratings images'
+                                        label='ratings2Images'
+                                        updateMode={true}
+                                        fixture_id={fixture.id}
+                                    />
+
+                                </Container>
+                            </div>
+                        }
+
+                        </>
+
+                    }
+                    
                 </>
             }
-        </>        
+        </Container>
     )
 }

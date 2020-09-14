@@ -25,6 +25,7 @@ import { purple,pink,red } from '@material-ui/core/colors';
 import LandingPage from './MainComponents/Landing'
 import Profile from './MainComponents/Profile/Profile';
 import ApproveResult from './MainComponents/ApproveResult.js/ApproveResult';
+import EditResult from './MainComponents/AddResult/EditResult';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -105,11 +106,12 @@ export default function Routes() {
                             <Route path='/' exact component={LandingPage} />
                             <Route path='/tournament/:title/:details' component={MTournament} />
                             <Route path='/club/:slug' component={Club} />
-                            <Route path='/resultdetails/:match_id' component={ResultDetails} />
-                            <Route path='/addresult/:match_id' component={AddResult} />
+                            <Route path='/result/details/:match_id' component={ResultDetails} />
+                            <Route path='/result/add/:match_id' component={AddResult} />
                             <Route path='/test' component={Test} />
                             <Route path='/profile' component={Profile} />
                             <Route path='/result/approve/:match_id' component={ApproveResult} />
+                            <Route path='/result/update/:match_id' component={EditResult} />
                             
                         </Switch>
                     </MainLayout>

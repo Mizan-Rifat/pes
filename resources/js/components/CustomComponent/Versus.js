@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {makeStyles} from '@material-ui/core';
 import dateFormat from "dateformat";
 import { Link } from 'react-router-dom';
@@ -28,8 +28,27 @@ export default function Versus({panel,data,vdb,adb}){
 
 
     const {user} = useSelector(state => state.session)
+    const [mode, setmode] = useState(0);
+    const {team1_goals,team2_goals,date,round,leg,team1_id,team2_id,completed} = data
 
-    const {team1_goals,team2_goals,date,round,leg,team1_id,team2_id} = data
+    useEffect(()=>{
+        if(Object.keys(user).length > 0  && adb){
+            if(team1_id == user.club.id){
+                if(completed == 0 || completed == 4){
+                    setmode(1)
+                }else{
+                    setmode(2)
+                }
+            }
+            if(team2_id == user.club.id){
+                if(completed == 0 || completed == 3){
+                    setmode(1)
+                }else{
+                    setmode(2)
+                }
+            }
+        }
+    },[])
     return(
         <div className={classes.container}>
             {
@@ -50,21 +69,27 @@ export default function Versus({panel,data,vdb,adb}){
             <small className={classes.small}>Leg {leg}</small>
             {
                 vdb && 
-                    <Link to={`/resultdetails/${data.id}`} style={{display:'block'}}>
+                    <Link to={`/result/details/${data.id}`} style={{display:'block'}}>
                         <small className={classes.small}>View Details</small>
                     </Link>
             }
             {
-                adb ?
-
-                    user.id == team1_id || user.id == team2_id ?
+                
+                    mode == 1 &&
                      
-                    <Link to={`/addresult/${data.id}`} style={{display:'block'}}>
-                        <small className={classes.small}>Add Result</small>
-                    </Link>
-                    : ''
-
-                : ''
+                        <Link to={`/result/add/${data.id}`} style={{display:'block'}}>
+                            <small className={classes.small}>Add Result</small>
+                        </Link>
+                    
+            }
+            {
+                
+                    mode == 2 &&
+                     
+                        <Link to={`/result/update/${data.id}`} style={{display:'block'}}>
+                            <small className={classes.small}>Update Result</small>
+                        </Link>
+                    
             }
         </div>
     )

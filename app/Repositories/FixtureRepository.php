@@ -32,7 +32,7 @@ class FixtureRepository
             $fixtures = $this->tournamentRepo
                         ->find($validatedData['tournament_id'])
                         ->fixtures()
-                        ->whereIn('completed',[0,2])
+                        ->where('completed','!=',1)
                         ->with(isset($validatedData['admin']) ? [] : ['team1','team2'])
                         ->get();
 

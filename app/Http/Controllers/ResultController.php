@@ -11,6 +11,7 @@ use App\Http\Resources\PlayerResource;
 use App\Http\Resources\ResultResource;
 use App\Model\Fixture;
 use App\Model\MatchDetails;
+use App\Model\MatchImage;
 use App\Repositories\ClubRepository;
 use App\Repositories\FixtureRepository;
 use App\Repositories\ResultRepository;
@@ -70,7 +71,26 @@ class ResultController extends Controller
             'fixture_id' => ['required','numeric']
         ]);
         
-        $fixture = $this->fixtureRepo->with(['result',"events",'ratings','team1','team2','images'])->where('completed',2)->findOrFail($vd['fixture_id']);
+        $fixture = $this->fixtureRepo->with(['result',"events",'ratings','team1.players','team2.players','images'])->whereIn('completed',[2,3,4])->findOrFail($vd['fixture_id']);
+        
+        return response()->json([
+            'data'=> [
+                'fixture' => new FixtureResource($fixture),
+                'events'=> MatchEventsResource::collection($fixture->events),
+                'ratings' => MatchRatingsResource::collection($fixture->ratings),
+                'images'=>MatchImageResource::collection($fixture->images)
+            ]
+        ]);
+
+    }
+    
+    public function getSubmittedResultDetails2(Request $request){
+
+        $vd = $request->validate([
+            'fixture_id' => ['required','numeric']
+        ]);
+        
+        $fixture = $this->fixtureRepo->with(['result',"events",'ratings','team1.players','team2.players','images'])->where('completed',2)->findOrFail($vd['fixture_id']);
 
         $team1_events = $fixture->events
             ->where('club_id',$fixture->team1_id);
@@ -89,7 +109,7 @@ class ResultController extends Controller
             return $this->getResultDetailsForAdmin($fixture);
         }
 
-        $request->merge(['playerDetails'=>1]);
+        // $request->merge(['playerDetails'=>1]);
 
 
         $event_images_sub_by_team1 = $fixture->images
@@ -181,6 +201,12 @@ class ResultController extends Controller
             'data'=>new MatchEventsResource($event)
         ],200);
     }
+    
+    public function updateMatchRatings(Request $request){
+       $ratings = $this->resultRepo->updateMatchRatings($request);
+       return MatchRatingsResource::collection($ratings) ;
+       
+    }
 
 
 
@@ -189,6 +215,7 @@ class ResultController extends Controller
 
         if($delete){
             return response()->json([
+                'data'=>$request['id'],
                 'message' => 'Event(s) removed successfully.',
             ],200);
             }else{
@@ -196,6 +223,30 @@ class ResultController extends Controller
                     'message' => 'Event(s) not removed.',
                 ],500);
             }
+    }
+     public function deleteMatchImage(Request $request){
+        $delete = $this->resultRepo->deleteImage($request);
+
+        if($delete){
+            return response()->json([
+                'data'=>$request['id'],
+                'message' => 'Image(s) removed successfully.',
+            ],200);
+            }else{
+                return response()->json([
+                    'message' => 'Image(s) not removed.',
+                ],500);
+            }
+    }
+
+    public function addImage(Request $request){
+        $images = $this->resultRepo->addImage($request);
+
+        return response()->json([
+            'message'=>'Image(s) added successfully.',
+            'data'=>MatchImageResource::collection($images)
+        ],200);
+
     }
 
 
@@ -244,7 +295,7 @@ class ResultController extends Controller
 
     public function addMatchResult(Request $request){
 
-       $this->resultRepo->addResultForApproval($request);
+       return $this->resultRepo->addResultForApproval($request);
 
         return response()->json([
             'message'=>'Result Added Successfully.'

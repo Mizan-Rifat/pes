@@ -23,10 +23,10 @@ export const fetchingFalse = () =>{
     }
 }
 
-export const addEventToState = (event,label) =>{
+export const addEventToState = (event) =>{
     return {
         type:'ADD_EVENT_TO_STATE',
-        payload:{event,label}
+        payload:event
     }
 }
 export const eventUpdated = (event) =>{
@@ -35,29 +35,30 @@ export const eventUpdated = (event) =>{
         payload:event
     }
 }
-export const addTeam1EventToState = (event) =>{
-    return {
-        type:'ADD_TEAM1_EVENT_TO_STATE',
-        payload:event
-    }
-}
-export const addTeam2EventToState = (event) =>{
-    return {
-        type:'ADD_TEAM2_EVENT_TO_STATE',
-        payload:event
-    }
-}
-export const removeEventFromState = (team,id) =>{
+
+export const removeEventFromState = (id) =>{
     return {
         type:'REMOVE_EVENT_FROM_STATE',
-        payload:{team,id}
+        payload:{id}
     }
 }
 
-export const addRatingToState = (ratings,team) =>{
+export const addRatingToState = (ratings) =>{
     return {
         type:'ADD_RATING_TO_STATE',
-        payload:{ratings,team}
+        payload:ratings
+    }
+}
+export const ratingsUpdated = (ratings) =>{
+    return {
+        type:'RATINGS_UPDATED',
+        payload:ratings
+    }
+}
+export const ratingsEdited = (ratings) =>{
+    return {
+        type:'RATINGS_EDITED',
+        payload:ratings
     }
 }
 
@@ -80,10 +81,22 @@ export const resetAddResult = () =>{
         
     }
 }
-export const addImages = (label,images) =>{
+export const setImages = (label,images) =>{
     return {
         type:'SET_IMAGES',
         payload:{label,images}
+    }
+}
+export const imageDeleted = (id) =>{
+    return {
+        type:'IMAGE_DELETED',
+        payload:{id}
+    }
+}
+export const imageAdded = (images) =>{
+    return {
+        type:'IMAGE_ADDED',
+        payload:images
     }
 }
 
@@ -115,37 +128,6 @@ export const fetchSubmittedResult = (fixture_id) => (dispatch) =>{
     return getAction(actions,url,dispatch);
 }
 
-
-export const addEvent = (data,key) => (dispatch) =>(
-
-    new Promise((resolve,reject)=>{
-        
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/api/result/add/event`,data).then(response=>{
-
-                dispatch(eventAdded(response.data.event,key))
-               
-                resolve(response.data.message)
-
-            }).catch(error=>{
-
-                switch (error.response.status) {
-                    case 422:
-                        console.log(error.response.data.errors)
-                        reject(error.response.data.errors)
-                        break;
-                    case 500:
-                        console.log(error.response.data.message)
-                        reject({msg:error.response.data.message})
-                        break;
-                
-                    default:
-                        break;
-                }
-            })
-        })
-    })
-);
 export const addRating = (data,key) => (dispatch) =>(
 
     new Promise((resolve,reject)=>{
@@ -176,15 +158,63 @@ export const updateEvent = (data) => (dispatch) => {
 }
 export const addEvent = (data) => (dispatch) => {
     
-    const url ='/api/result/update/event',
+    const url ='/api/result/event/add',
     actions={
         loading:loadingTrue,
-        success:eventUpdated,
+        success:addEventToState,
         error:setErrors
     }
     return postAction(actions,url,data,dispatch);
 }
-
-export const eventAdded = (data) => (dispatch) => {
+export const deleteEvent = (id) => (dispatch) => {
     
+    const url ='/api/result/event/delete',
+    actions={
+        loading:loadingTrue,
+        success:removeEventFromState,
+        error:setErrors
+    }
+    return postAction(actions,url,id,dispatch);
+}
+
+export const deleteimage = (id) => (dispatch) => {
+    
+    const url ='/api/result/image/delete',
+    actions={
+        loading:loadingTrue,
+        success:imageDeleted,
+        error:setErrors
+    }
+    return postAction(actions,url,id,dispatch);
+}
+export const addImages = (data,config) => (dispatch) => {
+    
+    const url ='/api/result/image/add',
+    actions={
+        loading:loadingTrue,
+        success:imageAdded,
+        error:setErrors
+    }
+    return postAction(actions,url,data,dispatch,config);
+}
+export const updateRatings = (data) => (dispatch) => {
+    
+    const url ='/api/result/ratings/update',
+    actions={
+        loading:loadingTrue,
+        success:ratingsEdited,
+        error:setErrors
+    }
+    return postAction(actions,url,data,dispatch);
+
+}
+export const approveResult = (data) => (dispatch) => {
+    
+    const url ='/api/result/approve',
+    actions={
+        loading:loadingTrue,
+        success:loadingFalse,
+        error:setErrors
+    }
+    return postAction(actions,url,data,dispatch);
 }

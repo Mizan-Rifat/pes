@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function MAppBar(props) {
+export default function MyAppBar(props) {
 
   const {handleDrawerToggle,panel} = props
 
@@ -152,7 +152,6 @@ function HideOnScroll(props) {
   const trigger = useScrollTrigger();
   // const trigger = useScrollTrigger({ target: window ? window() : undefined });
 
-  console.log({trigger})
 
   return (
     <Slide appear={false} direction="down" in={!trigger}>

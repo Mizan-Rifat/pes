@@ -98,7 +98,6 @@ export const editableEventsTableColumns = (players) => {
             title:'Assisted',
             field:'assist_player_id',
             lookup:{
-                0:'None',
                 ...playerLookup(players)
             },
             cellStyle:{
