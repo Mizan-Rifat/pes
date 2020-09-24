@@ -1,4 +1,5 @@
 const initState = {
+    fetching:true,
     loading:true,
     fixtures:[],
     error:{},
@@ -12,7 +13,9 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 fixtures:action.payload,
-                loading:false
+                loading:false,
+                fetching:false
+
             }
         
         case 'DELETE_FIXTURE':
@@ -51,6 +54,18 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 loading:false
+            }
+        case 'FIXURES_FETCHING_TRUE':
+        
+            return {
+                ...state,
+                fetching:true
+            }
+        case 'FIXURES_FETCHING_FALSE':
+            
+            return {
+                ...state,
+                fetching:false
             }
         case 'SET_ERRORS':
             

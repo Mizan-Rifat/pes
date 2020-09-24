@@ -10964,25 +10964,6 @@ p.p {
   padding: 5px !important;
 }
 
-@media all and (max-width: 480px) {
-  .responsiveTable .MuiTable-root tr {
-    display: table;
-    width: 100%;
-  }
-
-  .responsiveTable .MuiTable-root td {
-    display: table-row;
-  }
-
-  .responsiveTable .MuiTableCell-root {
-    border-bottom: unset;
-  }
-
-  .responsiveTable .MuiTableRow-root {
-    border-bottom: 1px solid #e0e0e0;
-  }
-}
-
 .fileContainer {
   background: unset !important;
   box-shadow: unset !important;
@@ -11002,5 +10983,32 @@ p.p {
   line-height: unset !important;
   width: 19px !important;
   height: 19px !important;
+}
+
+.ScrollbarsCustom-Track {
+  width: 5px !important;
+}
+
+@media all and (max-width: 480px) {
+  .responsiveTable .MuiTable-root tr {
+    display: table;
+    width: 100%;
+  }
+
+  .responsiveTable .MuiTable-root td {
+    display: table-row;
+  }
+
+  .responsiveTable .MuiTableCell-root {
+    border-bottom: unset;
+  }
+
+  .responsiveTable .MuiTableRow-root {
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .uploadPictureContainer {
+    width: 100% !important;
+  }
 }
 

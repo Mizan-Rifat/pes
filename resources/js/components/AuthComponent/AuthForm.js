@@ -29,7 +29,8 @@ const useStyles = makeStyles(theme=>({
 export default function AuthForm(props) {
   const classes = useStyles();
 
-  const {formData, setFormData,inputFields,submitMethod,label,panel} = props
+  const {formData, setFormData,inputFields,submitMethod,label,panel,from} = props
+
 
   const dispatch = useDispatch();
 
@@ -49,13 +50,22 @@ export default function AuthForm(props) {
     };
 
     const handleSubmit = (e)=>{
+      console.log('fsd')
         e.preventDefault();
         dispatch(submitMethod(formData))
         .then(response=>{
+          console.log('f045')
           if(panel == 'admin'){
             history.push('/admin')
           }else{
-            history.push('/')
+            if(!from){
+              console.log('f00')
+              history.push('/')  
+            }else{
+              console.log({from})
+              history.push(from)
+            }
+            
           }
         })
         .catch(error=>{

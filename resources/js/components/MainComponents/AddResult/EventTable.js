@@ -115,6 +115,7 @@ export default function EventTable({players,club_id,events,loading,fixture_id,ev
     return (
         <Mtable 
                 columns={columns}
+                // headerLess={true}
                 // loading={loading}
                 data={events}
                 handleAddRow={ editable ? handleAddRow : false}
@@ -124,15 +125,10 @@ export default function EventTable({players,club_id,events,loading,fixture_id,ev
                 title='Events'
                 header={{padding:'8px'}}
                 search={false}
-                components={{
-                    Toolbar: props => (
-    
-                      <div className='detailTable'>
-                          <MTableToolbar {...props} classes={{root:classes.toolbar}} />
-                      </div>
-                      
-                    ),
-                  }}
+                toolbarLess={true}
+
+  
+               
             />
     )
 }

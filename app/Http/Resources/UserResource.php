@@ -22,6 +22,8 @@ class UserResource extends JsonResource
             'club'=>new ClubResource($this->whenLoaded('club')),
             'fbID'=>$this->fbID,
             'blocked'=>$this->blocked == 0 ? false : true,
+            'notifications'=>NotificationsResource::collection($this->whenLoaded('notifications')),
+            // 'unread_notifications_count'=>$this->when($this->unread_notifications_count != null,$this->unread_notifications_count)
         ];
     }
 }

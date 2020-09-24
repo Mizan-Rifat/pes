@@ -50,6 +50,7 @@ export default function ClubInfo({user}) {
     const [editMode,setEditMode] = useState(false)
     const [createMode,setCreateMode] = useState(false)
 
+    const {gInfo} = useSelector(state=>state.gInfo)
     const history = useHistory();
 
     const [fields, setFields] = useState([
@@ -114,6 +115,7 @@ export default function ClubInfo({user}) {
                             initEditMode={false}
                             editMode={editMode}
                             setEditMode={setEditMode}
+                            editable={gInfo.pre_season || user.club == null || user.club.tournaments.length == 0} 
                             saveAction={createMode ? createClub : updateClubInfo}
 
                         />

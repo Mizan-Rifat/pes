@@ -86,6 +86,7 @@ export default function AllClubs() {
                 loading={loading}
                 paging={true}
                 selectMode={true}
+                editable={true}
                 actions={[
                     {
                       tooltip: 'Send Invitation',

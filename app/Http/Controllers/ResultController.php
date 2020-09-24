@@ -17,6 +17,7 @@ use App\Repositories\FixtureRepository;
 use App\Repositories\ResultRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class ResultController extends Controller
 {
@@ -67,11 +68,21 @@ class ResultController extends Controller
 
     public function getSubmittedResultDetails(Request $request){
 
-        $vd = $request->validate([
-            'fixture_id' => ['required','numeric']
+        // $vd = $request->validate([
+        //     'fixture_id' => ['required','numeric']
+        // ]);
+
+        $vd = Validator::make($request->all(),[
+            'fixture_id' => ['required','integer'],
         ]);
+
+        if($vd->fails()){
+            abort(404,'Not Found.');
+        }
+
+        $fixture_id = $vd->valid()['fixture_id'];
         
-        $fixture = $this->fixtureRepo->with(['result',"events",'ratings','team1.players','team2.players','images'])->whereIn('completed',[2,3,4])->findOrFail($vd['fixture_id']);
+        $fixture = $this->fixtureRepo->with(['result',"events",'ratings','team1.players','team2.players','images'])->whereIn('completed',[2,3,4])->findOrFail($fixture_id);
         
         return response()->json([
             'data'=> [
@@ -295,7 +306,7 @@ class ResultController extends Controller
 
     public function addMatchResult(Request $request){
 
-       return $this->resultRepo->addResultForApproval($request);
+       $this->resultRepo->addResultForApproval($request);
 
         return response()->json([
             'message'=>'Result Added Successfully.'

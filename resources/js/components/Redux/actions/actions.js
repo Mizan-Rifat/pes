@@ -1,24 +1,37 @@
+
+
+
 export const postAction = (actions,url,formData,dispatch,config={}) =>(
 
     new Promise((resolve,reject)=>{
         
-        dispatch(actions.loading())
+        if(actions.hasOwnProperty('loading')){
+            dispatch(actions.loading())
+        }
+        
 
         axios.get('/sanctum/csrf-cookie')
         .then(response => {
             
             axios.post(url,formData,config)
                 .then(response=>{
-                    dispatch(actions.success(response.data.data))
+                    
+                    if(Array.isArray(actions.success)){
+                        actions.success.map(item=>{
+                            dispatch(item(response.data.data))
+                        })
+                    }else{
+                        dispatch(actions.success(response.data.data))    
+                    }
+
                     resolve(response.data.message)
                 }).catch(error=>{
-                    
                     const err = {
                         errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
                         message:error.response.data.message,
                         errorCode:error.response.status
                     }
-        
+                    console.log({error})
                     dispatch(actions.error(err))
         
                     reject(err);
@@ -30,26 +43,34 @@ export const postAction = (actions,url,formData,dispatch,config={}) =>(
 export const getAction = (actions,url,dispatch) =>(
 
     new Promise((resolve,reject)=>{
+
+        if(actions.hasOwnProperty('loading')){
+            dispatch(actions.loading())
+        }
         
-        dispatch(actions.loading())
 
         axios.get(url)
             .then(response=>{
                 if(actions.hasOwnProperty('success')){
-                    dispatch(actions.success(response.data.data))
+                    if(Array.isArray(actions.success)){
+                        actions.success.map(item=>{
+                            dispatch(item(response.data.data))
+                        })
+                    }else{
+                        dispatch(actions.success(response.data.data))    
+                    }
                 }
                 
-                resolve(response.data.message)
+                resolve(response.data.data)
             }).catch(error=>{
-                
                 const err = {
                     errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
                     message:error.response.data.message,
                     errorCode:error.response.status
                 }
-    
+
+                
                 dispatch(actions.error(err))
-    
                 reject(err);
                 
             })

@@ -137,12 +137,11 @@ export default function HeaderTabs({detailSlug,tournament}) {
 
   const handleChange = (event, newValue) => {
 
-    console.log({newValue})
     setValue(newValue);
 
     const pathname = window.location.pathname;
     const array = pathname.split('/');
-    console.log({array})
+   
     array.pop()
     const newPathName = array.join('/');
     history.push(`${newPathName}/${tabs[newValue].label.toLowerCase()}`)

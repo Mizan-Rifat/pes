@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PlayerModelresource;
 use App\Http\Resources\PlayerResource;
 use App\Repositories\PlayerModelRepository;
 use App\Repositories\PlayerRepository;
@@ -22,7 +23,7 @@ class PlayerController extends Controller
     public function search(Request $request){
 
        return response()->json([
-           'data' => $this->playerModelRepo->search($request),
+           'data' => PlayerModelresource::collection($this->playerModelRepo->search($request)),
        ]);
        
     }

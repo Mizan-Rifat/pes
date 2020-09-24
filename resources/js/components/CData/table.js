@@ -1,3 +1,7 @@
+import React, { useState, useEffect } from 'react';
+import {Team1,Team2} from '@customComponent/Team'
+import Versus from '@customComponent/Versus'
+
 const playerLookup = (players) =>{
     const obj = {};
     players.map(player=>{
@@ -172,4 +176,18 @@ export const ratingsTableColumns = () => {
         },
     ]
 }
+
+export const fixtureTableColumns = [
+    {
+        field:'team1_details.name',
+        render: rowData => (<Team1 name={rowData.team1_details.name} logo={rowData.team1_details.logo} panel='user' />),
+    },
+    {
+        render:rowData => <Versus panel='vs' data={rowData} adb />
+    },
+    {
+        field:'team2_details.name',
+        render: rowData => <Team2 name={rowData.team2_details.name} logo={rowData.team2_details.logo} panel='user' />
+    },
+]
 

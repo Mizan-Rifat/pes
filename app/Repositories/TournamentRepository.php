@@ -7,6 +7,7 @@ use App\Model\Tournament;
 use App\Repositories\Traits\BaseRepository;
 use App\Repositories\Traits\PlayerStatsRepository;
 use App\Repositories\Traits\PointTableRepository;
+use Illuminate\Support\Facades\Validator;
 
 class TournamentRepository
 {
@@ -45,6 +46,27 @@ class TournamentRepository
 
     public function getFixtures($data){
         return $this->fixtureRepo()->getFixturesByTournament($data);
+    }
+
+    public function getSubmittedFixtures($request){
+
+        $validatedData = Validator::make($request->all(),[
+            'tournament_id' => ['required','integer'],
+        ]);
+
+        if($validatedData->fails()){
+            abort(404,'Not Found.');
+        }
+
+        $fixtures = $this->model
+                    ->findOrFail($validatedData['tournament_id'])
+                    ->fixtures()
+                    ->where('completed',2)
+                    ->with('team1','team2')
+                    ->get();
+
+
+        return $fixtures;
     }
 
     public function createTournament($request){

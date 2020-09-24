@@ -1,22 +1,22 @@
 import React,{useState} from 'react'
-import MCarousel2 from '@customComponent/Carousel/MCarousel2';
+import MCarousel from '@customComponent/Carousel/MCarousel';
 
 
 export default function index() {
     const [caroselItems, setcaroselItems] = useState([
         {
-            image:'http://127.0.0.1:8000/images/slides/slide1.jpg',
+            image:'/images/slides/slide1.jpg',
         },
         {
-            image:'http://127.0.0.1:8000/images/slides/slide2.jpg',
+            image:'/images/slides/slide2.jpg',
         },
         {
-            image:'http://127.0.0.1:8000/images/slides/slide3.jpg',
+            image:'/images/slides/slide3.jpg',
         },
     ])
     return (
         <div>
-            <MCarousel2 
+            <MCarousel
                 indicators={false}
                 items={caroselItems}
             />

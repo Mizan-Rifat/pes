@@ -21,9 +21,9 @@ class FixtureController extends Controller
     public function getFixtureById(Request $request){
 
         if($request['players']){
-            $fixture = $this->fixtureRepo->with('team1.players','team2.players')->find($request['fixture_id']);    
+            $fixture = $this->fixtureRepo->with('team1.players','team2.players')->findOrFail($request['fixture_id']);    
         }else{
-            $fixture = $this->fixtureRepo->with('team1','team2')->find($request['fixture_id']);    
+            $fixture = $this->fixtureRepo->with('team1','team2')->findOrFail($request['fixture_id']);    
         }
 
         return  new FixtureResource($fixture);
@@ -55,7 +55,7 @@ class FixtureController extends Controller
 
     public function createFixtures(){
 
-        $tournament = $this->tournamentRepo->find(request('tournament_id'));
+        $tournament = $this->tournamentRepo->findOrFail(request('tournament_id'));
         $tournament_id = request('tournament_id');
         $tournament_leg = $tournament->leg;
         $tournament_round = $tournament->round;
@@ -89,7 +89,10 @@ class FixtureController extends Controller
         }
 
 
-        return 'success';
+        return response()->json([
+            'data' => $tournament->fixtures,
+            'message'=>'Fixtures Created Successfully.'
+        ]);
 
     }
 

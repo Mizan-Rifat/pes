@@ -1,3 +1,5 @@
+import { getAction } from "./actions"
+
 export const loadingTrue = () =>{
     return {
         type:'FIXURES_LOADING_TRUE',
@@ -8,8 +10,24 @@ export const loadingFalse = () =>{
         type:'FIXURES_LOADING_FALSE',
     }
 }
+export const fetchingTrue = () =>{
+    return {
+        type:'FIXURES_FETCHING_TRUE',
+    }
+}
+export const fetchingFalse = () =>{
+    return {
+        type:'FIXURES_FETCHING_FALSE',
+    }
+}
 
 export const allFixturesFetched = (fixtures) =>{
+    return {
+        type:'ALL_FIXTURES_FETCHED',
+        payload:fixtures
+    }
+}
+export const submittedFixturesFetched = (fixtures) =>{
     return {
         type:'ALL_FIXTURES_FETCHED',
         payload:fixtures
@@ -46,23 +64,57 @@ export const setErrors = (errors) =>{
         payload:errors
     }
 }
-export const fetchAllFixtures = (id,admin) => {
+// export const fetchAllFixtures = (id,admin) => {
 
-    const qs = admin ? '&admin=1' : ''; 
-    return (dispatch) => {
-        dispatch(loadingTrue())
-        axios.get(`/api/tournament/fixtures?tournament_id=${id}${qs}`)
-        .then(response=>{
-            dispatch(allFixturesFetched(response.data.data))
+//     const qs = admin ? '&admin=1' : ''; 
+//     return (dispatch) => {
+//         dispatch(loadingTrue())
+//         axios.get(`/api/tournament/fixtures?tournament_id=${id}${qs}`)
+//         .then(response=>{
+//             dispatch(allFixturesFetched(response.data.data))
             
-        })
-        .catch(error=>{
-            console.log(error)
-            dispatch(allFixturesFetchedError(error))
+//         })
+//         .catch(error=>{
+//             console.log(error)
+//             dispatch(allFixturesFetchedError(error))
 
-        })
-    } 
+//         })
+//     } 
+// }
+
+export const fetchAllFixtures = (id,admin) => (dispatch) =>{
+    const qs = admin ? '&admin=1' : ''; 
+    const url = `/api/tournament/fixtures?tournament_id=${id}${qs}`,
+    actions={
+        loading:fetchingTrue,
+        success:allFixturesFetched,
+        error:setErrors
+    }
+    return getAction(actions,url,dispatch);
 }
+
+export const fetchSubmittedFixtures = (tournament_id) => (dispatch) =>{
+  
+    const url = `/api/tournament/fixtures/submitted?tournament_id=${tournament_id}`,
+    actions={
+        loading:fetchingTrue,
+        success:allFixturesFetched,
+        error:setErrors
+    }
+    return getAction(actions,url,dispatch);
+}
+
+export const createTournamentFixtures = (tournament_id) => (dispatch) =>{
+  
+    const url = `/api/createfixtures?tournament_id=${tournament_id}`,
+    actions={
+        loading:loadingTrue,
+        success:allFixturesFetched,
+        error:setErrors
+    }
+    return getAction(actions,url,dispatch);
+}
+
 
 export const createFixture = (newData,tournament_id) => (dispatch) =>
 

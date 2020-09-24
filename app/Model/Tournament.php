@@ -23,7 +23,7 @@ class Tournament extends Model
         return $this->hasMany('App\Model\Fixture');
     }
     public function officials(){
-        return $this->hasMany('App\Model\Official');
+        return $this->belongsToMany('App\User','officials','tournament_id','user_id');
     }
     public function players(){
         return $this->hasManyThrough('App\Model\Player','App\Model\ClubTournament','tournament_id','club_id');

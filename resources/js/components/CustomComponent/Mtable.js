@@ -30,9 +30,33 @@ const theme1 = {
         fontWeight:700
       }
     },
+
+    
+
     
 
 
+}
+
+const frTheme = {
+  MuiTableRow:{
+    root:{
+      ['@media (max-width:660px)']:{
+        display:'table',
+        width:'100%',
+        borderBottom:'1px solid rgba(224, 224, 224, .5)',
+        borderTop:'1px solid rgba(224, 224, 224, .5)'
+      }
+    }
+  },
+  MuiTableCell:{
+    root:{
+      ['@media (max-width:660px)']:{
+          display:'table-row',
+          borderBottom:'unset'
+      }
+    }
+  }
 }
 
 const theme2 = {
@@ -63,7 +87,7 @@ const theme3 = {
 
 export default function Mtable(props) {
 
-    const {columns,data,handleAddRow,handleUpdateRow,handleDeleteRow,handleBulkUpdate,edit,addLast,onOrderChange} = props;
+    const {columns,data,handleAddRow,handleUpdateRow,handleDeleteRow,handleBulkUpdate,edit,addLast,onOrderChange,frTable,toolbarLess} = props;
 
     const {title = ''} = props;
     const {detailPanel,actions = []} = props;
@@ -73,7 +97,8 @@ export default function Mtable(props) {
     const {pageSize = 10} = props;
 
     const headerStyle = {
-        background:'#0E1723',
+    
+        background:headerLess ? 'unset' : '#0E1723',
         color:'#fff',
         fontWeight:'bold',
         ...header,
@@ -84,8 +109,9 @@ export default function Mtable(props) {
     const theme = createMuiTheme({
       overrides:{
         ...theme1,
+        ...(frTable && frTheme),
         ...(hoverable && theme2),
-        ...(headerLess && theme3)
+        ...(toolbarLess && theme3)
       }
     })
 

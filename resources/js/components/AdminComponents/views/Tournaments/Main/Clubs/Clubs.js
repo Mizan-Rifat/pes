@@ -5,7 +5,7 @@ import { fetchAllClubsByTournament, addClubInTournament, deleteClubsFromTourname
 import SearchComp from '@customComponent/SearchComp';
 import Notify from '@customComponent/Notify';
 import Mtable from '@customComponent/Mtable';
-
+import {ListGroupItem1} from '@customComponent/ListGroupItem'
 
 const useStyles = makeStyles(theme=>({
 
@@ -46,8 +46,8 @@ export default function Clubs({setTitle}) {
         {
             title:'Club',
             field:'name',
-            render : rowData => <Club rowData={rowData} />,
-            editComponent: props => <SearchComp searchurl='/api/clubs/search' props={props} />
+            render : rowData => <ListGroupItem1 image={rowData.logo} label={rowData.name} imageStyle={{height:'25px',marginRight:'5px'}} />,
+            editComponent: props => <SearchComp searchurl='/api/search/club' label='clubs' props={props} />
 
         },
         {
@@ -118,17 +118,3 @@ export default function Clubs({setTitle}) {
     )
 }
 
-
-function Club({rowData}){
-
-    const {name,logo,invitation} = rowData;
-    
-    const classes = useStyles();
-    return(
-        
-        <div className={classes.team}>
-          <img src={`http://127.0.0.1:8000/images/logo/${logo}`} className={classes.logo}/>
-            <div>{name} {invitation == 2 && '(invited)'}</div>   
-        </div>
-    )
-}

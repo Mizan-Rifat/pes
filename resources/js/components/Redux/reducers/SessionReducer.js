@@ -1,5 +1,5 @@
 const initState = {
-    fetching:false,
+    fetching:true,
     loading:false,
     user:{},
     admin:{},
@@ -14,13 +14,14 @@ const initState = {
 export default (state=initState,action)=>{
     switch (action.type) {
 
-        case 'SESSION_USER_FETCHED':
-            
+        case 'SESSION_USER_FETCHED':{
+            let {notifications:userNotifications,...user} = action.payload;
             return {
                 ...state,
-                user:action.payload,
+                user:user,
                 fetching:false
             }
+        }
         case 'SET_SESSION_USER_CLUB':
             
             return {
@@ -31,23 +32,25 @@ export default (state=initState,action)=>{
                 },
                 loading:false
             } 
-        case 'SESSION_ADMIN_FETCHED':
-            
+        case 'SESSION_ADMIN_FETCHED':{
+            let {notifications:adminNotifications,...admin} = action.payload;
             return {
                 ...state,
-                admin:action.payload,
+                admin:admin,
                 fetching:false
             }
-        
-        case 'SESSION_USER_LOGGED_IN':
-            
+        }
+        case 'SESSION_USER_LOGGED_IN':{
+            let {notifications:userNotifications,...user} = action.payload;
             return {
                 ...state,
+                user:user,
                 fetching:false,
                 loading:false
                 // user:action.payload
                
             }
+        }
         case 'SESSION_ADMIN_LOGGED_IN':
             
             return {
@@ -91,7 +94,15 @@ export default (state=initState,action)=>{
                 user:action.payload
                
             }
-       
+        case 'SESSION_USER_UPDATED':
+            
+            return {
+                ...state,
+                loading:false,
+                user:action.payload
+               
+            }
+        
         
         case 'SESSION_FETCHING_TRUE':
             

@@ -92,6 +92,9 @@ class ResultRepository
 
 public function addResultForApproval($request){
 
+    $current_user = Auth::user();
+    $current_user_club = $current_user->club;
+
         $validatedData =  Validator::make($request->all(),[
 
             'fixture_id'=>['required','integer',
@@ -112,44 +115,44 @@ public function addResultForApproval($request){
 
         $fixture = Fixture::find($validatedData['fixture_id']);
 
-        if($fixture->team1_id != Auth::id() && $fixture->team2_id != Auth::id()){
-            abort(403,'Permission Denied');
+        if($fixture->team1_id != $current_user_club->id && $fixture->team2_id != $current_user_club->id){
+            abort(403,'Permission Deniedeh');
         }
 
         $completed = 2;
 
         if($fixture->completed == 0){
-            $completed = $fixture->team1_id == Auth::id() ? 3 : 4;
+            $completed = $fixture->team1_id == $current_user_club->id ? 3 : 4;
         }
 
-        $eventsImages = collect($validatedData['eventsImages'])->map(function($item) use($validatedData){
+        $eventsImages = collect($validatedData['eventsImages'])->map(function($item) use($current_user_club,$validatedData){
             $item->store('match_events');
             return [
                 'image'=>$item->hashName(),
                 'fixture_id'=>$validatedData['fixture_id'],
-                'submitted_by'=>Auth::id(),
+                'submitted_by'=>$current_user_club->id,
                 'field'=>1
             ];
 
         })->toArray();
         
-        $team1ratingsImages = collect($validatedData['team1ratingsImages'])->map(function($item) use($validatedData){
+        $team1ratingsImages = collect($validatedData['team1ratingsImages'])->map(function($item) use($current_user_club,$validatedData){
             $item->store('match_events');
             return [
                 'image'=>$item->hashName(),
                 'fixture_id'=>$validatedData['fixture_id'],
-                'submitted_by'=>Auth::id(),
+                'submitted_by'=>$current_user_club->id,
                 'field'=>2
             ];
 
         })->toArray();
 
-        $team2ratingsImages = collect($validatedData['team2ratingsImages'])->map(function($item) use($validatedData){
+        $team2ratingsImages = collect($validatedData['team2ratingsImages'])->map(function($item) use($current_user_club,$validatedData){
             $item->store('match_events');
             return [
                 'image'=>$item->hashName(),
                 'fixture_id'=>$validatedData['fixture_id'],
-                'submitted_by'=>Auth::id(),
+                'submitted_by'=>$current_user_club->id,
                 'field'=>3
             ];
 
@@ -157,7 +160,7 @@ public function addResultForApproval($request){
 
         $images = [...$eventsImages,...$team1ratingsImages,...$team2ratingsImages];
 
-        if($fixture->team1_id == Auth::id()){
+        if($fixture->team1_id == $current_user_club->id){
             $events = json_decode($request->events, true);
 
             $ratings = json_decode($request->ratings, true);
@@ -289,12 +292,12 @@ public function addResultForApproval($request){
             abort(403,'Permission Denied');
         }
 
-        $images = collect($validatedData['images'])->map(function($item) use($validatedData){
+        $images = collect($validatedData['images'])->map(function($item) use($validatedData,$current_user_club){
             $item->store('match_events');
             return [
                 'image'=>$item->hashName(),
                 'fixture_id'=>$validatedData['fixture_id'],
-                'submitted_by'=>Auth::id(),
+                'submitted_by'=>$current_user_club->id,
                 'field'=>$validatedData['field']
             ];
 

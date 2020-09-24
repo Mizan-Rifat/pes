@@ -63,7 +63,6 @@ export default function Profile() {
     };
 
 
-    console.log({user})
 
     return (
         <Container className={classes.pcontainer}>

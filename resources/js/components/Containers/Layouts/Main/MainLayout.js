@@ -22,8 +22,11 @@ import {useSelector,useDispatch} from 'react-redux';
 import { fetchAllTournaments } from '@actions/tournamentsAction';
 import MAppBar from '../Admin/Appbar/MAppBar';
 import MyAppBar from '../Appbar/MyAppBar';
-import { fetchSessionUser } from '../../../Redux/actions/SessionAction';
+import { fetchSessionUser } from '@actions/SessionAction';
+import { receiveNotification } from '@actions/notificationAction';
 import Progress from '@customComponent/Progress';
+import MyList from '../Admin/MyList';
+import MainDrawer from './MainDrawer';
 
 
 
@@ -55,11 +58,14 @@ const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
   drawerPaper: {
     width: drawerWidth,
+    background:theme.palette.primary.main
   },
   content: {
-    // flexGrow: 1,
-    // padding: theme.spacing(1),
-    marginTop:'96px'
+    marginTop:'96px',
+    [theme.breakpoints.down('xs')]: {
+      marginTop:'50px',
+    },
+
   },
 }));
 
@@ -70,7 +76,8 @@ export default function MainLayout(props) {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   const {tournaments,fetchLoading:tournamentLoading} = useSelector(state=>state.tournaments)
-  const {user,fetching:userFetching} = useSelector(state=> state.session)
+  const {user,notifications,fetching:userFetching} = useSelector(state=> state.session)
+ 
 
   const dispatch = useDispatch();
 
@@ -79,27 +86,7 @@ export default function MainLayout(props) {
   };
 
   const drawer = (
-    <div>
-      <div className={classes.toolbar} />
-      <Divider />
-      <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-    </div>
+    <MainDrawer setDrawerOpen={setDrawerOpen}/>
   );
 
   const container = window !== undefined ? () => window().document.body : undefined;
@@ -111,7 +98,18 @@ export default function MainLayout(props) {
     }
     if(Object.entries(user).length == 0){
       dispatch(fetchSessionUser())
+      .then(user=>{
+
+        Echo.private(`App.User.${user.id}`)
+        .notification((notification) => {
+          console.log(notification);
+          dispatch(receiveNotification(notification))
+      });
+      })
     }
+
+    
+
   }, [])
 
   return (
@@ -126,16 +124,12 @@ export default function MainLayout(props) {
     <div className={classes.root}>
       <CssBaseline />
     <div>
-      {/* <Appbar  
-        drawerOpen={drawerOpen} 
-        setDrawerOpen={setDrawerOpen} 
-      /> */}
-      <MyAppBar handleDrawerToggle={handleDrawerToggle} panel='user' />
-      {/* <Navbar /> */}
+
+      <MyAppBar handleDrawerToggle={handleDrawerToggle} panel='user' notifications={notifications}/>
+      
      </div>
       
       <nav className={classes.drawer} aria-label="mailbox folders">
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Hidden smUp implementation="css">
           <Drawer
             container={container}
@@ -153,17 +147,7 @@ export default function MainLayout(props) {
             {drawer}
           </Drawer>
         </Hidden>
-        {/* <Hidden xsDown implementation="css">
-          <Drawer
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            variant="permanent"
-            open
-          >
-            {drawer}
-          </Drawer>
-        </Hidden> */}
+      
       </nav>
       <main className={classes.content}>
         {props.children}

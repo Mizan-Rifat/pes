@@ -44,6 +44,8 @@ class TournamentController extends Controller
         ],200); 
     }
 
+   
+
     public function destroy(Request $request){
 
         $delete = $this->tournamentRepo->destroy($request['ids']);
@@ -59,7 +61,7 @@ class TournamentController extends Controller
             }
     }
 
-    public function getTournament(){
+    public function getTournament($ref){
 
         if(request()->slug != null){
             $key = 'slug';
@@ -68,6 +70,8 @@ class TournamentController extends Controller
             $key = 'id';
             $value = request()->id;
         }
+
+        return Tournament::where('id',$ref)->orWhere('slug',$ref)->first();
         
         return new TournamentResource($this->tournamentRepo->getTournament($key,$value));
 
@@ -82,13 +86,12 @@ class TournamentController extends Controller
             $value = request()->id;
         }
 
-        $tournament = $this->tournamentRepo->getTournament($key,$value,['clubs.owner']);
+        $tournament = $this->tournamentRepo->getTournament($key,$value,['clubs.owner','officials']);
 
         $tournament->groups = $tournament->groups->map(function($group){
             return ClubResource::collection($group);
         });
 
-        // return $tournament;
         
         return new TournamentResource($tournament);
     }
@@ -134,9 +137,12 @@ class TournamentController extends Controller
 
         $fixtures = $this->tournamentRepo->getFixtures($validatedData);
 
-        // return $fixtures;
-
         return  FixtureResource::collection($fixtures);
+    }
+
+    public function getSubmittedFixtures(Request $request){
+        $fixtures = $this->tournamentRepo->getSubmittedFixtures($request);
+        return FixtureResource::collection($fixtures);
     }
 
     public function getOfficials(){
@@ -150,7 +156,7 @@ class TournamentController extends Controller
 
         return response()->json([
             'message'=>'Official Added Successfully',
-            'official'=>new OfficialResource($official)
+            'data'=>new OfficialResource($official)
         ],200);
     }
 
@@ -159,6 +165,7 @@ class TournamentController extends Controller
 
        if($delete){
         return response()->json([
+            'data'=>$request['ids'],
             'message' => 'Official(s) removed successfully.',
         ],200);
         }else{

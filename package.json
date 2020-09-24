@@ -30,13 +30,16 @@
     },
     "dependencies": {
         "dateformat": "^3.0.3",
+        "laravel-echo": "^1.8.1",
         "material-table": "1.68.0",
         "notistack": "^0.9.17",
+        "pusher-js": "^7.0.0",
         "react-image-lightbox": "^5.1.1",
         "react-images-upload": "^1.2.8",
         "react-material-ui-carousel": "^1.8.2",
         "react-redux": "^7.2.1",
         "react-router-dom": "^5.2.0",
+        "react-scrollbars-custom": "^4.0.25",
         "redux": "^4.0.5",
         "redux-devtools-extension": "^2.13.8",
         "redux-thunk": "^2.3.0"

@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import {BrowserRouter,Switch,Route, Redirect} from 'react-router-dom';
 import AdminLayout from './Containers/Layouts/Admin/AdminLayout';
 import MainLayout from './Containers/Layouts/Main/MainLayout';
@@ -18,14 +18,25 @@ import AllClubs from './AdminComponents/views/Clubs/AllClubs';
 import AllTournaments from './AdminComponents/views/AllTournaments/AllTournaments';
 import Club from './MainComponents/Club/Club';
 import ResultDetails from './MainComponents/MatchDetails/ResultDetails';
-import AddResult from './MainComponents/AddResult/AddResult';
+import Result from './MainComponents/AddResult/Result';
 import { createMuiTheme } from "@material-ui/core/styles";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import { purple,pink,red } from '@material-ui/core/colors';
 import LandingPage from './MainComponents/Landing'
 import Profile from './MainComponents/Profile/Profile';
-import ApproveResult from './MainComponents/ApproveResult.js/ApproveResult';
+import ApproveResult from './MainComponents/AddResult/ApproveResult';
 import EditResult from './MainComponents/AddResult/EditResult';
+import ErrorComp from './Errors/ErrorComp';
+import SubmittedFixtures from './MainComponents/AddResult/SubmittedFixtures';
+import {AuthProtectedRoute} from '@customComponent/AuthProtectedRoute'
+import { GuestProtectedRoute } from './CustomComponent/GuestProtectedRoute';
+import { useSelector, useDispatch } from 'react-redux';
+import Progress from './CustomComponent/Progress';
+import { fetchSessionUser } from './Redux/actions/SessionAction';
+import AddResult from './MainComponents/AddResult/AddResult';
+import UpdateResult from './MainComponents/AddResult/UpdateResult';
+import { fetchGinfo } from './Redux/actions/generalInfoAction';
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -48,6 +59,9 @@ const theme = createMuiTheme({
       info:{
         main:'#454545'
       },
+      success:{
+        main:'#161731'
+      },
 
       background:{
         main:'#FFD525'
@@ -55,72 +69,95 @@ const theme = createMuiTheme({
     },
   });
 
+
 export default function Routes() {
 
     const classes = useStyles();
 
+    const dispatch = useDispatch();
+    const {gInfo,fetching} = useSelector(state=> state.gInfo)
+
+      useEffect(() => {
+          dispatch(fetchGinfo());
+      }, [])
+
+    
+
     return (
+
+      
+        fetching ? <Progress /> :
+      
         <ThemeProvider theme={theme}>
-        <BrowserRouter>
+
+         
+            <BrowserRouter>
 
 
-            <SnackbarProvider
-            //   autoHideDuration={2000}
-              classes={{
-                anchorOriginTopRight: classes.topClass
-              }}
+                <SnackbarProvider
+                //   autoHideDuration={2000}
+                  classes={{
+                    anchorOriginTopRight: classes.topClass
+                  }}
 
-            >
-            <Switch>
+                >
+                <Switch>
 
-                <Route path='/login' component={Login} />
-                <Route path='/registration' component={Registration} />
-                <Route
-                    path='/admin/login'
-                    render={(props) => (
-                      <Login {...props} panel='admin' />
-                    )}
-                  />
+                    <GuestProtectedRoute path='/login' component={Login} />
+                    {/* <Route path='/register' component={Registration} /> */}
+                    <GuestProtectedRoute path='/register' component={Registration} />
+                    <Route
+                        path='/admin/login'
+                        render={(props) => (
+                          <Login {...props} panel='admin' />
+                        )}
+                      />
 
 
-                {/* <Provider store={adminStore}> */}
-                    <Route path='/admin/:path1?/:path2?/:path3?/:path4?/:path5?/:path6?/:path7?/:path8?' exact>
-                        <AdminLayout>
+                    {/* <Provider store={adminStore}> */}
+                        <Route path='/admin/:path1?/:path2?/:path3?/:path4?/:path5?/:path6?/:path7?/:path8?' exact>
+                            <AdminLayout>
+                                <Switch>
+                                    <Route path='/admin' exact component={AdminRoot} />
+                                    <Route path='/admin/dashboard'  component={Dashboard} />
+                                    {/* <Route path='/admin/tournaments'  component={TournamentDashboard} /> */}
+                                    <Route path='/admin/tournament/:title'  component={Tournament} />
+                                    <Route path='/admin/users'  component={Users} />
+                                    <Route path='/admin/clubs'  component={AllClubs} />
+                                    <Route path='/admin/alltournaments'  component={AllTournaments} />
+                                
+                                </Switch>
+                            </AdminLayout>
+                        </Route>
+                    {/* </Provider> */}
+            
+                    <Route>
+                        <MainLayout>
                             <Switch>
-                                <Route path='/admin' exact component={AdminRoot} />
-                                <Route path='/admin/dashboard'  component={Dashboard} />
-                                {/* <Route path='/admin/tournaments'  component={TournamentDashboard} /> */}
-                                <Route path='/admin/tournament/:title'  component={Tournament} />
-                                <Route path='/admin/users'  component={Users} />
-                                <Route path='/admin/clubs'  component={AllClubs} />
-                                <Route path='/admin/alltournaments'  component={AllTournaments} />
-                            
-                            </Switch>
-                        </AdminLayout>
-                    </Route>
-                {/* </Provider> */}
-        
-                <Route>
-                    <MainLayout>
-                        <Switch>
-                            <Route path='/' exact component={LandingPage} />
-                            <Route path='/tournament/:title/:details' component={MTournament} />
-                            <Route path='/club/:slug' component={Club} />
-                            <Route path='/result/details/:match_id' component={ResultDetails} />
-                            <Route path='/result/add/:match_id' component={AddResult} />
-                            <Route path='/test' component={Test} />
-                            <Route path='/profile' component={Profile} />
-                            <Route path='/result/approve/:match_id' component={ApproveResult} />
-                            <Route path='/result/update/:match_id' component={EditResult} />
-                            
-                        </Switch>
-                    </MainLayout>
-                </Route>
-            </Switch>
+                                <Route path='/' exact component={LandingPage} />
+                                <Route path='/fixtures/submitted/:tournament_id' component={SubmittedFixtures} />
+                                <Route path='/tournament/:title/:details' component={MTournament} />
+                                <Route path='/club/:slug' component={Club} />
+                                <Route path='/result/details/:match_id' component={ResultDetails} />
+                                <Route path='/test' component={Test} />
+                                {/* <Route path='/profile' component={Profile} /> */}
+                                <AuthProtectedRoute path='/profile' component={Profile}/>
 
-            </SnackbarProvider>
-        
-        </BrowserRouter>
+                                <AuthProtectedRoute path='/result/add/:match_id' component={AddResult} panel='addresult' />
+                                <AuthProtectedRoute path='/result/approve/:match_id' component={ApproveResult} panel='approveresult' />
+                                <AuthProtectedRoute path='/result/update/:match_id' component={UpdateResult} panel='updateresult' />
+                        
+                                <Route path='*' component={ErrorComp} />
+                            </Switch>
+                        </MainLayout>
+                    </Route>
+                </Switch>
+
+                </SnackbarProvider>
+            
+            </BrowserRouter>
         </ThemeProvider>
+
+      
     )
 }

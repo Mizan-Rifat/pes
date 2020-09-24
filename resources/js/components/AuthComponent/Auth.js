@@ -130,6 +130,7 @@ export default function Auth({form,type,panel}) {
 
                 <div className={clsx({[classes.formDisable]: loading})}>
 
+
                     <div className={classes.formContainer}>
                         {form}
                     </div>
@@ -164,7 +165,7 @@ function Footer({type}){
                     type == 'login' && 
                     <>
                         <p style={{color:'white'}}>Don't have an account?</p>
-                        <Link to='/registration' style={{marginLeft:'5px'}}>Register</Link>
+                        <Link to='/register' style={{marginLeft:'5px'}}>Register</Link>
                     </>
                 }
                 {

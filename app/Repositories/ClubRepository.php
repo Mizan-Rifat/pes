@@ -118,6 +118,10 @@ class ClubRepository
 
         $club_id = Auth::user()->club->id;
 
+        if(count(Auth::user()->club['players']) > 24){
+            abort(403,"you can't have more then 25 players in your squad.",);
+        }
+
         $validatedData = $request->validate([
             'club_id' => ['required','integer','in:'.$club_id],
             'playermodel_id' => ['required','bail','integer','exists:playermodels,id',

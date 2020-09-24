@@ -9,21 +9,23 @@ const useStyles = makeStyles((theme)=>({
         width:'100%'
     },
     wrapper:{
-        height:'100vh'
+        height:'100vh',
+        backgroundSize:'contain !important',
+        backgroundRepeat:'no-repeat !important'
     },
     img:{
         width: '100%',
-        height: '100vh',
+        height: 'auto',
     }
 }))
 export default function MCarousel(props) {
 
-    const {autoPlay,indicators = true} = props;
+    const {autoPlay,indicators = false} = props;
     const {items} = props;
     
     return (
         <Carousel
-            autoPlay={autoPlay}
+            autoPlay={false}
             indicators={indicators}
         >
             {
@@ -36,8 +38,8 @@ export default function MCarousel(props) {
 function CarouselItem({src}){
     const classes = useStyles();
     return(
-        // <div className={classes.wrapper} style={{backgroundImage:`url(${src})`}}>
-            <img src={src} className={classes.img} />
-        // </div>
+        // <div className={classes.wrapper} style={{background:`url(${src})`}} />
+            <img src={src} className={classes.img} /> 
+        // {/* // </div> */}
     )
 }
