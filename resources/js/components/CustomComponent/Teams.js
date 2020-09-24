@@ -14,6 +14,11 @@ const useStyles = makeStyles(theme=>({
         // justifyContent: 'center',
         alignItems: 'center',
         height: '100%',
+    },
+    gridItem:{
+        [theme.breakpoints.down('xs')]:{
+            padding:'0 10px !important'
+        }
     }
 }))
 
@@ -33,7 +38,7 @@ export default function Teams({fixtureDetails,panel}) {
     return (
         <>
             <Grid container spacing={3} className={classes.container}>
-                <Grid item sm={4} >
+                <Grid item xs={12} sm={4} className={classes.gridItem}>
                     <div className={classes.listItemContainer}>
                         <ListGroupItem1 
                             image={team1_logo}
@@ -43,11 +48,11 @@ export default function Teams({fixtureDetails,panel}) {
                     </div>
                 </Grid>
 
-                <Grid item sm={4} >
+                <Grid item xs={12} sm={4} className={classes.gridItem}>
                     <Versus data={fixtureDetails} panel={panel} />
                 </Grid>
 
-                <Grid item sm={4}>
+                <Grid item xs={12} sm={4} className={classes.gridItem}>
                     <div className={classes.listItemContainer} style={{justifyContent:'flex-end'}}>
                         <ListGroupItem2 
                             image={team2_logo}

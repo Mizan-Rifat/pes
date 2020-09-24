@@ -1,3 +1,5 @@
+import { postAction, getAction } from "./actions"
+
 export const loadingTrue = () =>{
     return {
         type:'OFFICIALS_LOADING_TRUE',
@@ -6,6 +8,16 @@ export const loadingTrue = () =>{
 export const loadingFalse = () =>{
     return {
         type:'OFFICIALS_LOADING_FALSE',
+    }
+}
+export const fetchingTrue = () =>{
+    return {
+        type:'OFFICIALS_FETCHING_TRUE',
+    }
+}
+export const fetchingFalse = () =>{
+    return {
+        type:'OFFICIALS_FETCHING_FALSE',
     }
 }
 export const offcialsFetched = (data) =>{
@@ -34,64 +46,39 @@ export const setError = (error) =>{
     }
 }
 
-export const fetchOfficials = (id) => (dispatch) => {
-    dispatch(loadingTrue())
-    axios.get(`/api/tournament/officials?tournament_id=${id}`)
-    .then(response=>{
-        dispatch(offcialsFetched(response.data.data))
-    })
-    .catch(error=>{
-        dispatch(setError(error))
+export const fetchOfficials = (id) => (dispatch) =>{
+  
+    const url =`/api/tournament/officials?tournament_id=${id}`,
+    actions={
+        loading:fetchingTrue,
+        success:offcialsFetched,
+        error:setError
+    }
+    return getAction(actions,url,dispatch);
+}
 
-    })
-};
 
-export const addOfficials = (user_id,tournament_id) => (dispatch) =>(
+export const addOfficials = (data) => (dispatch) => {
 
-    new Promise((resolve,reject)=>{
-        dispatch(loadingTrue())
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/api/tournament/officials/add`,{
-                user_id,
-                tournament_id
-              }).then(response=>{
-                dispatch(officialsAdded(response.data.official))
-                resolve(response.data.message)
-            }).catch(error=>{
-                dispatch(loadingFalse())
+    const url ='/api/tournament/officials/add';
+    const actions={
+        loading:loadingTrue,
+        success:officialsAdded,
+        error:setError
+    }
+    return postAction(actions,url,data,dispatch);
+}
 
-                switch (error.response.status) {
-                    case 422:
-                        console.log(error.response.data.errors)
-                        reject(error.response.data.errors)
-                        break;
-                    case 500:
-                        console.log(error.response.data.message)
-                        reject({msg:error.response.data.message})
-                        break;
-                
-                    default:
-                        break;
-                }
-            })
-        })
-    })
-);
 
-export const deleteOfficials = (ids) => (dispatch) =>(
+export const deleteOfficials = (data) => (dispatch) => {
+ 
+    const url ='/api/tournament/officials/remove';
+    const actions={
+        loading:loadingTrue,
+        success:officialDeleted,
+        error:setError
+    }
+    return postAction(actions,url,data,dispatch);
+}
 
-    new Promise((resolve,reject)=>{
-        dispatch(loadingTrue())
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post(`/api/tournament/officials/remove`,{
-                ids
-            }).then(response=>{
-                dispatch(officialDeleted(ids))
-                resolve(response.data.message)
-            }).catch(error=>{
-                dispatch(loadingFalse())
-                reject({msg:error.response.data.message})
-            })
-        })
-    })
-);
+

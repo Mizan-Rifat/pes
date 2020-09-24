@@ -10,6 +10,7 @@ import Notify from '@customComponent/Notify';
 import SearchComp from '@customComponent/SearchComp';
 import Mtable from '@customComponent/Mtable';
 import useActions from '@customComponent/useActions';
+import useTableActions from '../../../../../CustomComponent/useTableActions';
 
 
 
@@ -45,6 +46,13 @@ export default function Officials({setTitle}) {
     const {id:tournament_id} = useSelector(state=>state.info.tournament)
     const dispatch = useDispatch();
 
+    const tabelActions = {
+        add:addOfficials,
+        delete:deleteOfficials,
+    }
+
+    const {handleAddRow,handleDeleteRow} = useTableActions(tabelActions)
+
     const toast = Notify();
 
     const [columns, setColumns] = useState([
@@ -56,53 +64,19 @@ export default function Officials({setTitle}) {
         },
         {
             title:'Official',
-            field:'official.name',
-            render:rowData => rowData.official.name,
+            field:'user_name',
             editComponent: props => <SearchComp searchurl='/api/users/search' props={props} />
            
         },
-        {
-            title:'Club',
-            render : rowData => <Team team={rowData.official.club}/>,
-        }
+  
     ])
 
+    const handleAdd = (newData) => handleAddRow({
+        user_id:newData.user_name,
+        tournament_id:tournament_id
+    })
 
-    const handleAddRow = (newData) => (
-
-        new Promise((resolve,reject)=>{
-            dispatch(addOfficials(newData.official.name,tournament_id))
-            .then(response=>{
-                toast(response,'success')
-                resolve();
-            }).catch(error=>{
-
-                Object.keys(error).map(err=>{
-                    toast(error[err],'error')
-                })
-                reject();
-            })
-        })
-
-    )
-
-
-    const handleDeleteRow = (oldData) => (
-        new Promise((resolve, reject) => {
-                                
-            dispatch(deleteOfficials([oldData.id]))
-            .then(response=>{
-                toast(response,'success')
-                resolve()
-            }).catch(error=>{
-                Object.keys(error).map(err=>{
-                    toast(error[err],'error')
-                })
-                resolve();
-            })
-
-        })
-    )
+    const handleDelete = (oldData) => handleDeleteRow({ids:[oldData.id]})
 
 
     useEffect(()=>{
@@ -118,21 +92,11 @@ export default function Officials({setTitle}) {
             columns={columns}
             data={officials}
             loading={loading}
-            handleAddRow={handleAddRow}
-            handleDeleteRow={handleDeleteRow}
+            handleAddRow={handleAdd}
+            handleDeleteRow={handleDelete}
+            editable={true}
+            paging={true}
             
         />
-    )
-}
-function Team({team}){
-    
-    const classes = useStyles();
-    return(
-        
-        team === null ? '' : 
-        <div className={classes.team}>
-            <img src={`http://127.0.0.1:8000/images/logo/${team.logo}`} className={classes.logo}/>
-            <div>{team.name}</div>   
-        </div>
     )
 }

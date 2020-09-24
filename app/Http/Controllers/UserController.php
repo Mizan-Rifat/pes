@@ -24,8 +24,8 @@ class UserController extends Controller
     }
 
     public function getCurrentUser(){
-        // return Auth::id();
-        $user = $this->userRepo->with('club.players')->findOrFail(Auth::id());
+      
+        $user = $this->userRepo->getCurrentUser();
         return new UserResource($user);
     
     }
@@ -88,6 +88,31 @@ class UserController extends Controller
         return collect($files)->map(function($item){
             return asset('/images/teams/'.$item);
         });
+    }
+
+    public function notificationMarkAsRead($id){
+        Auth::user()->Notifications->find($id)->markAsRead();
+        return response()->json([
+            'data'=>$id,
+            'message' => 'success',
+        ],200);
+
+    }
+    public function notificationMarkAsUnRead($id){
+        Auth::user()->Notifications->find($id)->markAsUnRead();
+        return response()->json([
+            'data'=>$id,
+            'message' => 'success',
+        ],200);
+
+    }
+    public function notificationDelete($id){
+        Auth::user()->Notifications->find($id)->delete();
+        return response()->json([
+            'data'=>$id,
+            'message' => 'success',
+        ],200);
+
     }
 
   

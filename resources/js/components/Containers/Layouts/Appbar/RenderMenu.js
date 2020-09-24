@@ -51,6 +51,12 @@ export default function RenderMenu({anchorEl, setAnchorEl,panel}) {
     history.push('/profile')
     setAnchorEl(null);
   }
+  const handelMyClubClick = ()=>{
+    
+    history.push(`/club/${user.club.slug}`)
+    setAnchorEl(null);
+  }
+  
 
   return (
     <Menu
@@ -67,12 +73,12 @@ export default function RenderMenu({anchorEl, setAnchorEl,panel}) {
             Object.keys(user).length > 0 || panel == 'admin' ?
                 <>
                     <MenuItem onClick={handelProfileClick} className={classes.menuItem} >Profile</MenuItem>
-                    <MenuItem onClick={handleMenuClose} className={classes.menuItem}>My account</MenuItem>
+                    <MenuItem onClick={handelMyClubClick} className={classes.menuItem} >My Club</MenuItem>
                     <MenuItem onClick={handleLogout} className={classes.menuItem}>Logout</MenuItem>
                 </>
                 :  
                 <>
-                    <MenuItem onClick={()=>history.push('/login')} className={classes.menuItem} >Loign</MenuItem>
+                    <MenuItem onClick={()=>history.push('/login')} className={classes.menuItem} >Login</MenuItem>
                     <MenuItem onClick={()=>history.push('/register')} className={classes.menuItem}>Register</MenuItem>
                 </>
         }

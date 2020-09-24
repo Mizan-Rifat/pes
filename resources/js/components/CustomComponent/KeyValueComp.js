@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme=>({
     
 }));
 
-export default function KeyValueComp({fields,value,saveAction,editMode,setEditMode}) {
+export default function KeyValueComp({fields,value,saveAction,editMode,setEditMode,editable}) {
   
     const classes = useStyles();
 
@@ -94,25 +94,30 @@ export default function KeyValueComp({fields,value,saveAction,editMode,setEditMo
 
     return (
         <div>
-            <div className='text-right'>
-                {
-                    editMode ? 
 
-                    <div className='d-flex justify-content-end'>
+            {
+                editable &&
+            
+                <div className='text-right'>
+                    {
+                        editMode ? 
+
+                        <div className='d-flex justify-content-end'>
+                            
+                            <MIconButton title='Save' handleClick={handleSave} icon={<SaveIcon />} /> 
+
+                            <MIconButton title='Cancel' handleClick={()=>setEditMode(false)} icon={<CancelIcon />} /> 
+
+                        </div> 
+
+                        :
+
+                        <MIconButton title='Edit' handleClick={()=>setEditMode(!editMode)} icon={<EditIcon />} /> 
                         
-                        <MIconButton title='Save' handleClick={handleSave} icon={<SaveIcon />} /> 
+                    }
 
-                        <MIconButton title='Cancel' handleClick={()=>setEditMode(false)} icon={<CancelIcon />} /> 
-
-                    </div> 
-
-                    :
-
-                    <MIconButton title='Edit' handleClick={()=>setEditMode(!editMode)} icon={<EditIcon />} /> 
-                    
-                }
-
-            </div>
+                </div>
+            }
 
             <div>
 

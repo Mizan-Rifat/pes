@@ -6,6 +6,7 @@ import {Team1,Team2} from '@customComponent/Team'
 import Versus from '@customComponent/Versus'
 import { useSelector,useDispatch } from 'react-redux';
 import { fetchAllFixtures, deleteFixture, updateFixture, createFixture } from '@actions/fixturesAction';
+import { fixtureTableColumns } from '../../../CData/table';
 
 const useStyles = makeStyles(theme=>({
 
@@ -56,22 +57,8 @@ export default function Fixtures() {
     const {id:tournament_id} = useSelector(state=>state.info.tournament)
 
     const dispatch = useDispatch()
- 
 
-    const [columns, setcolumns] = useState([
-        {
-            field:'team1_details.name',
-            render: rowData => (<Team1 name={rowData.team1_details.name} logo={rowData.team1_details.logo} panel='user' />),
-        },
-        {
-            render:rowData => <Versus panel='vs' data={rowData} adb />
-        },
-        {
-            field:'team2_details.name',
-            render: rowData => <Team2 name={rowData.team2_details.name} logo={rowData.team2_details.logo} panel='user' />
-        },
-
-    ])
+    const columns = fixtureTableColumns;
 
 
     useEffect(()=>{
@@ -85,12 +72,14 @@ export default function Fixtures() {
 
                 <div className='responsiveTable frTable'>
                     <Mtable
-                        // headerLess={true} 
+                        frTable={true} 
                         columns={columns}
                         data={fixtures}
                         editable={false}
                         loading={loading}
                         paging={true}
+                        header={{display:'none'}}
+                      
                     />
                 </div>
         </>

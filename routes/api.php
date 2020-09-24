@@ -15,14 +15,24 @@ use App\Model\MatchRating;
 use App\Model\Official;
 use App\Model\Player;
 use App\Model\Tournament;
+use App\Notifications\AddedAsOfficial;
+use App\Notifications\AddedInTournament;
+use App\Notifications\FixtureCreated;
+use App\Notifications\MatchResultApproved;
+use App\Notifications\ResultSubmitted;
+use App\Notifications\WelcomeUser;
 use App\Repositories\ClubModelRepository;
 use App\Repositories\TournamentRepository;
 use App\User;
 use Facade\FlareClient\Stacktrace\File;
+use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -43,7 +53,20 @@ Route::middleware('auth:sanctum_admin')->get('/admin', function (Request $reques
 });
 
 Route::get('/test',function(Request $request){
-    return Fixture::find(34)->team1_id;
+
+    return Cache::put('info',[
+        'season'=>'Sep20',
+        'pre_season'=>false
+    ]);
+
+
+      $user = User::with('club.tournaments','notifications')->findOrFail(52);
+
+      $user->new=true;
+
+
+
+    return new UserResource($user);
 
 });
 
@@ -68,6 +91,21 @@ Route::get('/test2','TournamentController@getFixtureById');
 
 // ----FIXTURES----------
 
+Route::group(['prefix'=>'','middleware'=>['auth']],function(){
+
+});
+
+Route::group(['prefix'=>'tournament'],function(){
+
+    Route::get('/{ref}','TournamentController@getTournament'); // ?slug / ?id
+    Route::post('/create','TournamentController@create'); // ?slug / ?id
+    Route::post('/tournament/delete','TournamentController@destroy'); // ?slug / ?id
+    Route::get('/details','TournamentController@getTournamentDeatils'); // ?slug / ?id
+    Route::get('/players','TournamentController@getPlayers'); // ?slug / ?id
+    Route::get('/players/stats','TournamentController@getPlayerStats'); // ?slug / ?id
+    
+});
+
 Route::get('/fixture','FixtureController@getFixtureById'); // ?fixture_id
 Route::get('/createfixtures','FixtureController@createFixtures'); // ?tournament_id
 Route::post('/deletefixture','FixtureController@destroy'); // ?ids
@@ -85,12 +123,12 @@ Route::get('/club/fixtures/away','FixtureController@getClubAwayFixtures'); // ?c
 
 
 Route::get('/alltournaments','TournamentController@index');
-Route::get('/tournament','TournamentController@getTournament'); // ?slug / ?id
-Route::post('/tournament/create','TournamentController@create'); // ?slug / ?id
-Route::post('/tournament/delete','TournamentController@destroy'); // ?slug / ?id
-Route::get('/tournament/details','TournamentController@getTournamentDeatils'); // ?slug / ?id
-Route::get('/tournament/players','TournamentController@getPlayers'); // ?slug / ?id
-Route::get('/tournament/players/stats','TournamentController@getPlayerStats'); // ?slug / ?id
+// Route::get('/tournament','TournamentController@getTournament'); // ?slug / ?id
+// Route::post('/tournament/create','TournamentController@create'); // ?slug / ?id
+// Route::post('/tournament/delete','TournamentController@destroy'); // ?slug / ?id
+// Route::get('/tournament/details','TournamentController@getTournamentDeatils'); // ?slug / ?id
+// Route::get('/tournament/players','TournamentController@getPlayers'); // ?slug / ?id
+// Route::get('/tournament/players/stats','TournamentController@getPlayerStats'); // ?slug / ?id
 
 Route::get('/tournament/groups','TournamentController@getTournamentGroups'); // ?tournament_id
 
@@ -106,6 +144,7 @@ Route::post('/tournament/update/info','TournamentController@update');
 
 Route::get('/tournament/results','TournamentController@getResults');// ?tournament_id
 Route::get('/tournament/fixtures','TournamentController@getFixtures'); // ?tournament_id / ?tournament_slug
+Route::get('/tournament/fixtures/submitted','TournamentController@getSubmittedFixtures'); // ?tournament_id / ?tournament_slug
 
 Route::get('/tournament/officials','TournamentController@getOfficials'); // ?tournament_id / ?tournament_slug
 Route::post('/tournament/officials/add','TournamentController@addOfficials'); // ?tournament_id / ?user_id
@@ -115,9 +154,10 @@ Route::post('/tournament/officials/remove','TournamentController@removeOfficials
 
 
 // -----------Clubs-----------
-Route::get('/allclubs','ClubController@index'); 
+Route::get('/allclubs','ClubController@index');
+Route::get('/search/club','ClubController@search'); 
 Route::get('/club/{reference}','ClubController@getClub'); 
-Route::get('/club/search','ClubController@search');  // ?query
+  // ?query
 Route::get('/clubmodel/search','ClubController@searchModel');  // ?query
 Route::post('/club/create','ClubController@create');  // ?query
 Route::post('/club/info/update','ClubController@update');  // ?query
@@ -129,6 +169,8 @@ Route::get('/clubmodels','ClubController@getAllModels');
 
 
 // -----------Clubs_End----------
+
+
 
 // -----------results-----------
 
@@ -165,6 +207,17 @@ Route::post('/deleteuser','UserController@destroy');
 Route::post('/blockusers','UserController@block');
 Route::middleware('auth:sanctum_user')->get('/user','UserController@getCurrentUser');
 
+Route::get('/notification/markasread/{id}','NotificationController@notificationMarkAsRead'); 
+Route::get('/notification/markasunread/{id}','NotificationController@notificationMarkAsUnRead'); 
+Route::post('/notification/delete/{id}','NotificationController@destroy'); 
+
+
+
+Route::post('/ginfo/update','GinfoController@update'); 
+Route::get('/ginfo','GinfoController@index'); 
+
+
+
 // -----------users_End-----------
 
 
@@ -180,3 +233,5 @@ Route::get('/players/search','PlayerController@search');  // ?query
 
 
 Route::get('/teams/logo','UserController@getTeamsLogo');
+
+Broadcast::routes(['middleware' => ['auth:sanctum']]);

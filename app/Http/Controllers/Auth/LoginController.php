@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Providers\RouteServiceProvider;
+use App\Repositories\UserRepository;
+use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
@@ -21,6 +25,8 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
+    private $userRepo;
+
     /**
      * Where to redirect users after login.
      *
@@ -33,8 +39,16 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(UserRepository $userRepo)
     {
+        $this->userRepo = $userRepo;
         $this->middleware('guest')->except('logout');
+    }
+
+    protected function authenticated(Request $request, $user)
+    {
+        $user = $this->userRepo->getCurrentUser();
+        
+        return new UserResource($user);
     }
 }

@@ -141,6 +141,7 @@ export default function PersonalInfo({user}) {
                                 value={value}
                                 saveAction={updateUser}
                                 editMode={editMode}
+                                editable={true}
                                 setEditMode={setEditMode}
 
                             />

@@ -134,7 +134,6 @@ export default function MyList() {
     
     setSlug(window.location.pathname)
   },[window.location.pathname])
-  console.log(window.location.pathname)
 
   return (
     <List

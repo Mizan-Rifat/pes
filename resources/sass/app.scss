@@ -61,26 +61,6 @@ p{
     
 }
 
-
-@media all and (max-width:480px) {
-    .responsiveTable{
-        .MuiTable-root tr {    
-            display: table;  
-            width:100%;    
-        };               
-        .MuiTable-root td {    
-            display: table-row; 
-        };
-        .MuiTableCell-root {
-            border-bottom: unset;;
-        };
-        .MuiTableRow-root {
-            border-bottom: 1px solid rgba(224, 224, 224, 1);
-        } 
-    }
-              
-}
-
 //imageupload
 
 .fileContainer {
@@ -100,4 +80,30 @@ p{
     line-height: unset !important; 
     width: 19px !important;
     height: 19px !important;
+}
+.ScrollbarsCustom-Track{
+    width: 5px !important;
+}
+
+@media all and (max-width:480px) {
+    .responsiveTable{
+        .MuiTable-root tr {    
+            display: table;  
+            width:100%;    
+        };               
+        .MuiTable-root td {    
+            display: table-row; 
+        };
+        .MuiTableCell-root {
+            border-bottom: unset;
+        };
+        .MuiTableRow-root {
+            border-bottom: 1px solid rgba(224, 224, 224, 1);
+        } 
+    }
+
+    .uploadPictureContainer{
+        width: 100% !important;
+    }
+              
 }

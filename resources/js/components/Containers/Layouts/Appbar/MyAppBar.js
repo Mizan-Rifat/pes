@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { fade, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -11,13 +11,14 @@ import clsx from 'clsx'
 import { Hidden } from '@material-ui/core';
 // import {drawerWidth} from '../AdminLayout';
 import Messages from './Messages';
-import Notification from './Notification';
+import Notification from './Notification/Notification';
 import RenderMenu from './RenderMenu';
 import DesktopSection from './DesktopSection';
 import {Link} from 'react-router-dom';
 import useScrollTrigger from '@material-ui/core/useScrollTrigger';
 import Slide from '@material-ui/core/Slide';
 import Navbar from './Navbar';
+import { useSelector } from 'react-redux';
 
 
 
@@ -34,6 +35,11 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up('sm')]: {
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: 260,
+    },
+  },
+  navbar:{
+    [theme.breakpoints.down('xs')]: {
+      display:'none'
     },
   },
   sectionDesktop: {
@@ -57,10 +63,23 @@ export default function MyAppBar(props) {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
 
+  const {user} = useSelector(state => state.session)
+  const {notifications} = useSelector(state => state.notifications)
+
+  console.log({notifications})
+
+  const [unread_notifications_count, setunread_notifications_count] = useState(0)
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
+
+  useEffect(() => {
+      const count = notifications.filter(item=>item.read_at == null).length
+      setunread_notifications_count(count)
+  }, [notifications])
+
 
   return (
     
@@ -99,17 +118,22 @@ export default function MyAppBar(props) {
 
                       <div className={classes.sectionDesktop}>
 
+                          {
+                            Object.keys(user).length > 0 &&
+                              <>     
+                                  {/* <DesktopSection 
+                                      icon={<MailIcon />}
+                                      component={<Messages />}
+                                      count={4}
+                                  /> */}
+                                  <DesktopSection 
+                                      icon={<NotificationsIcon />}
+                                      component={<Notification />}
+                                      count={unread_notifications_count}
+                                  />
+                              </>
                           
-                        <DesktopSection 
-                            icon={<MailIcon />}
-                            component={<Messages />}
-                            count={4}
-                        />
-                        <DesktopSection 
-                            icon={<NotificationsIcon />}
-                            component={<Notification />}
-                            count={4}
-                        />
+                          }
 
 
                         <div>
@@ -131,7 +155,11 @@ export default function MyAppBar(props) {
 
 
                     {
-                      panel == 'user' && <Navbar />
+                      panel == 'user' && 
+                        <div className={classes.navbar}>
+                          <Navbar />
+                        </div>
+
                     }
 
                         

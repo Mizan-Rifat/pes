@@ -33,35 +33,10 @@ export default function Ratings({team1_name,team2_name,team1_ratings,team2_ratin
     const columns = ratingsTableColumns();
 
 
-    // const [columns, setcolumns] = useState([
-    //     {
-    //         title:'Player',
-    //         field:'player.name',
-    //         cellStyle:{
-    //             padding:'5px',
-    //             fontSize:'12px',
-    //             // textAlign:'center'
-                
-    //         },
-    //         editable:'never'
-    //     },
-    //     {
-    //         title:'Rating',
-    //         field:'rating',
-    //         cellStyle:{
-    //             padding:'5px',
-    //             fontSize:'12px',
-    //             // textAlign:'center'
-                
-    //         }
-    //     },
-    // ])
-
-
 
     return (
-        <Grid container spacing={3} className={classes.container}>
-            <Grid item sm={4} >
+        <Grid container spacing={3} className={classes.container} justify='space-between'>
+            <Grid item xs={12} sm={4} >
                 
                 <RatingsTable 
                     columns={columns}
@@ -71,11 +46,7 @@ export default function Ratings({team1_name,team2_name,team1_ratings,team2_ratin
                 />
             </Grid>
 
-            <Grid item sm={4} >
-                
-            </Grid>
-
-            <Grid item sm={4}>
+            <Grid item xs={12} sm={4}>
                 <RatingsTable 
                         columns={columns}
                         data={team2_ratings}
@@ -89,8 +60,6 @@ export default function Ratings({team1_name,team2_name,team1_ratings,team2_ratin
 }
 
 function RatingsTable({columns,data,teamName}){
-    
-
 
     const classes  = useStyles();
     return(
@@ -101,15 +70,8 @@ function RatingsTable({columns,data,teamName}){
             title={teamName}
             header={{padding:'8px'}}
             edit={true}
-            components={{
-                Toolbar: props => (
-
-                  <div className='detailTable'>
-                      <MTableToolbar {...props} classes={{root:classes.toolbar}} />
-                  </div>
-                  
-                ),
-              }}
+            toolbarLess={true}
+           
         
         />
     )

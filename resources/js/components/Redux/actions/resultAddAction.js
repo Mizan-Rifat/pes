@@ -113,20 +113,24 @@ export const fetchFixtureDetails = (fixture_id) => (dispatch) =>{
     actions={
         loading:fetchingTrue,
         success:fixtureDetailsFetched,
-        error:setErrors
+        error:imageAdded
     }
     return getAction(actions,url,dispatch);
 }
+
+
 export const fetchSubmittedResult = (fixture_id) => (dispatch) =>{
   
-    const url = `http://127.0.0.1:8000/api/result/submitted?fixture_id=${fixture_id}`,
-    actions={
+    const url = `/api/result/submitted?fixture_id=${fixture_id}`;
+    const actions={
         loading:fetchingTrue,
         success:submittedResultFetched,
         error:setErrors
     }
     return getAction(actions,url,dispatch);
 }
+
+
 
 export const addRating = (data,key) => (dispatch) =>(
 

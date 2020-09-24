@@ -17,6 +17,11 @@ class UserRepository
         $this->model = new User();
     }
 
+    public function getCurrentUser(){
+        $user = $this->model->with('club.tournaments','notifications')->findOrFail(Auth::id());
+        return $user;
+    }
+
     public function updateUser($request){
 
         $validatedData = $request->validate([
@@ -50,7 +55,7 @@ class UserRepository
 
         $user = $this->model->with('club.players')->findOrFail($validatedData['id']);
 
-        // $user->update($validatedData);
+        $user->update($validatedData);
 
         return $user;
     }

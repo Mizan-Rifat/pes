@@ -10,15 +10,30 @@ import { fetchAllFixtures, deleteFixture, updateFixture, createFixture } from '@
 import dateFormat from "dateformat";
 import Notify from '@customComponent/Notify';
 import Mtable from '@customComponent/Mtable';
+import { MTableToolbar } from 'material-table';
+import { createTournamentFixtures } from '../../../../../Redux/actions/fixturesAction';
+
+
+const useStyles = makeStyles(theme=>({
+    
+    toolbar:{
+        padding:'0 !important',
+        
+    },
+    createbtn:{
+        background:theme.palette.primary.dark,
+        borderRadius:0
+    }
+}))
 
 
 export default function Fixtures(props) {
-
+    const classes  = useStyles();
     const {setTitle} = props
 
     const toast = Notify();
 
-    const {fixtures,loading} = useSelector(state=>state.fixtures)
+    const {fixtures,fetching,loading} = useSelector(state=>state.fixtures)
     const {id:tournament_id} = useSelector(state=>state.info.tournament)
     const {clubs} = useSelector(state=>state.clubs)
 
@@ -139,6 +154,16 @@ export default function Fixtures(props) {
         setDialogOpen(true)
         console.log(data)
     }
+
+    const handleCreateTournamentFixtures = () => {
+        dispatch(createTournamentFixtures(tournament_id))
+        .then(response=>{
+            toast(response,'success')
+        })
+        .catch(error=>{
+            toast(error.message,'error')
+        })
+    }
     
   
 
@@ -207,9 +232,10 @@ export default function Fixtures(props) {
     return (
         <>
             <Mtable 
+                title={fixtures.length == 0 ?  <CreateFixturesBtn handleCreateTournamentFixtures={handleCreateTournamentFixtures} />: ''}
                 columns={columns}
                 data={fixtures}
-                loading={loading}
+                loading={loading || fetching}
                 handleAddRow={handleAddRow}
                 handleUpdateRow={handleUpdateRow}
                 handleDeleteRow={handleDeleteRow}
@@ -232,6 +258,12 @@ export default function Fixtures(props) {
                         
                     },
                   ]}
+                components={{
+                    Toolbar: props => (
+                            <MTableToolbar {...props} classes={{root:classes.toolbar}} />
+                        
+                    ),
+                }}
             />
 
 
@@ -243,3 +275,10 @@ export default function Fixtures(props) {
     )
 }
 
+function CreateFixturesBtn({handleCreateTournamentFixtures}){
+    const classes  = useStyles();
+
+    return(
+        <Button color='primary' variant='contained' className={classes.createbtn} onClick={handleCreateTournamentFixtures}>Create Fixtures</Button>
+    )
+}

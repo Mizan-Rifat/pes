@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Grid, Container } from '@material-ui/core'
 import Sidebar from './Sidebar'
 import SquadList from './SquadList';
@@ -10,18 +10,23 @@ export default function Club(props) {
 
     const {club,fetching} = useSelector(state => state.clubs);
     const dispatch = useDispatch()
+    const [stateLoading, setStateLoading] = useState(true)
 
     const slug=props.match.params.slug
 
     useEffect(() => {
             dispatch(fetchClub(slug))
+            .then(res=>{
+                setStateLoading(false)
+            })
     }, [slug])
+
 
 
     return (
         <Container>
             {
-                fetching ? 
+                stateLoading ? 
 
                     <Progress size={30} />
                 

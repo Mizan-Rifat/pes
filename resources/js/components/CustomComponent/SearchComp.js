@@ -20,21 +20,36 @@ const useStyles = makeStyles(theme => ({
     display:'flex',
     justifyContent:'space-between',
     height:'50px',
+    [theme.breakpoints.down('xs')]:{
+      padding:0
+    }
   },
   cont:{
     display:'flex',
-    alignItems:'center'
+    alignItems:'center',
+    [theme.breakpoints.down('xs')]:{
+      fontSize:'12px'
+    }
   },
   btn:{
       padding:0
   },
   logo:{
     height:'25px',
-    marginRight:'8px'
+    marginRight:'8px',
+    
   },
   image:{
     height:'45px',
-    marginRight:'8px'
+    marginRight:'8px',
+    [theme.breakpoints.down('xs')]:{
+      marginRight:0
+    }
+  },
+  nof:{
+    [theme.breakpoints.down('xs')]:{
+      padding:10
+    }
   }
 }));
 
@@ -49,6 +64,8 @@ export default function SearchComp({searchurl,label,props}) {
   const [query, setquery] = useState('');
 
   const [state, setstate] = useState([])
+  const [hideList, setHideList] = useState(true);
+  const [focused, setFocused] = useState(false);
 
 
 
@@ -61,7 +78,6 @@ export default function SearchComp({searchurl,label,props}) {
         cancelToken: new axios.CancelToken(c => cancel = c)
       })
         .then(response => {
-          console.log(response);
           setstate(response.data.data)
         })
         .catch(e => {
@@ -77,60 +93,80 @@ export default function SearchComp({searchurl,label,props}) {
 
   const handleChange = (e) =>{
     setquery(e.target.value)
+    setHideList(false)
     
   }
 
 
   const handleAdd = (item)=>{
-
+    console.log({item})
     setquery(item.name)
     props.onChange(item.id)
-
+    setFocused(false)
   }
 
   useEffect(()=>{
-    console.log({props})
-  },[])
-
-
+    if(focused){
+      setHideList(false)
+    }else{
+      setHideList(true)
+    }
+  },[focused])
 
   return (
     <div style={{position:'relative'}} >
 
-      <Input fullWidth value={query} onChange={handleChange} />
+      <Input 
+        fullWidth 
+        value={query} 
+        onChange={handleChange} 
+        onFocus={()=>setFocused(true)} 
+        placeholder= { label == 'clubs' ? 'Search Clubs' : 'Search Players'}
+      />
 
 
-      <div className={clsx(classes.list,'list-group')} >
+      <div className={clsx(classes.list,'list-group',{'d-none':hideList})} >
         {
-          state.map((item, index) => (
+           state.length > 0 ?
 
-                <div
-                    key={index}
-                    className={clsx('list-group-item list-group-item-action',classes.listContainer)}
-                    style={{ cursor: 'pointer' }}
-                >
-                  <div className={classes.cont}>
+              state.map((item, index) => (
 
-                    {
-                      label == 'players'  && <img src={`http://127.0.0.1:8000/images/players/${item.model_id}.png`} className={classes.image}/>
-                    }
-
-                    {
-                      label == 'clubs' && <img src={`http://127.0.0.1:8000/images/logo/${item.logo}`} className={classes.logo}/>
-                    }
-
-                    <div>{item.name}</div>
-                  </div>
-                  
-                    <IconButton 
-                        className={classes.btn}
-                        onClick={()=>handleAdd(item)}
+                    <div
+                        key={index}
+                        className={clsx('list-group-item list-group-item-action',classes.listContainer)}
+                        style={{ cursor: 'pointer' }}
                     >
-                        <AddCircleIcon />
-                    </IconButton>
-                    
-                </div>
-          ))
+                      <div className={classes.cont}>
+
+                        {
+                          label == 'players'  && <img src={item.image} className={classes.image}/>
+                        }
+
+                        {
+                          label == 'clubs' && <img src={item.logo} className={classes.logo}/>
+                        }
+
+                        <div>{item.name}</div>
+                      </div>
+                      
+                        <IconButton 
+                            className={classes.btn}
+                            onClick={()=>handleAdd(item)}
+                        >
+                            <AddCircleIcon />
+                        </IconButton>
+                        
+                    </div>
+              ))
+              :
+
+              <div
+                  className={clsx('list-group-item list-group-item-action',classes.listContainer,classes.nof)}
+                  
+              >
+                No Result Found.
+              </div>
+
         }
       </div>
 

@@ -1,4 +1,5 @@
 import { getAction, postAction } from "./actions"
+import { setNotifications } from "./notificationAction"
 
 export const fetchingTrue = () =>{
     return {
@@ -83,12 +84,14 @@ export const setSessionUserClub = (club) =>{
 }
 
 
+
+
 export const fetchSessionUser = () => (dispatch) =>{
   
     const url ='/api/user',
     actions={
         loading:fetchingTrue,
-        success:sessionUserFetched,
+        success:[sessionUserFetched,setNotifications],
         error:setErrors
     }
     return getAction(actions,url,dispatch);
@@ -140,7 +143,7 @@ export const loginUser = (formData) => (dispatch) => {
     const url ='/login'
     const actions={
         loading:sessionLoadingTrue,
-        success:userLoggedIn,
+        success:[userLoggedIn,setNotifications],
         error:setErrors
     }
     const data = {
@@ -245,56 +248,4 @@ export const logoutAdmin = () => (dispatch) => (
         })
     })
 )
-
-// export const registerUser = (formData) => (dispatch) => (
-
-//     new Promise((resolve,reject)=>{
-
-//         dispatch(loadingTrue())
-
-//         axios.get('/sanctum/csrf-cookie').then(response => {
-//             axios.post(`/register`,{
-//                 name:formData.name,
-//                 email:formData.email,
-//                 password:formData.password,
-//                 password_confirmation:formData.password_confirmation,
-//             })
-//             .then(response=>{
-//                 dispatch(userRegistered(response.data))
-//                 console.log(response.data)
-//                 resolve();
-//             }).catch(error=>{
-
-//                 const err = {
-//                     errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
-//                     message:error.response.data.message,
-//                     errorCode:error.response.status
-//                 }
-
-//                 dispatch(setErrors(err))
-
-//                 reject(err)
-
-//                 // switch (error.response.status) {
-//                 //     case 406:
-//                 //         reject(error.response.data.message)
-//                 //         break;
-//                 //     case 422:
-//                 //         // console.log(error.response.data.errors)
-//                 //         reject(error.response.data.errors)
-//                 //         break;
-//                 //     case 500:
-//                 //         // console.log(error.response.data.message)
-//                 //         reject({msg:error.response.data.message})
-//                 //         break;
-                
-//                 //     default:
-//                 //         reject()
-//                 //         break;
-//                 // }
-
-//             })
-//         })
-//     })
-// )
 

@@ -1,6 +1,6 @@
 import { setSessionUserClub } from "./SessionAction"
-import { postAction } from "./actions"
-import { data } from "jquery"
+import { postAction, getAction } from "./actions"
+
 
 export const loadingTrue = () =>{
     return {
@@ -125,27 +125,18 @@ export const fetchAllClubs = () => {
     } 
 }
 
-export const fetchClub = (slug) => {
-    return (dispatch) => {
-        dispatch(fetchingTrue())
-        axios.get(`/api/club/${slug}`)
-        .then(response=>{
-            dispatch(clubFetched(response.data.data))
-        })
-        .catch(error=>{
-            const err = {
-                errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
-                message:error.response.data.message,
-                errorCode:error.response.status
-            }
-
-            dispatch(setErrors(err))
-
-            reject(err);
-
-        })
-    } 
+export const fetchClub = (slug) => (dispatch) =>{
+  
+    const url =`/api/club/${slug}`,
+    actions={
+        loading:fetchingTrue,
+        success:clubFetched,
+        error:setErrors
+    }
+    return getAction(actions,url,dispatch);
 }
+
+
 export const sendInvitation = (club_ids,tournament_ids) => (dispatch) =>(
     new Promise((resolve,reject)=>{
         // dispatch(loadingTrue())

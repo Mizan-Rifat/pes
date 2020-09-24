@@ -15,9 +15,11 @@ class PlayerModelresource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id'=>$this->id,
             'name'=>$this->name,
             'model_id'=>$this->model_id,
             'position'=>$this->position,
+            'image'=>asset('/images/players/'.$this->model_id.'.png')
         ];
     }
 }

@@ -56,6 +56,7 @@ export default function Registration() {
             inputFields={inputFields}
             submitMethod={registerUser}
             label='Register'
+            form={false}
         />
     )
 

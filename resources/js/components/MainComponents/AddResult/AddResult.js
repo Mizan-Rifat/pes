@@ -3,12 +3,12 @@ import { Container, makeStyles, Button, CircularProgress } from '@material-ui/co
 import RatingsEdit from './RatingsEdit'
 import EventsEdit from './EventsEdit';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchFixtureDetails, addMatchResult,loadingTrue, resetAddResult } from '../../Redux/actions/resultAddAction';
+import { fetchFixtureDetails, addMatchResult,loadingTrue, approveResult, fetchSubmittedResult } from '../../Redux/actions/resultAddAction';
 import clsx from 'clsx';
 import SubmitBtn from '@customComponent/SubmitBtn';
 import Progress from '@customComponent/Progress';
 import Notify from '@customComponent/Notify';
-import { useHistory,Link } from 'react-router-dom';
+import { useHistory,Link, Redirect } from 'react-router-dom';
 import Restricted from '@customComponent/Restricted';
 import Teams from '@customComponent/Teams';
 import ImageUpload from '../../CustomComponent/ImageUpload';
@@ -28,7 +28,12 @@ const useStyles = makeStyles(theme=>({
     disable:{
         pointerEvents:'none',
         opacity:'.5'
-    }
+    },
+    container2:{
+        [theme.breakpoints.down('sm')]:{
+            padding:0
+        }
+    },
 }))
 
 
@@ -40,10 +45,7 @@ export default function AddResult(props) {
 
     const [btnDisable, setBtnDisable] = useState(true)
     const [success, setsuccess] = useState(false)
-    const [restricted,setRestricted] = useState({
-        state:false,
-        msg:''
-    })
+    const [stateLoading, setStateLoading] = useState(true)
 
     const match_id = props.match.params.match_id
 
@@ -51,15 +53,19 @@ export default function AddResult(props) {
         fixture,
         events,
         ratings,
+        images,
         eventsImages,
         ratings1Images,
         ratings2Images,
         eventKey,
         ratingKey,
         loading,
-        fetching
+        fetching,
+        error
     } = useSelector(state => state.addResult)
+
     const {user} = useSelector(state => state.session)
+
     const dispatch = useDispatch();
 
     const handleSubmitResult = ()=>{
@@ -109,138 +115,133 @@ export default function AddResult(props) {
             setsuccess(true)
         })
         .catch(error=>{
-            
-            Object.keys(error.errors).map(err=>{
-                toast(error.errors[err],'error')
-            })
+            if(error.errorCode == 422){
+                Object.keys(error.errors).map(err=>{
+                    toast(error.errors[err],'error')
+                })
+            }else{
+                toast(error.message,'error')
+            }
         })
     }
 
-
+    
     useEffect(()=>{
         dispatch(fetchFixtureDetails(match_id))
+        .catch(err=>{
+            console.log({err})
+            history.push('/error')
+        })
+        
     },[])
 
     useEffect(()=>{
-        if(Object.keys(user).length == 0){
-            setRestricted({
-                state:true,
-                msg:'You have to be logged in to view this page.'
-            })
-        }else if(fixture.team1_id != user.club.id && fixture.team2_id != user.club.id){
-            setRestricted({
-                state:true,
-                msg:"You Can't Add Result Of This Match."
-            })
+
+        if(!fetching){
+
+                const own_match = fixture.team1_id == user.club.id || fixture.team2_id == user.club.id
+                const team1 = fixture.team1_id == user.club.id
+                const team2 = fixture.team2_id == user.club.id
+
+                if(fixture.completed == 1 || fixture.completed == 2){
+                  
+                    history.push({
+                        pathname: '/error',
+                        state: { 
+                            code: 403,
+                            message:'The result of this match has already been added.'
+                         }
+                    })
+                    return;
+                }
+
+                if((team1 && fixture.completed == 3) || (team2 && fixture.completed == 4)){
+                    history.push({
+                        pathname: '/error',
+                        state: { 
+                            code: 403,
+                            message:"You can't view this page."
+                         }
+                    })
+                    return;
+                }
+
+                if(!own_match){
+                    history.push({
+                        pathname: '/error',
+                        state: { 
+                            code: 403,
+                            message:'Permission Denied.'
+                         }
+                    })
+                    return;
+                }
+
+            setStateLoading(false)
+
         }
         
-        if(fixture.completed == 1){
-            setRestricted({
-                state:true,
-                msg:'The Result Of This Match Has Already Been Added.'
-            })
-        }
-        
+
     },[fixture,user])
     
     useEffect(()=>{
-        if(Object.keys(ratings).length > 0 && user.club.id != fixture.team2_id){
-            let t1 = ratings.filter(rating=>rating.club_id == fixture.team1_id && rating.rating != 0).length;
-            let t2 = ratings.filter(rating=>rating.club_id == fixture.team2_id && rating.rating != 0).length;
-            if(t1 > 10 && t2 > 10){
-                setBtnDisable(false)
-            }else{
-                setBtnDisable(true)
+        if(Object.keys(user).length > 0){
+            if(Object.keys(ratings).length > 0 && user.club.id != fixture.team2_id){
+                let t1 = ratings.filter(rating=>rating.club_id == fixture.team1_id && rating.rating != 0).length;
+                let t2 = ratings.filter(rating=>rating.club_id == fixture.team2_id && rating.rating != 0).length;
+                if(t1 > 10 && t2 > 10 && eventsImages.length > 0 && ratings1Images.length > 0 && ratings2Images.length > 0){
+                    setBtnDisable(false)
+                }else{
+                    setBtnDisable(true)
+                }
             }
-        }  
-    },[ratings])
-
-    useEffect(()=>{
-        if(eventsImages.length > 0 && ratings1Images.length > 0 && ratings2Images.length > 0){
-            setBtnDisable(false)
+            if(Object.keys(ratings).length > 0 && user.club.id == fixture.team2_id){
+                if(eventsImages.length > 0 && ratings1Images.length > 0 && ratings2Images.length > 0){
+                    setBtnDisable(false)
+                }
+            }  
         }
-    },[eventsImages,ratings1Images,ratings2Images,])
+    },[ratings,eventsImages,ratings1Images,ratings2Images])
 
-  
 
     return (
         <Container>
             {
-                fetching ? <Progress size={30} /> : 
+                stateLoading ? <Progress size={30} /> : 
                 <>
-
-                    {
-                        restricted.state ?
-
-                            <Restricted msg={restricted.msg} />
-
-                            :
-                        
-                            <>
+                            <div className={clsx({[classes.disable]:loading})}>
                                 <div  style={{marginTop:'120px',marginBottom:'25px'}}>
+
                                     <Teams 
                                         panel='vs'
                                         fixtureDetails={fixture}
                                     />
-                                </div>
-                                <Container>
 
-                                    {
-                                        fixture.team2_id != user.club.id &&
-                                    
+                                </div>
+
+                                <Container className={classes.container2}>
+
+                                   
                                         <EventsEdit
-                                            events={events} 
-                                            team1_id={fixture.team1_id}
-                                            team2_id={fixture.team2_id}
-                                            team1_players={fixture.team1_details.players} 
-                                            team2_players={fixture.team2_details.players}
-                                            loading={loading}
-                                            className={clsx({[classes.disable] : loading })}
-                                            fixture_id={fixture.id}
-                                            eventKey={eventKey} 
-                                            editable={true}
+                                            panel={props.panel}
                                         />
-                                    }
-                                    <ImageUpload 
-                                        buttonText='Upload Event images'
-                                        label='eventsImages'
-                                    />
-                                    {
-                                        fixture.team2_id != user.club.id &&
+
                                     
                                         <RatingsEdit
-                                            ratings={ratings}
-                                            team1_id={fixture.team1_id}
-                                            team2_id={fixture.team2_id} 
-                                            team1_players={fixture.team1_details.players} 
-                                            team2_players={fixture.team2_details.players}
-                                            loading={loading} 
-                                            className={clsx({[classes.disable] : loading })}
-                                            fixture_id={fixture.id} 
-                                            ratingKey={ratingKey}
-                                            editable={true} 
+                                            panel={props.panel}
                                         />
-                                    }
-                                    <ImageUpload 
-                                        buttonText='Upload team1 ratings images'
-                                        label='ratings1Images'
-                                    />
-                                    <ImageUpload 
-                                        buttonText='Upload team2 ratings images'
-                                        label='ratings2Images'
-                                    />
 
                                     <div className='text-center py-5'>
 
                                         {
                                             success ?
-                                        
-                                                
+                                         
                                                 <div>
                                                     <CheckCircleIcon style={{color:'green'}} />
                                                     <div>Result Added.</div>
                                                 </div>
                                             :
+                                      
                                                 <SubmitBtn 
                                                     label='Submit Result'
                                                     handleSubmit={handleSubmitResult}
@@ -248,7 +249,6 @@ export default function AddResult(props) {
                                                     submitDisabled={loading}
                                                     progressStyle={{left:'41%',top:'20%'}}
                                                 />
-
                                             
                                         }
 
@@ -256,12 +256,8 @@ export default function AddResult(props) {
                                     </div>
 
                                 </Container>
-                            </>
-                        
-
-                      
-
-                    }
+                            </div>
+          
                     
                 </>
             }

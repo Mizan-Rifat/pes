@@ -1,53 +1,46 @@
 import React, { useState } from 'react';
 import Carousel from 'react-material-ui-carousel';
 import { makeStyles } from '@material-ui/core/styles';
-
+import clsx from 'clsx';
 
 const useStyles = makeStyles((theme)=>({
     image:{
-        height:300,
+        height:'100vh',
         width:'100%'
     },
     wrapper:{
-        height:'50vh'
+        height:'100vh',
+        backgroundSize:'contain !important',
+        backgroundRepeat:'no-repeat !important'
     },
     img:{
         width: '100%',
-        height: 400,
+        height: '100vh',
+    },
+    img2:{
+        height:'350px'
     }
 }))
-export default function MCarousel() {
-    const classes = useStyles();
+export default function MCarousel(props) {
 
-    const [items, setItems] = useState([
-        {
-            image:'http://127.0.0.1:8000/images/slides/slide1.jpg',
-        },
-        {
-            image:'http://127.0.0.1:8000/images/slides/slide2.jpg',
-        },
-        {
-            image:'http://127.0.0.1:8000/images/slides/slide3.jpg',
-        },
-    ])
-
+    const {autoPlay,indicators,tournament = false} = props;
+    const {items} = props;
+    
     return (
         <Carousel
-            autoPlay={false}
-            indicators={false}
+            autoPlay={autoPlay}
+            indicators={indicators}
         >
             {
-                items.map((item,index)=><CarouselItem src={item.image} /> )
+                items.map((item,index)=><CarouselItem key={index} src={item.image} tournament={tournament} /> )
             }
         </Carousel>
     )
 }
 
-function CarouselItem({src}){
+function CarouselItem({src,tournament}){
     const classes = useStyles();
     return(
-        // <div className={classes.wrapper} style={{backgroundImage:`url(${src})`}}>
-            <img src={src} className={classes.img} />
-        // </div>
+            <img src={src} className={clsx(classes.img,{[classes.img2]:tournament})} /> 
     )
 }

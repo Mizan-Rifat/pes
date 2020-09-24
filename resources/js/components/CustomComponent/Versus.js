@@ -23,16 +23,16 @@ const useStyles = makeStyles(theme=>({
   }));
 
 
-export default function Versus({panel,data,vdb,adb}){
+export default function Versus({panel,data,vdb,adb,approve}){
     const classes = useStyles();
-
 
     const {user} = useSelector(state => state.session)
     const [mode, setmode] = useState(0);
-    const {team1_goals,team2_goals,date,round,leg,team1_id,team2_id,completed} = data
+    const {team1_goals,team2_goals,date,round,leg,team1_id,team2_id,completed,tournament_id} = data
 
     useEffect(()=>{
         if(Object.keys(user).length > 0  && adb){
+
             if(team1_id == user.club.id){
                 if(completed == 0 || completed == 4){
                     setmode(1)
@@ -47,6 +47,7 @@ export default function Versus({panel,data,vdb,adb}){
                     setmode(2)
                 }
             }
+         
         }
     },[])
     return(
@@ -74,6 +75,12 @@ export default function Versus({panel,data,vdb,adb}){
                     </Link>
             }
             {
+                approve && 
+                    <Link to={`/result/approve/${data.id}`} style={{display:'block'}}>
+                        <small className={classes.small}>Approve</small>
+                    </Link>
+            }
+            {
                 
                     mode == 1 &&
                      
@@ -91,6 +98,7 @@ export default function Versus({panel,data,vdb,adb}){
                         </Link>
                     
             }
+         
         </div>
     )
 }

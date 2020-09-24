@@ -47,6 +47,11 @@ const useStyles = makeStyles(theme=>({
     },
     toolTip:{
         display:'none'
+    },
+    gridItem:{
+        [theme.breakpoints.down('xs')]:{
+            padding:'3px !important'
+        }
     }
 }))
 
@@ -89,7 +94,7 @@ export default function ImageBox({title,images,updateMode}) {
 
                 {
                     images.map((image,index)=>(
-                        <Grid item xs={6} sm={4} md={2}>
+                        <Grid item xs={6} sm={4} md={2} className={classes.gridItem}>
                             
                             <div className={classes.item}>
                                 <img src={image.image} className={classes.img} onClick={()=>handleLightBox(images,index)} />

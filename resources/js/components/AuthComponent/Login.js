@@ -47,6 +47,7 @@ export default function Login(props) {
             submitMethod={ props.panel ==  'admin' ? loginAdmin : loginUser}
             label='Login'
             panel={props.panel}
+            from={props.location.state ? props.location.state.from.pathname : false} 
         />
     )
 

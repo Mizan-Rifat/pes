@@ -25,7 +25,7 @@ export default function Events({team1_events,team2_events}) {
 
     return (
         
-        <Grid container spacing={3} className={classes.container}>
+        <Grid container spacing={3} className={classes.container} justify='space-between'>
             <Grid item sm={4} >
                 <div>
                 {
@@ -34,10 +34,6 @@ export default function Events({team1_events,team2_events}) {
                     ))
                 }
                 </div>
-            </Grid>
-
-            <Grid item sm={4} >
-                
             </Grid>
 
             <Grid item sm={4}>

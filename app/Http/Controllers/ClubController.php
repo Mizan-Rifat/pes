@@ -72,7 +72,7 @@ class ClubController extends Controller
     }
 
     public function search(Request $request){
-       
+     
         return ClubResource::collection($this->clubRepo->search($request));
     }
 

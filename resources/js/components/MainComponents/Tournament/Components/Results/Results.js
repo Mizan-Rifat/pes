@@ -82,12 +82,13 @@ export default function Results() {
     return (
         <div className='responsiveTable frTable'>
             <Mtable
-                headerLess={true} 
+                frTable={true}
                 columns={columns}
                 data={results}
                 paging={true}
                 editable={false}
                 loading={loading}
+                header={{display:'none'}}
                 
             />
         </div>

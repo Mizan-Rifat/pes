@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react'
+import React,{useEffect,useState} from 'react'
 import MCarousel from '@customComponent/Carousel/MCarousel'
 import Title from '@customComponent/Title'
 import HeaderTabs from './Components/HeaderTabs'
@@ -20,6 +20,18 @@ export default function MTournament(props) {
     const {user} = useSelector(state=> state.session)
     const dispatch = useDispatch();
 
+    const [caroselItems, setcaroselItems] = useState([
+        {
+            image:'/images/slides/slide1.jpg',
+        },
+        {
+            image:'/images/slides/slide2.jpg',
+        },
+        {
+            image:'/images/slides/slide3.jpg',
+        },
+    ])
+
 
     useEffect(()=>{
 
@@ -40,7 +52,11 @@ export default function MTournament(props) {
             :
         
             <div>
-                <MCarousel />
+                <MCarousel
+                    indicators={false}
+                    items={caroselItems}
+                    tournament={true}
+                />
 
                 <Container style={{minHeight:'500px'}}>
                     <div style={{margin:'50px 0'}}>

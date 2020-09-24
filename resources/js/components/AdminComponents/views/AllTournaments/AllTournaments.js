@@ -84,8 +84,7 @@ export default function AllTournaments() {
 
         new Promise((resolve,reject)=>{
 
-            // console.log({newData})
-            // resolve()
+          
             dispatch(createNewTournament(newData))
             .then(response=>{
                 toast(response,'success')
@@ -132,6 +131,8 @@ export default function AllTournaments() {
                 paging={true}
                 handleAddRow={handleAddRow}
                 handleDeleteRow={handleDeleteRow}
+                editable={true}
+               
                 
             />
           

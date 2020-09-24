@@ -26,6 +26,7 @@ class TournamentResource extends JsonResource
                 return $this->pivot->invitation;
             }),
             'clubs'=> ClubResource::collection($this->whenLoaded('clubs')),
+            'officials'=> UserResource::collection($this->whenLoaded('officials')),
             'groups'=> $this->when(isset($this->groups) ,$this->groups),
             'clubs_count'=> $this->when($this->clubs_count!== null ,$this->clubs_count),
         ];

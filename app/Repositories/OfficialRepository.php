@@ -57,10 +57,13 @@ class OfficialRepository
     }
 
     public function destroyByIds($request){
+        $validatedData = $request->validate([
+            'ids'=>['required'],
+            'ids.*'=>['numeric'],
 
+        ]);
 
-
-        $delete = $this->model->whereIn('id',$request['ids'])->delete();
+        $delete = $this->model->whereIn('id',$validatedData['ids'])->delete();
         return $delete;
     }
 

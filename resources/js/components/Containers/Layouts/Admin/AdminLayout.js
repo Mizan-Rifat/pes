@@ -96,7 +96,8 @@ function AdminLayout(props) {
 
       <MyAppBar 
         handleDrawerToggle={handleDrawerToggle}
-        panel='admin'  
+        panel='admin'
+        user={admin}  
       />
 
       <nav className={classes.drawer} aria-label="mailbox folders">

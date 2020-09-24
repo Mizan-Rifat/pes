@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Model\Club;
 use App\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,7 +18,8 @@ class OfficialResource extends JsonResource
     {
         return [
             'id'=>$this->id,
-            'official' => new UserResource(User::with('club')->find($this->user_id))
+            'user_id' => $this->details->id,
+            'user_name' => $this->details->name,
         ];
     }
 }

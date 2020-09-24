@@ -1,4 +1,5 @@
 const initState = {
+    fetching:true,
     loading:true,
     officials:[],
     error:{},
@@ -12,6 +13,7 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 loading:false,
+                fetching:false,
                 officials:action.payload,
                 
             }
@@ -44,6 +46,18 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 loading:false
+            }
+        case 'OFFICIALS_FETCHING_TRUE':
+            
+            return {
+                ...state,
+                fetching:true
+            }
+        case 'OFFICIALS_FETCHING_FALSE':
+            
+            return {
+                ...state,
+                fetching:false
             }
         case 'SET_ERRORS':
             
