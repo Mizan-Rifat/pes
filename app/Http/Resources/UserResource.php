@@ -21,7 +21,8 @@ class UserResource extends JsonResource
             'email_verified'=>$this->email_verified_at === null ? false : true,
             'club'=>new ClubResource($this->whenLoaded('club')),
             'fbID'=>$this->fbID,
-            'blocked'=>$this->blocked == 0 ? false : true,
+            'blocked'=>$this->blocked,
+            'role'=>$this->when($this->role != null,$this->role),
             'notifications'=>NotificationsResource::collection($this->whenLoaded('notifications')),
             // 'unread_notifications_count'=>$this->when($this->unread_notifications_count != null,$this->unread_notifications_count)
         ];

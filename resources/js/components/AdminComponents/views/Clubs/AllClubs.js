@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core';
 import {useSelector,useDispatch} from 'react-redux';
-import {fetchAllClubs} from '@actions/clubsAction';
+import {fetchAllClubs} from '../../../Redux/Ducks/AllClubsDuck';
 import Notify from '@customComponent/Notify';
 import CompContainer from '@customComponent/CompContainer';
 import Mtable from '@customComponent/Mtable';
 import ClubListItem from '@customComponent/clubs/ClubListItem';
 import TournamentList from '../../../CustomComponent/clubs/TournamentList';
 import SelectTournaments from './SelectTournaments';
-
+import { ListGroupItem1, ListGroupItem2 } from '@customComponent/ListGroupItem';
 const useStyles =makeStyles(theme=>({
     container:{
         padding:'10px'
@@ -23,7 +23,7 @@ export default function AllClubs() {
     const [open, setOpen] = useState(false)
     const [selectedClubIds, setSelectedClubIds] = useState([])
 
-    const {allClubs:clubs,loading,error,success} = useSelector(state => state.clubs);
+    const {allClubs,loading,fetching} = useSelector(state => state.allClubs);
     const dispatch = useDispatch()
 
     const [columns, setColumns] = useState([
@@ -40,9 +40,7 @@ export default function AllClubs() {
         {
             title:'Club',
             field:'name',
-            render : rowData => <ClubListItem logo={rowData.logo} name={rowData.name} />,
-            editComponent: props => <SearchComp searchurl='/api/clubs/search' props={props} />,
-            validate: rowData => rowData.name !== '',
+            render : rowData => <ListGroupItem1 mini image={rowData.logo} label={rowData.name} />,
 
         },
         {
@@ -68,7 +66,7 @@ export default function AllClubs() {
 
 
     useEffect(()=>{
-        if(clubs.length === 0){
+        if(allClubs.length === 0){
             dispatch(fetchAllClubs());
         }
     },[])
@@ -82,8 +80,8 @@ export default function AllClubs() {
 
             <Mtable 
                 columns={columns}
-                data={clubs}
-                loading={loading}
+                data={allClubs}
+                loading={loading || fetching}
                 paging={true}
                 selectMode={true}
                 editable={true}

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Model\Club;
 use App\Model\Player;
 use App\Repositories\Traits\BaseRepository;
 use Illuminate\Support\Facades\Auth;
@@ -17,25 +18,48 @@ class PlayerRepository
         $this->model = new Player();
     }
 
-    public function update($request){
+    public function updatePlayer($request,$id){
 
-        $club_id = Auth::user()->club->id;
+        $player = $this->model->findOrFail($id);
 
         $validatedData = $request->validate([
-            'club_id'=>['required','integer','in:'.$club_id],
-            'id'=>['required','integer'],
-            'jersey' => ['integer',Rule::unique('players')->where(function ($query) use($club_id){
-                return $query->where('club_id', $club_id);
+            'jersey' => ['integer',Rule::unique('players')->where(function ($query) use($player){
+                return $query->where('club_id', $player->club_id);
             })],
         ]);
-
-        $player = $this->model->findOrFail($validatedData['id']);
 
         $player->update(['jersey'=>$validatedData['jersey']]);
 
         return $player;
 
     }
+
+    public function addPlayerInSquad($request){
+
+        $club_id = $request['club_id'];
+
+        $validatedData = $request->validate([
+            'club_id' => ['required','integer','in:'.$club_id],
+            'playermodel_id' => ['required','bail','integer','exists:playermodels,id',
+                                    Rule::unique('players')->where(function ($query) use($club_id){
+                                        return $query->where('club_id', $club_id);
+                                    })    
+                                ],
+            'jersey' => ['required','integer',Rule::unique('players')->where(function ($query) use($club_id){
+                return $query->where('club_id', $club_id);
+            })],
+        ],
+        [
+            'playermodel_id.unique' => 'The Player Is Already In This Squad.'
+        ]
+        );
+
+
+        $player = Player::create($validatedData);
+
+        return $player;
+    }
+
 
     
 }

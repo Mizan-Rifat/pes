@@ -4,7 +4,7 @@ import PersonIcon from '@material-ui/icons/Person';
 import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import Auth from './Auth';
 import EmailIcon from '@material-ui/icons/Email';
-import { registerUser } from '../Redux/actions/SessionAction';
+import { registerUser } from '../Redux/Ducks/SessionUserDuck';
 import AuthForm from './AuthForm';
 
 

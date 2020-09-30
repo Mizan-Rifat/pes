@@ -4,57 +4,20 @@ import Mtable from '@customComponent/Mtable';
 import Versus from '@customComponent/versus';
 import {makeStyles} from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchAllResults } from '@actions/resultActions';
+import { fetchTournamentResults } from '../../../../Redux/Ducks/ResultsDuck';
 
 
 const useStyles = makeStyles(theme=>({
 
-    logo:{
-        height:'100%',
-        margin:'0 10px'
-    },
-    team:{
-        height:'50px',
-        display:'flex',
-        alignItems:'center',
-        justifyContent:'center',
-        ['@media (max-width:480px)'] : {
-            margin:'5px 0'
-          }
-    },
-    team1:{
-        ['@media (max-width:480px)'] : {
-            justifyContent:'flex-start !important'
-          }
-    },
-    team2:{
-        ['@media (max-width:480px)'] : {
-            justifyContent:'flex-end !important'
-          }
-
-    },
-    date:{
-        fontSize:'14px',
-        ['@media (max-width:480px)'] : {
-            fontSize:'12px'
-          }
-    },
-    small:{
-        ['@media (max-width:480px)'] : {
-            fontSize:'10px'
-          }
-    },
-    name:{
-        fontWeight:700
-    }
+  
   }));
 
 export default function Results() {
 
-    const {results,loading} = useSelector(state=>state.results);
-    const {id:tournament_id} = useSelector(state=>state.info.tournament)
+    const {results,fetching} = useSelector(state=>state.results);
+    const {tournamentInfo} = useSelector(state=>state.tournament)
     const dispatch = useDispatch();
-
+console.log({results})
 
     const [columns, setcolumns] = useState([
         
@@ -74,7 +37,7 @@ export default function Results() {
 
     useEffect(()=>{
         if(results.length === 0){
-            dispatch(fetchAllResults(tournament_id))    
+            dispatch(fetchTournamentResults(tournamentInfo.id))    
         }
     },[])
 
@@ -87,7 +50,7 @@ export default function Results() {
                 data={results}
                 paging={true}
                 editable={false}
-                loading={loading}
+                loading={fetching}
                 header={{display:'none'}}
                 
             />

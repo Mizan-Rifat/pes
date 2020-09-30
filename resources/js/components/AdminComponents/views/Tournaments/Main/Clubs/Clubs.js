@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {makeStyles} from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchAllClubsByTournament, addClubInTournament, deleteClubsFromTournament } from '@actions/clubsAction';
 import SearchComp from '@customComponent/SearchComp';
 import Notify from '@customComponent/Notify';
 import Mtable from '@customComponent/Mtable';
 import {ListGroupItem1} from '@customComponent/ListGroupItem'
+import useTableActions from '@customComponent/useTableActions';
+import { fetchTournamentClubs,addClubInTournament,removeClubFromTournament } from '../../../../../Redux/Ducks/TournamentClubsDuck';
+
 
 const useStyles = makeStyles(theme=>({
 
@@ -24,12 +26,20 @@ const useStyles = makeStyles(theme=>({
 
 export default function Clubs({setTitle}) {
 
-    const {id:tournament_id} = useSelector(state=> state.info.tournament)
-    const {clubs,loading} = useSelector(state=> state.clubs)
+    const {tournamentInfo} = useSelector(state=> state.tournament)
+    const {clubs,loading,fetching} = useSelector(state=> state.tournamentClubs)
 
     const dispatch = useDispatch();
 
     const toast = Notify();
+
+    const tabelActions = {
+        add:addClubInTournament,
+        delete:removeClubFromTournament,
+    }
+
+    const {handleAddRow,handleDeleteRow} = useTableActions(tabelActions)
+
 
 
     const [columns, setColumns] = useState([
@@ -59,46 +69,30 @@ export default function Clubs({setTitle}) {
     ]);
 
  
-    const handleAddRow = (newData) => (
+    const handleAdd = (newData) => {
+        const data = {
+            'club_id':newData.name,
+            'tournament_id':tournamentInfo.id
+        }
 
-        new Promise((resolve,reject)=>{
-            console.log({newData})
-            dispatch(addClubInTournament(newData.name,tournament_id))
-            .then(response=>{
-                toast(response,'success')
-                resolve();
-            }).catch(error=>{
-
-                Object.keys(error).map(err=>{
-                    toast(error[err],'error')
-                })
-                reject();
-            })
-        })
-
-    )
+        return handleAddRow(data);
+    }
 
 
-    const handleDeleteRow = (oldData) => (
-        new Promise((resolve, reject) => {
-                                    
-            dispatch(deleteClubsFromTournament([oldData.id],tournament_id))
-            .then(response=>{
-                toast(response,'success')
-                resolve()
-            }).catch(error=>{
-                Object.keys(error).map(err=>{
-                    toast(error[err],'error')
-                })
-                reject();
-            })
+    const handleDelete = (oldData) => {
+        const data = {
+            'club_id':oldData.id,
+            'tournament_id':tournamentInfo.id
+        }
 
-        })
-    )
+        return handleDeleteRow(data)
+    }
     
 
     useEffect(()=>{
         setTitle('Clubs')
+
+        dispatch(fetchTournamentClubs(tournamentInfo.id))
     },[])
 
     return (
@@ -106,9 +100,9 @@ export default function Clubs({setTitle}) {
 
               columns={columns}
               data={clubs}
-              handleAddRow={handleAddRow}
-              // handleUpdateRow={}
-              handleDeleteRow={handleDeleteRow}
+              loading={fetching || loading}
+              handleAddRow={handleAdd}
+              handleDeleteRow={handleDelete}
               paging={true}
               editable={true}
           

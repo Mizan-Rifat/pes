@@ -33,8 +33,13 @@ class TournamentRepository
 
     
 
-    public function getTournament($key,$value,$with=[]){
-        $tournament = $this->model->where($key,$value)->with($with)->firstOrFail();
+    public function getTournament($ref,$with){
+        
+        $tournament = $this->model
+                        ->where('id',$ref)
+                        ->orWhere('slug',$ref)
+                        ->with($with)
+                        ->firstOrFail();
 
         if($tournament->type == 3){
             $tournament->groups = $this->getTournamentGroups($tournament->id);
@@ -76,8 +81,8 @@ class TournamentRepository
         unset($request['format']);
 
         $validatedData = $request->validate([
-            'name' => ['required','regex:/^[\pL\s\-]+$/u','unique:tournaments,name,'.$request->id],
-            'slug'=>['required','alpha','unique:tournaments,slug,'.$request->id],
+            'name' => ['required','regex:/^[a-zA-Z ]+$/','unique:tournaments,name,'],
+            'slug'=>['required','regex:/^[a-z]+$/','alpha','unique:tournaments,slug'],
             'type'=>['required','min:1','max:3','numeric'],
             'leg'=>['required','min:1','max:2','numeric'],
             'rounds'=>['required','min:1','max:18','numeric'],
@@ -103,22 +108,7 @@ class TournamentRepository
 
     
 
-    public function getResults($tournament_id){
-        $results = $this->fixtureRepo()
-                    ->getCompletedFixturesByTournament($tournament_id,[
-                        'team1',
-                        'team2',
-                        'result'
-                    ]);
 
-                    
-        return $results;
-    }
-    public function getOfficials($tournament_id){
-        $officials = $this->model->find($tournament_id)->officials()->get();
-                    
-        return $officials;
-    }
 
 
     public function getPlayers($tournament_id){
@@ -135,21 +125,20 @@ class TournamentRepository
         return $allPlayers;
     }
 
-    public function updateInfo($request){
+    public function updateInfo($request,$tournament){
+
+        $request['type'] = $request['format'];
+
+        unset($request['format']);
 
         $validatedData = $request->validate([
-            'id'=>['required','numeric'],
-            'name' => ['regex:/^[\pL\s\-]+$/u','unique:tournaments,name,'.$request->id],
-            'slug'=>['alpha','unique:tournaments,slug,'.$request->id],
+            'name' => ['regex:/^[\pL\s\-]+$/u','unique:tournaments,name,'.$tournament->id],
+            'slug'=>['alpha','unique:tournaments,slug,'.$tournament->id],
             'type'=>['min:1','max:3','numeric'],
             'leg'=>['min:1','max:2','numeric'],
             'rounds'=>['min:1','max:18','numeric'],
             'active'=>['min:0','max:1','numeric'],
         ]);
-
-        $tournament = $this->model->findOrFail($validatedData['id']);
-
-        unset($validatedData['id']);
 
         $tournament->update($validatedData);
 

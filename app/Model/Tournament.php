@@ -11,6 +11,11 @@ class Tournament extends Model
 
     protected $guarded = [];
 
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = strtoupper($value);
+    }
+
 
    
     public function clubs(){

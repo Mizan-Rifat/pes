@@ -3,8 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import KeyValueComp from '../../CustomComponent/KeyValueComp';
 import EditButton from '../../CustomComponent/EditButton';
 import {Link} from 'react-router-dom';
-import { updateUser } from '../../Redux/actions/usersActions';
 import { useSelector } from 'react-redux';
+import { updateSessionUser } from '../../Redux/Ducks/SessionUserDuck';
 
 const useStyles = makeStyles((theme) => ({
     container:{
@@ -39,10 +39,10 @@ const useStyles = makeStyles((theme) => ({
 
 }))
 
-export default function PersonalInfo({user}) {
+export default function PersonalInfo() {
     const classes = useStyles();
 
-    const {error} = useSelector(state => state.session)
+    const {user} = useSelector(state => state.sessionUser)
 
     const [passCM, setPassCM] = useState(false)
     const [editMode,setEditMode] = useState(false)
@@ -139,7 +139,7 @@ export default function PersonalInfo({user}) {
                             <KeyValueComp 
                                 fields={fields}
                                 value={value}
-                                saveAction={updateUser}
+                                saveAction={updateSessionUser}
                                 editMode={editMode}
                                 editable={true}
                                 setEditMode={setEditMode}

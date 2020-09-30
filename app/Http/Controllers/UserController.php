@@ -18,7 +18,7 @@ class UserController extends Controller
         $this->userRepo = $userRepo;
     }
 
-    public function getAllUsers(){
+    public function index(){
         $users = $this->userRepo->with('club')->get();
         return UserResource::collection($users);
     }
@@ -35,29 +35,33 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    public function update(Request $request){
+    public function update(Request $request,User $user){
 
-        $user = $this->userRepo->updateUser($request);
+        $this->authorize('update',$user);
+
+        $updatedUser = $this->userRepo->updateUser($request,$user);
 
         return response()->json([
             'message'=>'Update Successfull',
-            'data'=>new UserResource($user)
+            'data'=>new UserResource($updatedUser)
         ],200);
         
     }
 
 
-    public function destroy(Request $request){
+    public function destroy(User $user){
 
-        $delete = $this->userRepo->destroyById($request->id);
+        $this->authorize('delete',$user);
+        $delete = $this->user->delete();
 
         if($delete){
             return response()->json([
-                'message' => count($request->id) > 1 ? 'Users  removed successfully.' : 'User removed successfully.',
+                'message' => 'User removed successfully.',
+                'data'=>$user->id
             ],200);
         }else{
             return response()->json([
-                'message' => count($request->id) > 1 ? 'Users not deleted.' : 'User not deleted.',
+                'message' => 'User not removed.',
             ],500);
         }
     }

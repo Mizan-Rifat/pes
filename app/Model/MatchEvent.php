@@ -5,7 +5,7 @@ namespace App\Model;
 use App\Http\Support\Database\CacheQueryBuilder;
 use Illuminate\Database\Eloquent\Model;
 
-class MatchDetails extends Model
+class MatchEvent extends Model
 {
 
     use CacheQueryBuilder;

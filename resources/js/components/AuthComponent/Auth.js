@@ -114,7 +114,7 @@ const theme = createMuiTheme({
 export default function Auth({form,type,panel}) {
 
     const classes = useStyles();
-    const {loading} = useSelector(state => state.session)
+    const {loading} = useSelector(state => state.sessionUser)
 
     return (
         <div className={classes.container}>

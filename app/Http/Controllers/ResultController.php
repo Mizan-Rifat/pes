@@ -204,14 +204,7 @@ class ResultController extends Controller
 
 
 
-    public function updateMatchEvent(Request $request){
-        $event = $this->resultRepo->updateMatchEvent($request);
-        
-        return response()->json([
-            'message'=>'Update Successfull',
-            'data'=>new MatchEventsResource($event)
-        ],200);
-    }
+    
     
     public function updateMatchRatings(Request $request){
        $ratings = $this->resultRepo->updateMatchRatings($request);
@@ -221,20 +214,7 @@ class ResultController extends Controller
 
 
 
-    public function deleteMatchEvent(Request $request){
-        $delete = $this->resultRepo->deleteMatchEvent($request);
-
-        if($delete){
-            return response()->json([
-                'data'=>$request['id'],
-                'message' => 'Event(s) removed successfully.',
-            ],200);
-            }else{
-                return response()->json([
-                    'message' => 'Event(s) not removed.',
-                ],500);
-            }
-    }
+   
      public function deleteMatchImage(Request $request){
         $delete = $this->resultRepo->deleteImage($request);
 
@@ -278,19 +258,6 @@ class ResultController extends Controller
 
 
 
-    public function addMatchEvent(Request $request){
-
-        $event = $this->resultRepo->addMatchEvent($request);
-
-        return response()->json([
-            'message'=>'Event Created',
-            'data'=>new MatchEventsResource($event)
-        ],200);
-
-    
-    }
-
-
     public function addMatchRating(Request $request){
 
         $rating = $this->resultRepo->addMatchRating($request);
@@ -320,5 +287,14 @@ class ResultController extends Controller
         return response()->json([
             'message'=>'Result Approved.'
         ]);
+    }
+
+    public function test(Request $request){
+        $evnets = $request->events;
+        $ratings = $request->ratings;
+        $fixture_id = $request->fixture_id;
+
+        $this->resultRepo->createEvents($evnets,$fixture_id);
+        $this->resultRepo->createRatings($ratings,$fixture_id);
     }
 }

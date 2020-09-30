@@ -22,13 +22,6 @@ class ClubRepository
         $this->model = new Club();
     }
 
-    public function getByReference($reference,$with=[]){
-        return $this->model
-                    ->where('id',$reference)
-                    ->orWhere('slug',$reference)
-                    ->with($with)
-                    ->firstOrFail();
-    }
 
     public function sendInvitation($request){
 // return $request;
@@ -58,117 +51,22 @@ class ClubRepository
     }
 
 
-    public function addClubInTournament($request){
-        $validatedData = $request->validate([
-            'club_id' => ['required','integer'],
-            'tournament_id' => ['required','integer'],
-        ]);
 
-        $rule = DB::table('club_tournament')
-                ->where('club_id',$validatedData['club_id'])
-                ->where('tournament_id',$validatedData['tournament_id'])
-                ->exists();
-
-        if($rule){
-            abort(500,'The club is already added.');
-        }
-
-        $insert = DB::table('club_tournament')
-                ->insert($validatedData);
-
-        return $insert;
-
-    }
-
-
-    public function removeClubsFromTournament($request){
-
-        $delete = DB::table('club_tournament')
-                ->whereIn('club_id',$request['club_ids'])
-                ->where('tournament_id',$request['tournament_id'])
-                ->delete();
-
-        return $delete;
-
-    }
-    public function removePlayersFromClub($request){
-
-        $club_id = Auth::user()->club->id;
+    public function updateClub($request,$club){
 
         $validatedData = $request->validate([
-            'club_id' => ['required','integer','in:'.$club_id],
-            'player_ids'=>['required','array'],
-            'player_ids.*'=>['integer'],
-        ]);
 
-        $delete = DB::table('players')
-                ->whereIn('id',$validatedData['player_ids'])
-                ->where('club_id',$validatedData['club_id'])
-                ->delete();
-
-        if($delete){
-            return $validatedData['player_ids'];
-        }
-
-        return [];
-
-    }
-
-    public function addPlayerToSquad($request){
-
-        $club_id = Auth::user()->club->id;
-
-        if(count(Auth::user()->club['players']) > 24){
-            abort(403,"you can't have more then 25 players in your squad.",);
-        }
-
-        $validatedData = $request->validate([
-            'club_id' => ['required','integer','in:'.$club_id],
-            'playermodel_id' => ['required','bail','integer','exists:playermodels,id',
-                                    Rule::unique('players')->where(function ($query) use($club_id){
-                                        return $query->where('club_id', $club_id);
-                                    })    
-                                ],
-            'jersey' => ['required','integer',Rule::unique('players')->where(function ($query) use($club_id){
-                return $query->where('club_id', $club_id);
-            })],
-        ],
-        [
-            'playermodel_id.unique' => 'The Player Is Already In This Squad.'
-        ]
-        );
-
-
-        $player = Player::create($validatedData);
-
-        return $player;
-    }
-
-
-    public function updateClub($request){
-
-        $user = User::with('club')->find(Auth::id());
-        $club = $user->club;
-
-        $validatedData = $request->validate([
-            'id'=>['required','numeric',function($attribute,$value,$fail) use($club){
-                if($value != $club->id){
-                    $fail('You don\'t have permission to do this.');
-                }
-            }],
             'name' => ['max:20','min:2',Rule::unique('clubs')->ignore($club)],
             // 'name' => ['max:20','min:2','unique:clubs,name,'.Auth::user()->club['name']],
             'owner_id' => [Rule::unique('clubs')->ignore($club),'regex:/^\d{3}-\d{3}-\d{3}$/'],
-            'model_id'=>['numeric'],
+            'model_id'=>['numeric','exists:club_models,id'],
 
         ]);
-        $validatedData['name'] = strtoupper($validatedData['name']);
         $validatedData['slug'] = str_replace(' ','',(strtolower($validatedData['name'])));
-
 
         $club->update($validatedData);
 
-        return $this->model->find($validatedData['id']);
+        return $club;
     }
 
     public function createClub($request){
@@ -177,7 +75,6 @@ class ClubRepository
             'owner_id' => ['required','string','regex:/^\d{3}-\d{3}-\d{3}$/','unique:clubs,owner_id'],
             'model_id'=>['required','numeric'],
         ]);
-        $validatedData['name'] = strtoupper($validatedData['name']);
         $validatedData['slug'] = str_replace(' ','',(strtolower($validatedData['name'])));
         $validatedData['owner_user_id'] = Auth::id();
 

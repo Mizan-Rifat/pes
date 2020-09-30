@@ -292,17 +292,6 @@ export const removePlayerFromClub = (data) => (dispatch) =>{
     return postAction(actions,url,data,dispatch);
 }
 
-export const testAction = (data) => (dispatch) => {
-    const url ='/api/club/create',
-    actions={
-        loading:loadingTrue,
-        success:clubCreated,
-        error:setErrors
-    }
-    return postAction(actions,url,data,dispatch);
-}
-
-
 export const createClub = (data) => (dispatch) => {
     const url ='/api/club/create',
     actions={

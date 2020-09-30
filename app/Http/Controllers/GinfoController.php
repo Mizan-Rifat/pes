@@ -16,7 +16,6 @@ class GinfoController extends Controller
     }
 
     public function update(Request $request){
-
         $validatedData = $request->validate([
             'season'=>['regex:/^[a-zA-Z]{3}[0-9]{2}$/'],
             'pre_season'=>['boolean']

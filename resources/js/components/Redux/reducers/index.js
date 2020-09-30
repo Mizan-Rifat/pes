@@ -1,33 +1,45 @@
-import UsersReducer from './UsersReducer';
+import UsersReducer from '../Ducks/UsersDuck';
 import {combineReducers} from 'redux';
-import FixturesReducer from './FixturesReducer';
+import FixturesReducer from '../Ducks/FixturesDuck';
 import InfoReducer from './InfoReducer';
+import ClubReducer from '../Ducks/ClubDuck';
 import ClubsReducer from './ClubsReducer';
-import ResultsReducer from './ResultsReducer';
-import TournamentsReducer from './TournamentsReducer';
-import TournamentReducer from './TournamentReducer';
-import OfficialsReducer from './OfficialsReducer';
-import ResultAddReducer from './ResultAddReducer';
-import StandingsReducer from './StandingsReducer';
-import PlayerStatsReducer from './PlayerStatsReducer';
-import SessionReducer from './SessionReducer';
-import NotificationReducer from './NotificationReducer';
-import GinfoReducer from './GinfoReducer';
+import ResultsReducer from '../Ducks/ResultsDuck';
+import TournamentsReducer from '../Ducks/TournamentsDuck';
+import TournamentReducer from '../Ducks/TournamentDuck';
+import OfficialsReducer from '../Ducks/OfficialsDuck';
+import ResultAddReducer from '../Ducks/ResultsDuck';
+import StandingsReducer from '../Ducks/StandingsDuck';
+import PlayerStatsReducer from '../Ducks/PlayersStatsDuck';
+import SessionUserReducer from '../Ducks/SessionUserDuck';
+import SessionAdminReducer from '../Ducks/SessionAdminDuck';
+import NotificationReducer from '../Ducks/NotificationsDuck';
+import GinfoReducer from '../Ducks/GInfoDuck';
+import TournamentClubsReducer from '../Ducks/TournamentClubsDuck'
+import AllClubsReducer from '../Ducks/AllClubsDuck';
+import ClubSquadReducer from '../Ducks/ClubSquadDuck';
+import CuClubReducer from '../Ducks/CuClubDuck';
 
 export const reducers = combineReducers({
     users:UsersReducer,
     fixtures:FixturesReducer,
     results:ResultsReducer,
     info:InfoReducer,
+    club:ClubReducer,
     clubs:ClubsReducer,
+    allClubs:AllClubsReducer,
+    clubSquad:ClubSquadReducer,
     tournaments:TournamentsReducer,
     tournament:TournamentReducer,
+    tournamentClubs:TournamentClubsReducer,
     officials:OfficialsReducer,
     addResult:ResultAddReducer,
     standings:StandingsReducer,
     playerStats:PlayerStatsReducer,
-    session:SessionReducer,
+    sessionUser:SessionUserReducer,
+    sessionAdmin:SessionAdminReducer,
     notifications:NotificationReducer,
+    cuClub:CuClubReducer,
     gInfo:GinfoReducer    
     
 })

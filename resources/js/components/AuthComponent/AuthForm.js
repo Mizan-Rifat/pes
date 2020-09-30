@@ -36,7 +36,7 @@ export default function AuthForm(props) {
 
   const history = useHistory();
 
-  const {error} = useSelector(state => state.session)
+  const {error} = useSelector(state => state.sessionUser)
 
   const toast = Notify();
 
@@ -54,15 +54,18 @@ export default function AuthForm(props) {
         e.preventDefault();
         dispatch(submitMethod(formData))
         .then(response=>{
-          console.log('f045')
+          setFormData({
+              email: "",
+              password: "",
+              remember: false,
+              errors: {},
+          })
           if(panel == 'admin'){
             history.push('/admin')
           }else{
             if(!from){
-              console.log('f00')
               history.push('/')  
             }else{
-              console.log({from})
               history.push(from)
             }
             

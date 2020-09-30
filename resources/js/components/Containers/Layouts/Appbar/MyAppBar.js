@@ -63,7 +63,8 @@ export default function MyAppBar(props) {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const {user} = useSelector(state => state.session)
+  const {user} = useSelector(state => state.sessionUser)
+  const {admin} = useSelector(state => state.sessionAdmin)
   const {notifications} = useSelector(state => state.notifications)
 
   console.log({notifications})
@@ -119,7 +120,7 @@ export default function MyAppBar(props) {
                       <div className={classes.sectionDesktop}>
 
                           {
-                            Object.keys(user).length > 0 &&
+                            Object.keys(user).length > 0 ||  Object.keys(admin).length > 0 ?
                               <>     
                                   {/* <DesktopSection 
                                       icon={<MailIcon />}
@@ -132,7 +133,7 @@ export default function MyAppBar(props) {
                                       count={unread_notifications_count}
                                   />
                               </>
-                          
+                              : ''
                           }
 
 

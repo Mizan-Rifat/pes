@@ -162,6 +162,8 @@ export default function HeaderTabs({detailSlug,tournament}) {
       newTabs = tabs.filter(tab=>tab.key != 4)
     }
 
+    console.log({tournament})
+
     setTabs(newTabs.map((tab,index)=>(
       {
         ...tab,

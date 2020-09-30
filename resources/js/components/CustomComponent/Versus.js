@@ -26,7 +26,7 @@ const useStyles = makeStyles(theme=>({
 export default function Versus({panel,data,vdb,adb,approve}){
     const classes = useStyles();
 
-    const {user} = useSelector(state => state.session)
+    const {user} = useSelector(state => state.sessionUser)
     const [mode, setmode] = useState(0);
     const {team1_goals,team2_goals,date,round,leg,team1_id,team2_id,completed,tournament_id} = data
 

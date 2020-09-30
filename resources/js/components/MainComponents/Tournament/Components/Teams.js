@@ -1,10 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import { Container, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import {Link} from 'react-router-dom';
 import { Team1 } from '@customComponent/Team';
 import { useSelector,useDispatch } from 'react-redux';
 import Progress from '../../../CustomComponent/Progress';
+
+import { fetchTournamentClubs } from '../../../Redux/Ducks/TournamentClubsDuck';
+
 
 const useStyles = makeStyles((theme) => ({
     logo:{
@@ -33,12 +36,25 @@ const useStyles = makeStyles((theme) => ({
 export default function Teams() {
     const classes = useStyles();
 
-    const {clubs,loading} = useSelector(state => state.clubs);
+    
+    const {tournamentInfo} = useSelector(state=> state.tournament)
+    const {clubs,fetching} = useSelector(state=> state.tournamentClubs)
+
     const dispatch = useDispatch();
+
+    useEffect(()=>{
+        dispatch(fetchTournamentClubs(tournamentInfo.id))
+    },[])
 
 
     return (
         <Container>
+            {
+                fetching ? 
+
+                <Progress style={{top:'25%'}} />
+
+                :
           
             
                 <Grid container spacing={3} justify="center">
@@ -55,6 +71,7 @@ export default function Teams() {
                     }
                     
                 </Grid>
+            }
          
         </Container>
     )

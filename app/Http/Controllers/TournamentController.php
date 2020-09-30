@@ -29,13 +29,13 @@ class TournamentController extends Controller
 
     public function index(){
         $tournaments = $this->tournamentRepo->withCount('clubs')->get();
-        // return $tournaments;
         return TournamentResource::collection($tournaments);
     }
 
-    
-
     public function create(Request $request){
+
+        $this->authorize('create',Tournament::class);
+
         $tournament = $this->tournamentRepo->createTournament($request);
         
         return response()->json([
@@ -44,15 +44,16 @@ class TournamentController extends Controller
         ],200); 
     }
 
-   
+    public function destroy(Tournament $tournament){
 
-    public function destroy(Request $request){
+        $this->authorize('delete',$tournament);
 
-        $delete = $this->tournamentRepo->destroy($request['ids']);
+        $delete = $tournament->delete();
         
         if($delete){
             return response()->json([
                 'message' => 'Tournament(s) removed successfully.',
+                'data'=>$tournament->id
             ],200);
             }else{
                 return response()->json([
@@ -61,83 +62,29 @@ class TournamentController extends Controller
             }
     }
 
-    public function getTournament($ref){
+    public function update(Request $request,Tournament $tournament){
 
-        if(request()->slug != null){
-            $key = 'slug';
-            $value = request()->slug;
-        }else{
-            $key = 'id';
-            $value = request()->id;
-        }
+        $this->authorize('update',$tournament);
 
-        return Tournament::where('id',$ref)->orWhere('slug',$ref)->first();
-        
-        return new TournamentResource($this->tournamentRepo->getTournament($key,$value));
+        $updatedTournament = $this->tournamentRepo->updateInfo($request,$tournament);
 
+        return response()->json([
+            'message'=>'Tournament Info Updated Successfully.',
+            'data'=> new TournamentResource($updatedTournament)
+        ],200);
     }
 
-    public function getTournamentDeatils(){
-        if(request()->slug != null){
-            $key = 'slug';
-            $value = request()->slug;
-        }else{
-            $key = 'id';
-            $value = request()->id;
+    public function show($ref){
+
+        $with = [];
+        if(isset(request()['details'])){
+            $with=['clubs.owner','officials'];
         }
 
-        $tournament = $this->tournamentRepo->getTournament($key,$value,['clubs.owner','officials']);
-
-        $tournament->groups = $tournament->groups->map(function($group){
-            return ClubResource::collection($group);
-        });
-
+        $tournament = $this->tournamentRepo->getTournament($ref,$with);
         
         return new TournamentResource($tournament);
-    }
 
-    public function getClubsWithDetails(){
-        $clubs = $this->tournamentRepo
-                ->find(request('tournament_id'))
-                ->clubs()
-                ->with('owner')
-                ->where('invitation','>',0)
-                ->get();
-
-        return ClubResource::collection($clubs);
-        
-    }
-
-    public function getClubs(){
-        $clubs = $this->tournamentRepo
-                ->find(request('tournament_id'))
-                ->clubs()
-                ->where('invitation','>',0)
-                ->get();
-
-
-        return ClubResource::collection($clubs);
-    }
-
-    public function getResults(){
-
-        $results = $this->tournamentRepo->getResults(request('tournament_id'));
-
-        return ResultResource::collection($results);
-        
-    }
-
-    public function getFixtures(Request $request){
-
-        $validatedData = $request->validate([
-            'tournament_id' => ['required','integer'],
-            'admin'=>['integer']
-        ]);
-
-
-        $fixtures = $this->tournamentRepo->getFixtures($validatedData);
-
-        return  FixtureResource::collection($fixtures);
     }
 
     public function getSubmittedFixtures(Request $request){
@@ -145,65 +92,26 @@ class TournamentController extends Controller
         return FixtureResource::collection($fixtures);
     }
 
-    public function getOfficials(){
-        $officials = $this->tournamentRepo->getOfficials(request('tournament_id'));
 
-        return OfficialResource::collection($officials);
-    }
 
-    public function addOfficials(Request $request){
-        $official = $this->officialRepo->store($request);
+    
 
+
+    public function getPoinTable($tournament_id){
+        $pointTable = $this->tournamentRepo->getTournamentPointsTable($tournament_id);
         return response()->json([
-            'message'=>'Official Added Successfully',
-            'data'=>new OfficialResource($official)
-        ],200);
-    }
-
-    public function removeOfficials(Request $request){
-       $delete = $this->officialRepo->destroyByIds($request);
-
-       if($delete){
-        return response()->json([
-            'data'=>$request['ids'],
-            'message' => 'Official(s) removed successfully.',
-        ],200);
-        }else{
-            return response()->json([
-                'message' => 'Official(s) not removed.',
-            ],500);
-        }
-    }
-
-    public function update(Request $request){
-        $tournament = $this->tournamentRepo->updateInfo($request);
-
-        return response()->json([
-            'message'=>'Tournament Info Updated Successfully.',
-            'tournament'=> new TournamentResource($tournament)
-        ],200);
-    }
-
-
-    public function getPoinTable(Request $request){
-        $validatedData = $request->validate([
-            'tournament_id'=>['required','integer']
+            'data'=>$pointTable
         ]);
-
-        return $this->tournamentRepo->getTournamentPointsTable($validatedData['tournament_id']);
     }
 
 
-    public function getPlayerStats(Request $request){
+    public function getPlayerStats($tournament_id){
+        $stats = $this->tournamentRepo->getstats($tournament_id);
+        request()->merge(['stats'=>1]);
         
-        $validatedData = $request->validate([
-            'tournament_id'=>['required','integer']
+        return response()->json([
+            'data'=>PlayerResource::collection($stats)
         ]);
-        $request->merge(['stats'=>1]);
-
-        // return $this->tournamentRepo->getstats($validatedData['tournament_id']);
-
-        return PlayerResource::collection($this->tournamentRepo->getstats($validatedData['tournament_id']));
     }
 
 

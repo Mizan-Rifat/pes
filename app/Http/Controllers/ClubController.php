@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ClubResource;
 use App\Http\Resources\PlayerResource;
+use App\Model\Club;
 use App\Model\ClubModel;
 use App\Repositories\ClubModelRepository;
 use App\Repositories\ClubRepository;
@@ -26,9 +27,15 @@ class ClubController extends Controller
         return ClubResource::collection($clubs);
     }
 
-    public function getClub($reference){
-        $club = $this->clubRepo->getByReference($reference,['owner','players','tournaments']);
-        // return $club;
+    public function show($ref){
+        $with = ['owner','players','tournaments'];
+
+        $club = $this->clubRepo
+                ->where('id',$ref)
+                ->orWhere('slug',$ref)
+                ->with($with)
+                ->firstOrFail();
+                
         return new ClubResource($club);
     }
 
@@ -41,34 +48,6 @@ class ClubController extends Controller
         }else{
             return response()->json(['message'=>"Something Went Wrong"],500);
         }
-    }
-
-    public function addClubsInTournament(Request $request){
-        $insert = $this->clubRepo->addClubInTournament($request);
-        
-        if($insert){
-            return response()->json([
-                'message'=>'Club Added Successfully',
-                'club'=>new ClubResource($this->clubRepo->getByReference($request['club_id']))
-            ],200);
-        }else{
-            return response()->json(['message'=>"Something Went Wrong"],500);
-        }
-    }
-
-
-    public function removeClubsFromTournament(Request $request){
-        $delete = $this->clubRepo->removeClubsFromTournament($request);
-
-        if($delete){
-            return response()->json([
-                'message' => 'Club(s) removed successfully.',
-            ],200);
-            }else{
-                return response()->json([
-                    'message' => 'Club(s) not removed.',
-                ],500);
-            }
     }
 
     public function search(Request $request){
@@ -89,44 +68,21 @@ class ClubController extends Controller
         ]);
     }
 
-    public function addPlayerToClub(Request $request){
-        $player = $this->clubRepo->addPlayerToSquad($request);
+    public function update(Request $request,Club $club){
+        $this->authorize('update',$club);
 
-        return response()->json([
-            'message' => 'Player has added.',
-            'data'=> new PlayerResource($player)
-        ],200);
-    }
-
-    public function removePlayerFromClub(Request $request){
-        $delete = $this->clubRepo->removePlayersFromClub($request);
-
-        if(!empty($delete)){
-            return response()->json([
-                'message' => 'Player(s) removed successfully.',
-                'data'=>$delete
-            ],200);
-            }else{
-                return response()->json([
-                    'message' => 'Player(s) not removed.',
-                ],500);
-            }
-    }
-
-    public function getAllModels(){
-        return ClubModel::all();
-    }
-
-    public function update(Request $request){
-        $club = $this->clubRepo->updateClub($request);
+        $updatedClub = $this->clubRepo->updateClub($request,$club);
        
         return response()->json([
             'message' => 'Updated Successfully.',
-            'data'=> new ClubResource($club)
+            'data'=> new ClubResource($updatedClub)
         ],200);
     }
 
     public function create(Request $request){
+
+        $this->authorize('create',Club::class);
+
         $club = $this->clubRepo->createClub($request);
        
         return response()->json([

@@ -12,6 +12,8 @@ import { fetchAllResults } from '@actions/resultActions';
 import { removeData } from 'jquery';
 import Mtable from '@customComponent/Mtable';
 import {Team1,Team2} from '@customComponent/Team'
+import { fetchTournamentResults } from '../../../../../Redux/Ducks/ResultsDuck';
+import { ListGroupItem1, ListGroupItem2 } from '../../../../../CustomComponent/ListGroupItem';
 
 
 const useStyles = makeStyles(theme=>({
@@ -41,8 +43,8 @@ const useStyles = makeStyles(theme=>({
 
 export default function Results({setTitle}) {
 
-    const {results,loading} = useSelector(state=>state.results);
-    const {id:tournament_id} = useSelector(state=>state.info.tournament)
+    const {results,fetching,loading} = useSelector(state=>state.results);
+    const {tournamentInfo} = useSelector(state=>state.tournament)
     const dispatch = useDispatch();
 
     const [editMode, setEditMode] = useState(false)
@@ -52,28 +54,54 @@ export default function Results({setTitle}) {
         {
             title:'ID',
             field:'id',
-            width:'50px',
-            headerStyle: {
-                padding:'16px 10px',
-                textAlign:'center'
+            cellStyle: {
+                width: 10,
+                maxWidth: 5,
+                padding:0
             },
-           
-            editable: 'never'
+            headerStyle: {
+                width:10,
+                maxWidth: 5,
+                padding:0
+            },
+            editable: 'never',
+            sorting:false
         },
         {
+            'title':'Team1',
             field:'team1_details.name',
-            render : rowData => <Team1 logo={rowData.team1_details.logo} name={rowData.team1_details.name} panel='admin' />,
+            render : rowData => <ListGroupItem1 mini image={rowData.team1_details.logo} label={rowData.team1_details.name} />,
             editable: 'never'
 
         },
         {
-            title:'Result',
-            field:'result',
-            render : rowData => <ResultComponent rowData={rowData}/> 
+            field:'team1_goals',
+            cellStyle: {
+                width: 10,
+                maxWidth: 10,
+            },
+            headerStyle: {
+                width:10,
+                maxWidth: 10,
+            },
         },
         {
+            field:'team2_goals',
+            cellStyle: {
+                width: 10,
+                maxWidth: 10,
+                padding:0
+            },
+            headerStyle: {
+                width:10,
+                maxWidth: 10,
+                padding:0
+            },
+        },
+        {
+            'title':'Team2',
             field:'team2_details.name',
-            render : rowData => <Team2 logo={rowData.team2_details.logo} name={rowData.team2_details.name} panel='admin'/>,
+            render : rowData => <ListGroupItem1 mini image={rowData.team2_details.logo} label={rowData.team2_details.name} />,
             editable: 'never'
         },
         {
@@ -145,7 +173,7 @@ export default function Results({setTitle}) {
     useEffect(()=>{
         setTitle('Results')
         if(results.length === 0){
-            dispatch(fetchAllResults(tournament_id))    
+            dispatch(fetchTournamentResults(tournamentInfo.id))    
         }
     },[])
 
@@ -154,7 +182,7 @@ export default function Results({setTitle}) {
         <Mtable 
             columns={columns}
             data={results}
-            loading={loading}
+            loading={loading || fetching}
             handleAddRow={handleAddRow}
             handleUpdateRow={handleUpdateRow}
             handleDeleteRow={handleDeleteRow}

@@ -1,11 +1,11 @@
 import React, { useState,useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import KeyValueComp from '../../CustomComponent/KeyValueComp';
+import Progress from '@customComponent/Progress';
 import { Button } from '@material-ui/core';
-import { createClub } from '../../Redux/actions/clubsAction';
-import { updateClubInfo} from '../../Redux/actions/SessionAction';
 import { useSelector } from 'react-redux';
 import {Link,useHistory} from 'react-router-dom';
+import { createCuClub,updateCuClub } from '../../Redux/Ducks/CuClubDuck';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -45,12 +45,13 @@ const useStyles = makeStyles((theme) => ({
 
 }))
 
-export default function ClubInfo({user}) {
+export default function ClubInfo() {
     const classes = useStyles();
     const [editMode,setEditMode] = useState(false)
     const [createMode,setCreateMode] = useState(false)
 
-    const {gInfo} = useSelector(state=>state.gInfo)
+    const {ginfo} = useSelector(state=>state.gInfo)
+    const {fetching,club} = useSelector(state=>state.cuClub)
     const history = useHistory();
 
     const [fields, setFields] = useState([
@@ -86,26 +87,29 @@ export default function ClubInfo({user}) {
         setEditMode(true)
     }
 
-
     useEffect(() => {
 
-        if(user.club != null){
+        if(club != null){
             setvalue({
-                id:user.club.id,
-                name:user.club.name,
-                club_model:user.club.club_model,
-                model_id:user.club.club_model_id,
-                owner_id:user.club.owner_id
+                id:club.id,
+                name:club.name,
+                club_model:club.club_model,
+                model_id:club.club_model_id,
+                owner_id:club.owner_id
             })
         }
         
-    }, [user])
+    }, [club])
 
     return (
         <>
 
             {
-                user.club != null || createMode ?
+                fetching ? 
+                <Progress />
+                :
+
+                club != null || createMode ?
             
                 <div className={classes.wrapper}>
                     
@@ -115,15 +119,15 @@ export default function ClubInfo({user}) {
                             initEditMode={false}
                             editMode={editMode}
                             setEditMode={setEditMode}
-                            editable={gInfo.pre_season || user.club == null || user.club.tournaments.length == 0} 
-                            saveAction={createMode ? createClub : updateClubInfo}
+                            editable={ginfo.pre_season || club == null } 
+                            saveAction={createMode ? createCuClub : updateCuClub}
 
                         />
 
                         {
-                            user.club != null &&
+                            club != null &&
 
-                            <Link to={`/club/${user.club.slug}`} className={classes.link}>Visit Club</Link>
+                            <Link to={`/club/${club.slug}`} className={classes.link}>Visit Club</Link>
                         }
                         
                         

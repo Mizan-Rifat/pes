@@ -2,13 +2,13 @@ import React,{useState, useEffect} from 'react';
 import Mtable from '@customComponent/Mtable';
 
 import { ListGroupItem1 } from '@customComponent/ListGroupItem';
-import { fetchStats, sortStats } from '../../../Redux/actions/playerStatsAction';
 import { useSelector, useDispatch } from 'react-redux';
+import { fetchstats } from '../../../Redux/Ducks/PlayersStatsDuck';
 
 export default function Stats() {
 
-    const {stats,loading} = useSelector(state => state.playerStats);
-    const {id:tournament_id} = useSelector(state=>state.info.tournament)
+    const {stats,fetching} = useSelector(state => state.playerStats);
+    const {tournamentInfo} = useSelector(state=>state.tournament)
 
     const dispatch = useDispatch();
 
@@ -92,7 +92,7 @@ export default function Stats() {
 
     useEffect(()=>{
         if(stats.length === 0){
-            dispatch(fetchStats(tournament_id))
+            dispatch(fetchstats(tournamentInfo.id))
         }
     },[])
 
@@ -103,7 +103,7 @@ export default function Stats() {
             columns={columns}
             data={stats}
             editable={false}
-            loading={loading}
+            loading={fetching}
             paging={true}
             header={{padding:'16px !important'}}
             hoverable={true}
