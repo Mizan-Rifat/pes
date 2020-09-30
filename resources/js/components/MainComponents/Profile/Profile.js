@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PrimaryLayout from '../../CustomComponent/PrimaryLayout';
 import { Container } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import PersonalInfo from './Personalnfo';
 import ClubInfo from './ClubInfo';
+import {useHistory} from 'react-router-dom'
 import { useSelector } from 'react-redux';
 
 
@@ -50,17 +51,53 @@ const useStyles = makeStyles((theme) => ({
 
 }))
 
-export default function Profile() {
+export default function Profile(props) {
     const classes = useStyles();
+    const history = useHistory();
 
-    const {user,loading} = useSelector(state => state.session)
-    const {club,loading:clubLoading} = useSelector(state => state.clubs)
+    const {user,loading} = useSelector(state => state.sessionUser)
+    const {loading:clubLoading} = useSelector(state => state.cuClub)
+
+    const info = props.match.params.info;
 
     const [tabValue, setTabValue] = useState(0);
 
+    const [tabs,setTabs] = useState([
+      {
+        label:'PERSONAL INFO',
+        slug:'personalinfo',
+        key:0,
+        children:<PersonalInfo/>
+      },
+      {
+        label:'CLUB INFO',
+        slug:'clubinfo',
+        key:1,
+        children:<ClubInfo />
+      },
+    ]);
+
     const handleChange = (event, newValue) => {
-        setTabValue(newValue);
+
+      setTabValue(newValue);
+
+      const pathname = window.location.pathname;
+      const array = pathname.split('/');
+    
+      array.pop()
+      const newPathName = array.join('/');
+      history.push(`${newPathName}/${tabs[newValue].slug}`)
     };
+
+    useEffect(()=>{
+        if(info == 'personalinfo'){
+          setTabValue(0)
+        }else if(info == 'clubinfo'){
+          setTabValue(1)
+        }else{
+          history.push('/error')
+        }
+    },[])
 
 
 
@@ -86,14 +123,14 @@ export default function Profile() {
                     </Tabs>
 
                 </AppBar>
-                
-                    <TabPanel value={tabValue} index={0}>
-                        <PersonalInfo user={user} />
-                    </TabPanel>
 
-                    <TabPanel value={tabValue} index={1} >
-                        <ClubInfo user={user} />
-                    </TabPanel>
+                    {
+                      tabs.map((tab,index)=>(
+                        <TabPanel value={tabValue} index={index} key={index}>
+                            {tab.children}
+                        </TabPanel>
+                      ))
+                    }
 
             </div>
 

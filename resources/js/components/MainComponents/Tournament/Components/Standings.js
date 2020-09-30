@@ -3,7 +3,7 @@ import Mtable from '@customComponent/Mtable'
 import { Team1 } from '@customComponent/Team';
 import {makeStyles} from '@material-ui/core';
 import { useSelector,useDispatch } from 'react-redux';
-import { fetchStandings } from '../../../Redux/actions/standingsActions';
+import { fetchstandings } from '../../../Redux/Ducks/StandingsDuck';
 
 
 const useStyles = makeStyles(theme => ({
@@ -18,8 +18,8 @@ const useStyles = makeStyles(theme => ({
 export default function Standings() {
     const classes = useStyles();
 
-    const {id:tournament_id} = useSelector(state=>state.info.tournament)
-    const {standings,loading} = useSelector(state=>state.standings)
+    const {tournamentInfo} = useSelector(state=>state.tournament)
+    const {standings,fetching} = useSelector(state=>state.standings)
     const dispatch = useDispatch()
 
     const [columns, setcolumns] = useState([
@@ -75,7 +75,7 @@ export default function Standings() {
 
     useEffect(()=>{
         if(standings.length === 0){
-            dispatch(fetchStandings(tournament_id))
+            dispatch(fetchstandings(tournamentInfo.id))
         }
     },[])
 
@@ -88,7 +88,7 @@ export default function Standings() {
                 editable={false}
                 search={false}
                 sorting={false}
-                loading={loading}
+                loading={fetching}
                 hoverable={true}
                 
             />

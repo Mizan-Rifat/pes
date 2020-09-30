@@ -37,7 +37,7 @@ export default function Info({setTitle}) {
     const [editMode, setEditMode] = useState(false);
 
     
-    const {tournament,loading} = useSelector(state=>state.info)
+    const {tournamentInfo:tournament,loading} = useSelector(state=>state.tournament)
     const dispatch = useDispatch();
 
     const toast = Notify();

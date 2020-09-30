@@ -52,10 +52,12 @@ export default function KeyValueComp({fields,value,saveAction,editMode,setEditMo
     }
 
     const handleSave = () => {
+        console.log({formData})
         dispatch(saveAction(formData))
         .then(response=>{
             toast(response,'success')
             setEditMode(false)
+            seterror({})
         })
         .catch(error=>{
             seterror(error)

@@ -12,7 +12,11 @@ import Notify from '@customComponent/Notify';
 import Mtable from '@customComponent/Mtable';
 import { MTableToolbar } from 'material-table';
 import { createTournamentFixtures } from '../../../../../Redux/actions/fixturesAction';
-
+import { fetchTournamentFixtures } from '../../../../../Redux/Ducks/FixturesDuck';
+import { ListGroupItem1, ListGroupItem2 } from '../../../../../CustomComponent/ListGroupItem';
+import useTableActions from '@customComponent/useTableActions';
+import SearchComp from '@customComponent/SearchComp';
+import { fetchTournamentClubs } from '../../../../../Redux/Ducks/TournamentClubsDuck';
 
 const useStyles = makeStyles(theme=>({
     
@@ -34,60 +38,58 @@ export default function Fixtures(props) {
     const toast = Notify();
 
     const {fixtures,fetching,loading} = useSelector(state=>state.fixtures)
-    const {id:tournament_id} = useSelector(state=>state.info.tournament)
-    const {clubs} = useSelector(state=>state.clubs)
+    const {tournamentInfo} = useSelector(state=>state.tournament)
+    
 
     const dispatch = useDispatch();
 
+    console.log({fixtures})
+
     const [dialogOpen,setDialogOpen] = useState(false)
 
-    const clubsLookup = (clubs) =>{
-        
-        const obj = {};
-        obj[0] = 'TBD';
-        clubs.map(club=>{
-            obj[club.id] = club.name
-        })
+    // const tabelActions = {
+    //     add:createNewTournament,
+    //     update:updateTournament,
+    //     delete:deleteTournament,
+    // }
 
-        return obj;
-    }
+    // const {handleAddRow,handleUpdateRow,handleDeleteRow} = useTableActions(tabelActions)
+
+
+
 
     const [columns, setcolumns] = useState([
         {
             title:'ID',
             field:'id',
-            width:'50px',
-            headerStyle: {
-                padding:'16px 10px',
-                textAlign:'center'
+            editable: 'never',
+            cellStyle: {
+                width: 10,
+                maxWidth: 10,
             },
-            editable: 'never'
+            headerStyle: {
+                width:10,
+                maxWidth: 10,
+            },
         },
         {
             title:'Team1',
-            field:'team1_id',
-            headerStyle: {
-                padding:'16px 0px',
-                textAlign:'center'
-            },
-            lookup:clubsLookup(clubs)
+            field:'team1_details.name',
+            render:(rowData)=><ListGroupItem1 mini image={rowData.team1_details.logo} label={rowData.team1_details.name} />,
+            editComponent:props=><SearchComp searchurl='/api/search/club' label='clubs' props={props} />
+            
         },
+  
         {
             title:'Team2',
-            field:'team2_id',
-            headerStyle: {
-                padding:'16px 0px',
-                textAlign:'center'
-            },
-            lookup:clubsLookup(clubs)
+            field:'team2_details.name',
+         
+            render:(rowData)=><ListGroupItem1 mini image={rowData.team2_details.logo} label={rowData.team2_details.name} />,
+            editComponent:props=><SearchComp searchurl='/api/search/club' label='clubs' props={props} />
         },
         {
             title:'Date',
             field:'date',
-            headerStyle: {
-                padding:'16px 0px',
-                textAlign:'center'
-            },
             render:rowData => rowData.date != 'N/A' ? dateFormat(rowData.date,'dd mmm yy,h:MM TT') : rowData.date,
             editComponent: props => <SelectComp 
                                         type={'date'}
@@ -101,15 +103,8 @@ export default function Fixtures(props) {
             title:'Group',
             width:'50px',
             field:'group',
-            cellStyle:{
-                // textAlign:'center'
-                paddingLeft:'20px'
-            },
-            headerStyle: {
-                padding:'16px 0px',
-                // textAlign:'center'
-            },
             lookup:{
+                null:'N/A',
                 0:'N/A',
                 1:'A',  
                 2:'B',  
@@ -121,17 +116,7 @@ export default function Fixtures(props) {
             title:'Round',
             field:'round',
             width:'50px',
-            cellStyle:{
-                // textAlign:'center'
-                paddingLeft:'20px'
-            },
-            headerStyle: {
-                padding:'16px 0px',
-                // textAlign:'center'
-            },
-            validate: rowData => rowData.round !== '',
             
-
         },
         {
             title:'Leg',
@@ -167,22 +152,16 @@ export default function Fixtures(props) {
     
   
 
-    const handleAddRow = (newData) => (
-
-        new Promise((resolve,reject)=>{
-            console.log({newData})
-            dispatch(createFixture(newData,tournament_id))
-            .then(response=>{
-                toast(response,'success')
-                resolve();
-            }).catch(error=>{
-                Object.keys(error).map(err=>{
-                    toast(error[err],'error')
-                })
-                reject();
-            })
-        })
-    )
+    const handleAddRow = (newData) => {
+        const data = {
+            team1_id:newData.team1_details.name,
+            team2_id:newData.team2_details.name,
+            date:newData.date,
+            group_: newData.group,
+            leg: newData.leg,
+            round: newData.round,
+        }
+    }
 
     const handleUpdateRow = (newData) => (
 
@@ -224,8 +203,9 @@ export default function Fixtures(props) {
     useEffect(()=>{
         setTitle('Fixtures')
         if(fixtures.length === 0){
-            dispatch(fetchAllFixtures(tournament_id,true))    
+            dispatch(fetchTournamentFixtures(tournamentInfo.id))    
         }
+
         
     },[])
 
@@ -235,13 +215,13 @@ export default function Fixtures(props) {
                 title={fixtures.length == 0 ?  <CreateFixturesBtn handleCreateTournamentFixtures={handleCreateTournamentFixtures} />: ''}
                 columns={columns}
                 data={fixtures}
-                loading={loading || fetching}
+                loading={loading || fetching }
                 handleAddRow={handleAddRow}
                 handleUpdateRow={handleUpdateRow}
                 handleDeleteRow={handleDeleteRow}
                 paging={true}
-                selectMode={true}
-                editable={true}
+                // selectMode={true}
+                // editable={true}
                 actions={[
                     {
                       tooltip: 'Remove Selected',

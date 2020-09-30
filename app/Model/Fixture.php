@@ -22,7 +22,7 @@ class Fixture extends Model
         return $this->hasOne('App\Model\MatchResult','fixture_id','id');
     }
     public function events(){
-        return $this->hasMany('App\Model\MatchDetails');
+        return $this->hasMany('App\Model\MatchEvent');
     }
     public function ratings(){
         return $this->hasMany('App\Model\MatchRating');

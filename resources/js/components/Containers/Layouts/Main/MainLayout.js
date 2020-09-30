@@ -19,11 +19,11 @@ import { makeStyles,useTheme } from '@material-ui/core/styles';
 import Appbar from './Appbar';
 import Navbar from './Navbar';
 import {useSelector,useDispatch} from 'react-redux';
-import { fetchAllTournaments } from '@actions/tournamentsAction';
+import { fetchAllTournaments } from '../../../Redux/Ducks/TournamentsDuck';
 import MAppBar from '../Admin/Appbar/MAppBar';
 import MyAppBar from '../Appbar/MyAppBar';
-import { fetchSessionUser } from '@actions/SessionAction';
-import { receiveNotification } from '@actions/notificationAction';
+import { fetchSessionUser } from '../../../Redux/Ducks/SessionUserDuck';
+import { receiveNotification } from '../../../Redux/Ducks/NotificationsDuck';
 import Progress from '@customComponent/Progress';
 import MyList from '../Admin/MyList';
 import MainDrawer from './MainDrawer';
@@ -75,10 +75,9 @@ export default function MainLayout(props) {
   const theme = useTheme();
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
-  const {tournaments,fetchLoading:tournamentLoading} = useSelector(state=>state.tournaments)
-  const {user,notifications,fetching:userFetching} = useSelector(state=> state.session)
+  const {tournaments,fetching:tournamentLoading} = useSelector(state=>state.tournaments)
+  const {user,fetching:userFetching} = useSelector(state=> state.sessionUser)
  
-
   const dispatch = useDispatch();
 
   const handleDrawerToggle = () => {
@@ -90,7 +89,6 @@ export default function MainLayout(props) {
   );
 
   const container = window !== undefined ? () => window().document.body : undefined;
-
 
   useEffect(() => {
     if(Object.entries(tournaments).length == 0){
@@ -125,7 +123,7 @@ export default function MainLayout(props) {
       <CssBaseline />
     <div>
 
-      <MyAppBar handleDrawerToggle={handleDrawerToggle} panel='user' notifications={notifications}/>
+      <MyAppBar handleDrawerToggle={handleDrawerToggle} panel='user' />
       
      </div>
       

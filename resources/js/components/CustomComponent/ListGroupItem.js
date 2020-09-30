@@ -8,6 +8,10 @@ const useStyles = makeStyles(theme=>({
     image:{
         height:'100%',
     },
+    mini:{
+        height:'25px !important',
+        marginRight:'5px',
+    },
     container:{
         height:'50px',
         display:'flex',
@@ -20,13 +24,20 @@ const useStyles = makeStyles(theme=>({
 
 
 
-export function ListGroupItem1({image,icon,label,imageStyle={},containerStyle={},labelStyle={}}) {
+export function ListGroupItem1({image,icon,label,mini,imageStyle={},containerStyle={},labelStyle={}}) {
     const classes = useStyles();
     return(
 
         <div className={clsx(classes.container)} style={containerStyle}>
             {
-                image && <img src={image} className={classes.image} style={imageStyle} />
+                image && 
+                <img 
+                    src={image} 
+                    className={clsx(classes.image,{
+                        [classes.mini] : mini
+                    })} 
+                    style={imageStyle} 
+                />
             }
             
             {icon}
@@ -34,15 +45,23 @@ export function ListGroupItem1({image,icon,label,imageStyle={},containerStyle={}
         </div>
     )
 }
-export function ListGroupItem2({image,icon,label,imageStyle={},containerStyle={},labelStyle={}}) {
+export function ListGroupItem2({image,icon,label,mini,imageStyle={},containerStyle={},labelStyle={}}) {
     const classes = useStyles();
     return(
 
         <div className={clsx(classes.container)} style={containerStyle}>
 
             <div className={classes.label} style={labelStyle}>{label}</div>
+           
             {
-                image && <img src={image} className={classes.image} style={imageStyle} />
+                image && 
+                <img 
+                    src={image} 
+                    className={clsx(classes.image,{
+                        [classes.mini] : mini
+                    })} 
+                    style={imageStyle} 
+                />
             }
             
             {icon}

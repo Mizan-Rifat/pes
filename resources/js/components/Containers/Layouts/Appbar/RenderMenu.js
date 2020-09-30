@@ -3,7 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser, logoutAdmin } from '../../../Redux/actions/SessionAction';
+import { logoutUser} from '../../../Redux/Ducks/SessionUserDuck';
+import { logoutAdmin} from '../../../Redux/Ducks/SessionAdminDuck';
 import { useHistory } from 'react-router-dom';
 import Messages from './Messages';
 
@@ -26,7 +27,7 @@ export default function RenderMenu({anchorEl, setAnchorEl,panel}) {
     const classes = useStyles();
     const history = useHistory();
     const dispatch = useDispatch();
-    const {user} = useSelector(state => state.session)
+    const {user} = useSelector(state => state.sessionUser)
 
 
   const handleMenuClose = () => {
@@ -38,17 +39,24 @@ export default function RenderMenu({anchorEl, setAnchorEl,panel}) {
   const handleLogout = () =>{
     if(panel == 'admin'){
       dispatch(logoutAdmin())
+      .then(res=>{
+        history.push('/admin/login')
+      })
     }else{
       dispatch(logoutUser())
     }
     
     setAnchorEl(null);
-    // handleMobileMenuClose();
   }
 
   const handelProfileClick = ()=>{
-    
-    history.push('/profile')
+
+    if(panel == 'admin'){
+      history.push('/admin/profile')
+    }else{
+      history.push('/profile/personalinfo')
+    }
+
     setAnchorEl(null);
   }
   const handelMyClubClick = ()=>{
@@ -70,7 +78,14 @@ export default function RenderMenu({anchorEl, setAnchorEl,panel}) {
     >
 
         {
-            Object.keys(user).length > 0 || panel == 'admin' ?
+
+          panel == 'admin' ?
+                  <>
+                    <MenuItem onClick={handelProfileClick} className={classes.menuItem} >Profile</MenuItem>
+                    <MenuItem onClick={handleLogout} className={classes.menuItem}>Logout</MenuItem>
+                  </>
+          :
+            Object.keys(user).length > 0  ?
                 <>
                     <MenuItem onClick={handelProfileClick} className={classes.menuItem} >Profile</MenuItem>
                     <MenuItem onClick={handelMyClubClick} className={classes.menuItem} >My Club</MenuItem>

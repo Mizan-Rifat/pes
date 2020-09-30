@@ -14,7 +14,6 @@ const useStyles = makeStyles(theme=>({
 export default function Sidebar({club}) {
     const classes =useStyles();
 
-
     return (
         <div>
             <div>

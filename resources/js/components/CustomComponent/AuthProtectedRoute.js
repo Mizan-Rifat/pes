@@ -8,7 +8,7 @@ export const AuthProtectedRoute = ({
   ...rest
 }) => {
 
-    const {user} = useSelector(state => state.session)
+    const {user} = useSelector(state => state.sessionUser)
     
   return (
     <Route

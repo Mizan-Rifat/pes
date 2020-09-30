@@ -9,6 +9,7 @@ use App\Model\MatchRating;
 use App\Model\Result;
 use App\Repositories\Traits\BaseRepository;
 use App\Repositories\Traits\EventRepository;
+use App\Repositories\Traits\RatingRepository;
 use File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +22,7 @@ class ResultRepository
 {
     use BaseRepository;
     use EventRepository;
+    use RatingRepository;
 
     protected $model;
 
@@ -32,62 +34,7 @@ class ResultRepository
         return new FixtureRepository();
     }
 
-    public function updateMatchRatings($request){
-
-        $validatedData = $request->validate([
-            'fixture_id'=>['required','numeric','exists:fixtures,id'],
-            'ratings' => ['required','array'],
-            'ratings*.club_id'=>'required|numeric',
-            'ratings*.player_id'=>'required|numeric',
-            'ratings*.rating'=>'required|numeric|max:10|min:0',
-            'ratings*.fixture_id' => ['required','numeric'],
-        ]);
-
-
-        foreach ($validatedData['ratings'] as $key => $value) {
-            DB::table('match_ratings')
-            ->where('id',$value['id'])
-            ->update([
-                'club_id'=>$value['club_id'],
-                'player_id'=>$value['player_id'],
-                'rating'=>$value['rating'],
-            ]);
-        }
-
-        $fixture = $this->fixtureRepo()->with(['ratings'])->where('completed',2)->findOrFail($validatedData['fixture_id']);
-        
-        return $fixture->ratings;
-
-     
-    }
-
     
-    
-    public function addMatchRating($request){
-
-        
-
-        $validatedData = $request->validate([
-            'fixture_id'=>['required','numeric','exists:fixtures,id'],
-            'club_id'=>['required','numeric','exists:clubs,id'],
-            'player_id'=>['required','numeric','exists:players,id'],
-            'rating'=>['required','numeric','max:10','min:0'],
-        ]);
-
-
-        return MatchRating::create($validatedData);
-    }
-    
-    public function deleteMatchRating($request){
-
-        $validatedData = $request->validate([
-            'id'=>['required','numeric'],
-        ]);
-
-        return MatchRating::destroy($validatedData['id']);
-    }
-
-
 
 
 public function addResultForApproval($request){
@@ -270,44 +217,7 @@ public function addResultForApproval($request){
 
     }
 
-    public function addImage($request){
-        
-
-        $validatedData =  Validator::make($request->all(),[
-
-            'fixture_id'=>['required','integer',
-                            Rule::exists('fixtures','id')->where(function($query){
-                                $query->whereIn('completed',[0,2]);
-                            })],
-            'field'=>['required','numeric','max:3','min:1'],
-            'images'=>['required','array'],
-            'images.*'=>['mimes:jpeg,jpg,png'],
-            
-        ])->validate();
-
-
-        $fixture = Fixture::find($validatedData['fixture_id']);
-
-        if($fixture->team1_id != Auth::id() && $fixture->team2_id != Auth::id()){
-            abort(403,'Permission Denied');
-        }
-
-        $images = collect($validatedData['images'])->map(function($item) use($validatedData,$current_user_club){
-            $item->store('match_events');
-            return [
-                'image'=>$item->hashName(),
-                'fixture_id'=>$validatedData['fixture_id'],
-                'submitted_by'=>$current_user_club->id,
-                'field'=>$validatedData['field']
-            ];
-
-        })->toArray();
-
-        DB::table('match_images')->insert($images);
-
-        return $fixture->images;
-       
-    }
+  
 
 
 

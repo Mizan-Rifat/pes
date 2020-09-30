@@ -3,7 +3,8 @@ import {makeStyles} from '@material-ui/core/styles';
 import EmailIcon from '@material-ui/icons/Email';
 import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import Auth from './Auth';
-import { loginUser, loginAdmin } from '../Redux/actions/SessionAction';
+import { loginUser } from '../Redux/Ducks/SessionUserDuck';
+import { loginAdmin } from '../Redux/Ducks/SessionAdminDuck';
 import AuthForm from './AuthForm'
 
 const useStyles = makeStyles(theme=>({

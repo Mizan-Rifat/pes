@@ -5,10 +5,8 @@ import HeaderTabs from './Components/HeaderTabs'
 import { Container } from '@material-ui/core';
 import { useSelector,useDispatch} from 'react-redux';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { fetchInfo, reset } from '@actions/infoAction'
 import Progress from '../../CustomComponent/Progress';
-import { fetchSessionUser } from '../../Redux/actions/SessionAction';
-
+import {setTournament } from '../../Redux/Ducks/TournamentDuck'
 
 
 export default function MTournament(props) {
@@ -16,8 +14,8 @@ export default function MTournament(props) {
     const detailSlug = props.match.params.details;
     const slug = props.match.params.title;
 
-    const {fetchLoading,tournament} = useSelector(state=> state.info)
-    const {user} = useSelector(state=> state.session)
+    const {tournaments} = useSelector(state=> state.tournaments)
+    const {tournamentInfo,fetching} = useSelector(state=> state.tournament)
     const dispatch = useDispatch();
 
     const [caroselItems, setcaroselItems] = useState([
@@ -34,18 +32,21 @@ export default function MTournament(props) {
 
 
     useEffect(()=>{
+        const tournament = tournaments.find(item=>item.slug == slug)
 
-        dispatch(reset())
+        if(tournament == undefined){
+            history.push('/error');
+            return;
+        }
 
-        dispatch(fetchInfo(slug))
-        // dispatch(fetchSessionUser())
-        
+        dispatch(setTournament(tournament))
+
     },[slug])
 
     return (
 <>
         {
-            fetchLoading ? 
+            fetching ? 
 
             <Progress style={{top:'25%'}} />
 
@@ -60,9 +61,9 @@ export default function MTournament(props) {
 
                 <Container style={{minHeight:'500px'}}>
                     <div style={{margin:'50px 0'}}>
-                        <Title title={tournament.name} />
+                        <Title title={tournamentInfo.name} />
                     </div>
-                    <HeaderTabs detailSlug={detailSlug} tournament={tournament}/>
+                    <HeaderTabs detailSlug={detailSlug} tournament={tournamentInfo}/>
                 </Container>
             </div>
 

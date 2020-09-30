@@ -7,7 +7,7 @@ import { ResultSubmitted, ResultApproved,Welcome, AddedInTournament, FixturesCre
 import { useSelector, useDispatch } from 'react-redux';
 import dateFormat from "dateformat";
 import clsx from 'clsx'
-import { notificationMarkAsRead,notificationMarkAsUnRead, deleteNotification } from '@actions/notificationAction';
+import { notificationMarkAsRead,notificationMarkAsUnRead, deleteNotification } from '../../../../Redux/Ducks/NotificationsDuck';
 import Scrollbar from 'react-scrollbars-custom';
 
 const useStyles = makeStyles((theme) => ({
@@ -131,6 +131,7 @@ export default function Notification({count}) {
 
                 <div style={{overflow:'auto',padding:1}}>
                     <Scrollbar style={{height:'260px'}} >
+                      
                         <ul className={classes.list}>
                         
 

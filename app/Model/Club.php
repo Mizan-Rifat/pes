@@ -13,6 +13,10 @@ class Club extends Model
     protected $guarded = [];
 
     protected $with = ['details'];
+
+    public function setNameAttribute($value){
+        $this->attributes['name'] = strtoupper($value);
+    }
     
     public function owner(){
         return $this->hasOne('App\User','id','owner_user_id');

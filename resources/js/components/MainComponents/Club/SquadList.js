@@ -5,26 +5,23 @@ import SearchComp from '@customComponent/SearchComp';
 import {ListGroupItem1} from '@customComponent/ListGroupItem';
 import Notify from '@customComponent/Notify';
 import { useSelector,useDispatch } from 'react-redux';
-import { addPlayerInClub, removePlayerFromClub, updatePlayersOfSquad } from '../../Redux/actions/clubsAction';
 import Title from '@customComponent/Title';
 import useTableActions from '../../CustomComponent/useTableActions';
 import InfoIcon from '@material-ui/icons/Info';
+import { addPlayerInSquad, removePlayerFromSquad, updatePlayerInSquad } from '../../Redux/Ducks/ClubSquadDuck';
 
 
-export default function SquadList() {
+export default function SquadList({club}) {
 
-    const {club,loading} = useSelector(state=>state.clubs)
-    const {user} = useSelector(state=>state.session)
-    const {gInfo} = useSelector(state=>state.gInfo)
-
-
+    const {user} = useSelector(state=>state.sessionUser)
+    const {ginfo} = useSelector(state=>state.gInfo)
+    const {squad,fetching,loading} = useSelector(state=>state.clubSquad)
 
     const tabelActions = {
-        add:addPlayerInClub,
-        update:updatePlayersOfSquad,
-        delete:removePlayerFromClub,
+        add:addPlayerInSquad,
+        update:updatePlayerInSquad,
+        delete:removePlayerFromSquad,
     }
-
 
     const {handleAddRow,handleUpdateRow,handleDeleteRow} = useTableActions(tabelActions)
 
@@ -57,7 +54,7 @@ export default function SquadList() {
             render:rowData => <ListGroupItem1 image={rowData.image} label={rowData.name} panel='admin' />,
             // render:rowData => <Team1 logo={rowData.image} name={rowData.name} panel='admin' imageStyle={{height:'50px'}} />,
             editable: 'onAdd',
-            editComponent: props => <SearchComp searchurl='/api/players/search' props={props} label='players'/>
+            editComponent: props => <SearchComp searchurl='/api/player/search' props={props} label='players'/>
         },
         {
             title:'Position',
@@ -91,9 +88,6 @@ export default function SquadList() {
         }
     ])
 
-    // const handleAdd = (newData) => {
-    //     console.log({newData})
-    // }
     const handleAdd = (newData) => handleAddRow({
         playermodel_id:newData.name,
         jersey:newData.jersey,
@@ -102,36 +96,31 @@ export default function SquadList() {
     const handleUpdate = (newData) => handleUpdateRow({
         id:newData.id,
         jersey:newData.jersey,
-        club_id:club.id
     })
    
-    const handleDelete = (oldData) => handleDeleteRow({
-            club_id:club.id,
-            player_ids:[oldData.id]
-        })
  
 
     return (
         <>
             <Title title='Squad' titleStyle={{width:'150px',padding:'10px'}} />
             <Mtable
-                title={`${club.players.length}/25`}
+                title={`${squad.length}/25`}
                 columns={columns}
-                data={club.players}
-                editable={Object.keys(user).length > 0 && user.club.id == club.id && gInfo.pre_season == true || club.tournaments.length == 0}
+                data={squad}
+                // editable={Object.keys(user).length > 0 && user.id == club.owner.id && ginfo.pre_season == true}
                 search={false}
-                // sorting={false}
-                loading={loading}
+                editable={true}
+                loading={loading || fetching}
                 handleAddRow={handleAdd}
                 handleUpdateRow={handleUpdate}
-                handleDeleteRow={handleDelete}
-                paging={club.players.length < 5 ? true : false }
+                handleDeleteRow={(oldData)=>handleDeleteRow(oldData.id)}
+                paging={squad.length < 5 ? true : false }
                 
             />
             <div style={{padding:'15px'}}>
                 <InfoIcon />
-                Squad have at least 18 players but not more than 25 players.
-                .
+                Squad must have at least 18 players but not more than 25 players.
+                
             </div>
         </>
     )

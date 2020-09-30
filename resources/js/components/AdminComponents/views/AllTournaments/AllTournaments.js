@@ -5,7 +5,8 @@ import Notify from '@customComponent/Notify';
 import CompContainer from '@customComponent/CompContainer';
 import Mtable from '@customComponent/Mtable';
 
-import { fetchAllTournaments, createNewTournament, deleteTournaments } from '@actions/tournamentsAction';
+import { createNewTournament, deleteTournament, updateTournament } from '../../../Redux/Ducks/TournamentsDuck';
+import useTableActions from '../../../CustomComponent/useTableActions';
 
 const useStyles =makeStyles(theme=>({
     container:{
@@ -19,7 +20,7 @@ export default function AllTournaments() {
     const toast = Notify();
 
 
-    const {tournaments,loading,error,success} = useSelector(state => state.tournaments);
+    const {tournaments,loading} = useSelector(state => state.tournaments);
     const dispatch = useDispatch()
 
     const [columns, setColumns] = useState([
@@ -80,44 +81,14 @@ export default function AllTournaments() {
         },
     ]);
 
-    const handleAddRow = (newData) => (
+    const tabelActions = {
+        add:createNewTournament,
+        update:updateTournament,
+        delete:deleteTournament,
+    }
 
-        new Promise((resolve,reject)=>{
+    const {handleAddRow,handleUpdateRow,handleDeleteRow} = useTableActions(tabelActions)
 
-          
-            dispatch(createNewTournament(newData))
-            .then(response=>{
-                toast(response,'success')
-                resolve();
-            }).catch(error=>{
-
-                Object.keys(error).map(err=>{
-                    toast(error[err],'error')
-                })
-                reject();
-            })
-        })
-
-    )
-
-
-    const handleDeleteRow = (oldData) => (
-        new Promise((resolve, reject) => {
-                                
-            dispatch(deleteTournaments([oldData.id]))
-            .then(response=>{
-                toast(response,'success')
-                resolve()
-            }).catch(error=>{
-                Object.keys(error).map(err=>{
-                    toast(error[err],'error')
-                })
-                resolve();
-            })
-
-        })
-    )
- 
 
     return (
     
@@ -130,7 +101,8 @@ export default function AllTournaments() {
                 loading={loading}
                 paging={true}
                 handleAddRow={handleAddRow}
-                handleDeleteRow={handleDeleteRow}
+                handleUpdateRow={(newData)=>handleUpdateRow(newData)}
+                handleDeleteRow={(oldData)=>handleDeleteRow(oldData.id)}
                 editable={true}
                
                 

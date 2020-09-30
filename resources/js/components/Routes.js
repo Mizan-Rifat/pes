@@ -35,7 +35,8 @@ import Progress from './CustomComponent/Progress';
 import { fetchSessionUser } from './Redux/actions/SessionAction';
 import AddResult from './MainComponents/AddResult/AddResult';
 import UpdateResult from './MainComponents/AddResult/UpdateResult';
-import { fetchGinfo } from './Redux/actions/generalInfoAction';
+import { fetchGinfo } from './Redux/Ducks/GInfoDuck';
+import { AdminProtectedRoute } from './CustomComponent/AdminProtecedRoute';
 
 
 
@@ -116,18 +117,21 @@ export default function Routes() {
 
                     {/* <Provider store={adminStore}> */}
                         <Route path='/admin/:path1?/:path2?/:path3?/:path4?/:path5?/:path6?/:path7?/:path8?' exact>
+                          <AdminProtectedRoute>
                             <AdminLayout>
                                 <Switch>
-                                    <Route path='/admin' exact component={AdminRoot} />
+                                    {/* <Route path='/admin' exact component={AdminRoot} /> */}
                                     <Route path='/admin/dashboard'  component={Dashboard} />
                                     {/* <Route path='/admin/tournaments'  component={TournamentDashboard} /> */}
                                     <Route path='/admin/tournament/:title'  component={Tournament} />
                                     <Route path='/admin/users'  component={Users} />
                                     <Route path='/admin/clubs'  component={AllClubs} />
                                     <Route path='/admin/alltournaments'  component={AllTournaments} />
+                                    <Redirect from='/admin' to ='/admin/dashboard' />
                                 
                                 </Switch>
                             </AdminLayout>
+                            </AdminProtectedRoute>
                         </Route>
                     {/* </Provider> */}
             
@@ -141,12 +145,12 @@ export default function Routes() {
                                 <Route path='/result/details/:match_id' component={ResultDetails} />
                                 <Route path='/test' component={Test} />
                                 {/* <Route path='/profile' component={Profile} /> */}
-                                <AuthProtectedRoute path='/profile' component={Profile}/>
+                                <AuthProtectedRoute path='/profile/:info' component={Profile}/>
 
                                 <AuthProtectedRoute path='/result/add/:match_id' component={AddResult} panel='addresult' />
                                 <AuthProtectedRoute path='/result/approve/:match_id' component={ApproveResult} panel='approveresult' />
                                 <AuthProtectedRoute path='/result/update/:match_id' component={UpdateResult} panel='updateresult' />
-                        
+                                {/* <Redirect from='/profile' to ='/profile' /> */}
                                 <Route path='*' component={ErrorComp} />
                             </Switch>
                         </MainLayout>

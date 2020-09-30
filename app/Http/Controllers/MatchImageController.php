@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class OfficialController extends Controller
+class MatchImageController extends Controller
 {
     //
 }

@@ -8,10 +8,10 @@ import Sidebar from './Sidebar';
 import clsx from 'clsx';
 import SideBarImage from '@assets/img/sidebar-2.jpg';
 import {useSelector,useDispatch} from 'react-redux';
-import { fetchAllTournaments } from '@actions/tournamentsAction';
+import { fetchAllTournaments } from '../../../Redux/Ducks/TournamentsDuck';
 import MAppBar from './Appbar/MAppBar';
 import MyAppBar from '../Appbar/MyAppBar';
-import { fetchSessionAdmin } from '../../../Redux/actions/SessionAction';
+import { fetchSessionAdmin } from '../../../Redux/Ducks/SessionAdminDuck';
 import Progress from '@customComponent/Progress';
 
 
@@ -59,11 +59,9 @@ function AdminLayout(props) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
 
-  const {tournaments,fetchLoading:tournamentLoading} = useSelector(state=>state.tournaments)
-  const {admin,loading:adminLoading} = useSelector(state=> state.session)
-
-
-
+  const {tournaments,fetching:tournamentsFetching} = useSelector(state=>state.tournaments)
+  const {admin,fetching:adminFetching} = useSelector(state=> state.sessionAdmin)
+  
   const dispatch = useDispatch();
 
   const handleDrawerToggle = () => {
@@ -84,7 +82,7 @@ function AdminLayout(props) {
   }, [])
 
   return (
-    tournamentLoading || adminLoading ? 
+    tournamentsFetching || adminFetching ? 
     
     <Progress />
     

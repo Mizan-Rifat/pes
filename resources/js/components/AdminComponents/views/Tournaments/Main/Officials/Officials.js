@@ -4,15 +4,13 @@ import {MenuItem,FormControl,TextField,Select,makeStyles, Button,Input, Tooltip,
 import EditIcon from '@material-ui/icons/Edit';
 import SelectComp from '@customComponent/SelectComp';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchOfficials, addOfficials, deleteOfficials } from '@actions/officialsAction';
+import { fetchOfficials, addOfficial, removeOfficial} from '../../../../../Redux/Ducks/OfficialsDuck';
 import UserSearch from './UserSearch';
 import Notify from '@customComponent/Notify';
 import SearchComp from '@customComponent/SearchComp';
 import Mtable from '@customComponent/Mtable';
 import useActions from '@customComponent/useActions';
 import useTableActions from '../../../../../CustomComponent/useTableActions';
-
-
 
 
 const useStyles = makeStyles(theme=>({
@@ -42,13 +40,13 @@ const useStyles = makeStyles(theme=>({
 export default function Officials({setTitle}) {
     const classes = useStyles();
 
-    const {officials,loading} = useSelector(state=>state.officials)
-    const {id:tournament_id} = useSelector(state=>state.info.tournament)
+    const {officials,loading,fetching} = useSelector(state=>state.officials)
+    const {tournamentInfo} = useSelector(state=> state.tournament)
     const dispatch = useDispatch();
 
     const tabelActions = {
-        add:addOfficials,
-        delete:deleteOfficials,
+        add:addOfficial,
+        delete:removeOfficial,
     }
 
     const {handleAddRow,handleDeleteRow} = useTableActions(tabelActions)
@@ -64,26 +62,38 @@ export default function Officials({setTitle}) {
         },
         {
             title:'Official',
-            field:'user_name',
-            editComponent: props => <SearchComp searchurl='/api/users/search' props={props} />
+            field:'name',
+            editComponent: props => <SearchComp searchurl='/api/user/search' props={props} />
            
         },
   
     ])
 
-    const handleAdd = (newData) => handleAddRow({
-        user_id:newData.user_name,
-        tournament_id:tournament_id
-    })
+    const handleAdd = (newData) => {
 
-    const handleDelete = (oldData) => handleDeleteRow({ids:[oldData.id]})
+        console.log({newData})
+        const data = {
+            user_id:newData.name,
+            tournament_id:tournamentInfo.id
+        }
 
+        return handleAddRow(data);
+    }
+    const handleDelete = (oldData) => {
+     
+        const data = {
+            user_id:oldData.id,
+            tournament_id:tournamentInfo.id
+        }
+
+        return handleDeleteRow(data)
+    }
 
     useEffect(()=>{
         setTitle('Officials')
         
         if(officials.length === 0){
-            dispatch(fetchOfficials(tournament_id))    
+            dispatch(fetchOfficials(tournamentInfo.id))    
         }
     },[])
     return (
@@ -91,7 +101,7 @@ export default function Officials({setTitle}) {
         <Mtable 
             columns={columns}
             data={officials}
-            loading={loading}
+            loading={loading || fetching }
             handleAddRow={handleAdd}
             handleDeleteRow={handleDelete}
             editable={true}

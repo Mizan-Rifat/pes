@@ -2,7 +2,7 @@ import React,{useEffect} from "react";
 import { Route, Redirect } from "react-router-dom";
 import { useSelector,useDispatch} from "react-redux";
 import Progress from '@customComponent/Progress';
-import { fetchSessionUser } from "../Redux/actions/SessionAction";
+import { fetchSessionUser } from "../Redux/Ducks/SessionUserDuck";
 
 
 export const GuestProtectedRoute = ({
@@ -11,7 +11,7 @@ export const GuestProtectedRoute = ({
   ...rest
 }) => {
 
-    const {user,fetching:userFetching} = useSelector(state=> state.session)
+    const {user,fetching:userFetching} = useSelector(state=> state.sessionUser)
     const dispatch = useDispatch();
 
     useEffect(() => {

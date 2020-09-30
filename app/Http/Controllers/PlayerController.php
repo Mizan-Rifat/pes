@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PlayerModelresource;
 use App\Http\Resources\PlayerResource;
+use App\Model\Player;
 use App\Repositories\PlayerModelRepository;
 use App\Repositories\PlayerRepository;
 use App\User;
@@ -28,12 +29,43 @@ class PlayerController extends Controller
        
     }
 
-    public function update(Request $request){
-         $player = new PlayerResource($this->playerRepo->update($request));
+    public function addPlayer(Request $request){
 
-         return response()->json([
-            'message'=>'Player updated.',
-            'data' => $player,
+        $this->authorize('add',[Player::class,$request->club_id]);
+
+        $player = $this->playerRepo->addPlayerInSquad($request);
+
+        return response()->json([
+            'data'=>new PlayerResource($player),
+            'message'=> ' Player added.'
         ]);
+        
     }
+    public function updatePlayer(Request $request,$player_id){
+
+        $player = Player::with('details')->findOrFail($player_id);
+
+        $this->authorize('update',$player);
+
+        $updatedPlayer = $this->playerRepo->updatePlayer($request,$player->id);
+
+        return response()->json([
+            'data'=>new PlayerResource($updatedPlayer),
+            'message'=> ' Player Updated.'
+        ]);
+        
+    }
+    public function removePlayer(Player $player){
+
+        $this->authorize('remove',$player);
+        
+        $player->delete();
+
+        return response()->json([
+            'data'=>$player->id,
+            'message'=> ' Player removed.'
+        ]);
+        
+    }
+
 }

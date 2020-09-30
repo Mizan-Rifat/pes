@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\FixtureResource;
+use App\Model\Fixture;
 use App\Model\Tournament;
 use App\Repositories\FixtureRepository;
 use App\Repositories\TournamentRepository;
@@ -18,15 +19,23 @@ class FixtureController extends Controller
         $this->tournamentRepo = $tournamentRepo;
     }
 
-    public function getFixtureById(Request $request){
+    public function index($tournament_id){
+
+        $fixtures = $this->fixtureRepo->getTournamentFixtures($tournament_id);
+
+        return FixtureResource::collection($fixtures);
+    }
+
+    public function show(Request $request,$fixture_id){
+        $with = ['team1','team2'];
 
         if($request['players']){
-            $fixture = $this->fixtureRepo->with('team1.players','team2.players')->findOrFail($request['fixture_id']);    
-        }else{
-            $fixture = $this->fixtureRepo->with('team1','team2')->findOrFail($request['fixture_id']);    
+            $with = ['team1.players','team2.players'];    
         }
 
-        return  new FixtureResource($fixture);
+        $fixture = Fixture::with($with)->findOrFail($fixture_id);
+
+        return new FixtureResource($fixture);
     }
 
     
@@ -53,10 +62,9 @@ class FixtureController extends Controller
         return  FixtureResource::collection($fixtures);
     }
 
-    public function createFixtures(){
+    public function createFixtures(Tournament $tournament){
 
-        $tournament = $this->tournamentRepo->findOrFail(request('tournament_id'));
-        $tournament_id = request('tournament_id');
+        $tournament_id = $tournament->id;
         $tournament_leg = $tournament->leg;
         $tournament_round = $tournament->round;
 
@@ -124,7 +132,7 @@ class FixtureController extends Controller
 
     
 
-    public function updateFixture(Request $request){  
+    public function update(Request $request){  
         
         $fixture = $this->fixtureRepo->updateFixture($request);
 
