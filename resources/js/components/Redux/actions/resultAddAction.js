@@ -148,7 +148,7 @@ export const addMatchResult = (data,config) => (dispatch) => {
         success:loadingFalse,
         error:setErrors
     }
-    return postAction(actions,url,data,dispatch,config);
+    return postAction(actions,url,data,dispatch,'post',config);
 }
 export const updateEvent = (data) => (dispatch) => {
     

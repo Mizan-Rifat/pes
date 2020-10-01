@@ -34,13 +34,11 @@ class ResultRepository
         return new FixtureRepository();
     }
 
-    
-
 
 public function addResultForApproval($request){
 
-    $current_user = Auth::user();
-    $current_user_club = $current_user->club;
+        $current_user = Auth::user();
+        $current_user_club = $current_user->club;
 
         $validatedData =  Validator::make($request->all(),[
 
@@ -62,10 +60,6 @@ public function addResultForApproval($request){
 
         $fixture = Fixture::find($validatedData['fixture_id']);
 
-        if($fixture->team1_id != $current_user_club->id && $fixture->team2_id != $current_user_club->id){
-            abort(403,'Permission Deniedeh');
-        }
-
         $completed = 2;
 
         if($fixture->completed == 0){
@@ -73,7 +67,7 @@ public function addResultForApproval($request){
         }
 
         $eventsImages = collect($validatedData['eventsImages'])->map(function($item) use($current_user_club,$validatedData){
-            $item->store('match_events');
+            $item->store('match_');
             return [
                 'image'=>$item->hashName(),
                 'fixture_id'=>$validatedData['fixture_id'],
@@ -84,7 +78,7 @@ public function addResultForApproval($request){
         })->toArray();
         
         $team1ratingsImages = collect($validatedData['team1ratingsImages'])->map(function($item) use($current_user_club,$validatedData){
-            $item->store('match_events');
+            $item->store('match_');
             return [
                 'image'=>$item->hashName(),
                 'fixture_id'=>$validatedData['fixture_id'],
@@ -95,7 +89,7 @@ public function addResultForApproval($request){
         })->toArray();
 
         $team2ratingsImages = collect($validatedData['team2ratingsImages'])->map(function($item) use($current_user_club,$validatedData){
-            $item->store('match_events');
+            $item->store('match_');
             return [
                 'image'=>$item->hashName(),
                 'fixture_id'=>$validatedData['fixture_id'],
@@ -132,7 +126,7 @@ public function addResultForApproval($request){
             $validatedEvents = Validator::make($events, $eventRules)->validate();
             $validatedRatings = Validator::make($ratings, $ratingsRules)->validate();
 
-            DB::table('match_details')->insert($validatedEvents);
+            DB::table('match_events')->insert($validatedEvents);
             DB::table('match_ratings')->insert($validatedRatings);
         }
 

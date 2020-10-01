@@ -12,9 +12,9 @@ const update_events_url = (id)=>`/api/`;
 
 const SET_EVENTS = 'pes/events/set_events';
 const EVENTS_FETCHED = 'pes/events/events_fetched';
-const EVENTS_ADDED = 'pes/events/events_added';
-const EVENTS_DELETED = 'pes/events/events_deleted';
-const EVENTS_UPDATED = 'pes/events/events_updated';
+const EVENT_ADDED = 'pes/events/events_added';
+const EVENT_DELETED = 'pes/events/events_deleted';
+const EVENT_UPDATED = 'pes/events/events_updated';
 
 const LOADING_TRUE = 'pes/events/loading_true';
 const LOADING_FALSE = 'pes/events/loading_false';
@@ -28,11 +28,13 @@ const initState = {
     fetching:true,
     loading:false,
     events:[],
+    eventKey:0,
     error:{},
 };
 
 export default (state=initState,action)=>{
     switch (action.type) {
+
         case SET_EVENTS:
         case EVENTS_FETCHED:
             
@@ -44,15 +46,16 @@ export default (state=initState,action)=>{
                 
             }
 
-        case EVENTS_ADDED:
+        case EVENT_ADDED:
             
             return {
                 ...state,
                 loading:false,
+                eventKey:state.eventKey + 1,
                 events:[...state.events,action.payload],
                 
             }
-        case EVENTS_UPDATED:
+        case EVENT_UPDATED:
             
             return {
                 ...state,
@@ -60,7 +63,7 @@ export default (state=initState,action)=>{
                 events:state.events.map(item=>item.id == action.payload.id ? action.payload : item),
                 
             }
-        case EVENTS_DELETED:
+        case EVENT_DELETED:
             
             return {
                 ...state,
@@ -128,15 +131,15 @@ export const eventsUpdated = (data) =>{
         payload:data
     }
 }
-export const eventsDeleted = (id) =>{
+export const eventDeleted = (id) =>{
     return {
-        type:EVENTS_DELETED,
+        type:EVENT_DELETED,
         payload:id
     }
 }
-export const eventsAdded = (data) =>{
+export const eventAdded = (data) =>{
     return {
-        type:EVENTS_ADDED,
+        type:EVENT_ADDED,
         payload:data
     }
 }
@@ -159,7 +162,7 @@ export const fetchEvents = () => (dispatch) => {
     return getAction(actions,url,dispatch);
 }
 
-export const addEvents = (newData) => (dispatch) => {
+export const addEvent = (newData) => (dispatch) => {
     
     const url = add_events_url;
     const actions={

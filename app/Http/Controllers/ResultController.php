@@ -66,23 +66,9 @@ class ResultController extends Controller
         ]);
     }
 
-    public function getSubmittedResultDetails(Request $request){
-
-        // $vd = $request->validate([
-        //     'fixture_id' => ['required','numeric']
-        // ]);
-
-        $vd = Validator::make($request->all(),[
-            'fixture_id' => ['required','integer'],
-        ]);
-
-        if($vd->fails()){
-            abort(404,'Not Found.');
-        }
-
-        $fixture_id = $vd->valid()['fixture_id'];
+    public function getSubmittedResultDetails($fixture_id){
         
-        $fixture = $this->fixtureRepo->with(['result',"events",'ratings','team1.players','team2.players','images'])->whereIn('completed',[2,3,4])->findOrFail($fixture_id);
+        $fixture = Fixture::with(['result',"events",'ratings','team1.players','team2.players','images'])->findOrFail($fixture_id);
         
         return response()->json([
             'data'=> [
@@ -272,6 +258,7 @@ class ResultController extends Controller
 
 
     public function addMatchResult(Request $request){
+
 
        $this->resultRepo->addResultForApproval($request);
 

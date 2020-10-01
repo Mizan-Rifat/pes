@@ -199,7 +199,8 @@ Route::get('/clubmodels','ClubController@getAllModels');
 // -----------results-----------
 
 Route::get('/result','ResultController@getResultDetails');  // ?id return:single match details
-Route::get('/result/submitted','ResultController@getSubmittedResultDetails');  // ?id return:single match details
+
+Route::get('/result/submitted/{fixture_id}','ResultController@getSubmittedResultDetails');  // ?id return:single match details
 
 Route::put('/result/event/{event}','MatchEventController@update'); 
 Route::post('/result/event/add','MatchEventController@create'); 
@@ -216,6 +217,7 @@ Route::post('/result/ratings/update','ResultController@updateMatchRatings');
 Route::post('/result/delete/rating','ResultController@deleteMatchRating'); 
 
 Route::post('/result/add/rating','ResultController@addMatchRating'); 
+
 Route::post('/result/add','ResultController@addMatchResult'); 
 
 Route::get('/resultdetails','ResultController@getResultDetails');  // ?id return:events,ratings,team1,team2

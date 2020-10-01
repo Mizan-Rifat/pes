@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { removeEventFromState, addTeam1EventToState, addTeam2EventToState, addEventToState, deleteEvent, addEvent } from '../../Redux/actions/resultAddAction';
 import Notify from '@customComponent/Notify';
 import { editableEventsTableColumns } from '../../CData/table';
+import { eventAdded,eventDeleted } from '../../Redux/Ducks/MatchEventsDuck';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -84,7 +85,7 @@ export default function EventTable({players,club_id,events,loading,fixture_id,ev
                     return reject();
                 })    
             }else{
-                dispatch(addEventToState(data))
+                dispatch(eventAdded(data))
             }
             
             resolve()
@@ -104,7 +105,7 @@ export default function EventTable({players,club_id,events,loading,fixture_id,ev
                     toast(err,'error')
                 })    
             }else{
-                dispatch(removeEventFromState(oldData.id))
+                dispatch(eventDeleted(oldData.id))
             }
             
             resolve()
@@ -113,10 +114,8 @@ export default function EventTable({players,club_id,events,loading,fixture_id,ev
     ) 
 
     return (
-        <Mtable 
+            <Mtable 
                 columns={columns}
-                // headerLess={true}
-                // loading={loading}
                 data={events}
                 handleAddRow={ editable ? handleAddRow : false}
                 handleDeleteRow={editable ? handleDeleteRow : false}
@@ -126,8 +125,6 @@ export default function EventTable({players,club_id,events,loading,fixture_id,ev
                 header={{padding:'8px'}}
                 search={false}
                 toolbarLess={true}
-
-  
                
             />
     )
