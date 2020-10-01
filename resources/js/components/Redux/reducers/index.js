@@ -8,7 +8,7 @@ import ResultsReducer from '../Ducks/ResultsDuck';
 import TournamentsReducer from '../Ducks/TournamentsDuck';
 import TournamentReducer from '../Ducks/TournamentDuck';
 import OfficialsReducer from '../Ducks/OfficialsDuck';
-import ResultAddReducer from '../Ducks/ResultsDuck';
+import AddResultReducer from '../Ducks/AddResultDuck';
 import StandingsReducer from '../Ducks/StandingsDuck';
 import PlayerStatsReducer from '../Ducks/PlayersStatsDuck';
 import SessionUserReducer from '../Ducks/SessionUserDuck';
@@ -19,6 +19,9 @@ import TournamentClubsReducer from '../Ducks/TournamentClubsDuck'
 import AllClubsReducer from '../Ducks/AllClubsDuck';
 import ClubSquadReducer from '../Ducks/ClubSquadDuck';
 import CuClubReducer from '../Ducks/CuClubDuck';
+import EventsReducer from '../Ducks/MatchEventsDuck';
+import RatingsReducer from '../Ducks/MatchRatingsDuck';
+import ImagesReducer from '../Ducks/MatchImagesDuck';
 
 export const reducers = combineReducers({
     users:UsersReducer,
@@ -33,13 +36,16 @@ export const reducers = combineReducers({
     tournament:TournamentReducer,
     tournamentClubs:TournamentClubsReducer,
     officials:OfficialsReducer,
-    addResult:ResultAddReducer,
+    addResult:AddResultReducer,
     standings:StandingsReducer,
     playerStats:PlayerStatsReducer,
     sessionUser:SessionUserReducer,
     sessionAdmin:SessionAdminReducer,
     notifications:NotificationReducer,
     cuClub:CuClubReducer,
-    gInfo:GinfoReducer    
+    gInfo:GinfoReducer,
+    events:EventsReducer,
+    ratings:RatingsReducer,
+    images:ImagesReducer
     
 })

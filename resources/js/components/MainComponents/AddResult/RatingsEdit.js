@@ -33,25 +33,20 @@ export default function RatingsEdit({panel}) {
     const classes  = useStyles();
 
     const {
-        fixture,
-        events,
         ratings,
-        images,
-        eventsImages,
-        ratings1Images,
-        ratings2Images,
-        eventKey,
-        ratingKey,
         loading,
         fetching
+    } = useSelector(state => state.ratings)
+    
+    const {
+        fixture,
     } = useSelector(state => state.addResult)
 
-    const {user} = useSelector(state => state.session)
+    const {user} = useSelector(state => state.sessionUser)
     const dispatch = useDispatch();
 
     const [updateMode, setUpdateMode] = useState(false)
     const [editable, setEditable] = useState(false)
-
 
     useEffect(()=>{
         if(panel == 'updateresult'){

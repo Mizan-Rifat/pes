@@ -9,19 +9,17 @@ import clsx from 'clsx';
 export default function EventsEdit({panel}) {
 
     const {
-        fixture,
         events,
-        images,
-        eventsImages,
-        ratings1Images,
-        ratings2Images,
-        eventKey,
-        ratingKey,
         loading,
+        eventKey,
         fetching
+    } = useSelector(state => state.events)
+    
+    const {
+        fixture,
     } = useSelector(state => state.addResult)
 
-    const {user} = useSelector(state => state.session)
+    const {user} = useSelector(state => state.sessionUser)
 
     const [updateMode, setUpdateMode] = useState(false)
     const [editable, setEditable] = useState(false)
@@ -52,10 +50,10 @@ export default function EventsEdit({panel}) {
                         players={fixture.team1_details.players}
                         club_id={fixture.team1_details.id}
                         events={events.filter(item=>item.club_id == fixture.team1_details.id)}
+                        eventKey={eventKey}
                         loading={loading}
                         team={1}
                         fixture_id={fixture.id}
-                        eventKey={eventKey}
                         updateMode={updateMode}
                         editable={editable}
                     />
@@ -67,9 +65,9 @@ export default function EventsEdit({panel}) {
                         club_id={fixture.team2_details.id}
                         events={events.filter(item=>item.club_id == fixture.team2_details.id)}
                         loading={loading}
+                        eventKey={eventKey}
                         team={2}
                         fixture_id={fixture.id}
-                        eventKey={eventKey}
                         updateMode={updateMode}
                         editable={editable}
                     />

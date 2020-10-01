@@ -10,6 +10,7 @@ const update_ratings_url = (id)=>`/api/`;
 
 //actions
 
+const SET_RATINGS = 'pes/ratings/set_ratings';
 const RATINGS_FETCHED = 'pes/ratings/ratings_fetched';
 const RATINGS_ADDED = 'pes/ratings/ratings_added';
 const RATINGS_DELETED = 'pes/ratings/ratings_deleted';
@@ -32,16 +33,21 @@ const initState = {
 
 export default (state=initState,action)=>{
     switch (action.type) {
-        case RATINGS_FETCHED:
-            
+
+        case SET_RATINGS:
             return {
                 ...state,
                 fetching:false,
                 loading:false,
-                ratings:action.payload,
-                
+                ratings:[...state.ratings,...action.payload],
             }
-
+        case RATINGS_FETCHED:
+            return {
+                ...state,
+                fetching:false,
+                loading:false,
+                ratings:action.payload,   
+            }
         case RATINGS_ADDED:
             
             return {
@@ -107,9 +113,9 @@ export default (state=initState,action)=>{
 
 // action_creators
 
-export const ratingsFetched = (data) =>{
+export const setRatings = (data) =>{
     return {
-        type:RATINGS_FETCHED,
+        type:SET_RATINGS,
         payload:data
     }
 }

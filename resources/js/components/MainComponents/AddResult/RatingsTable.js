@@ -3,9 +3,10 @@ import { Grid,makeStyles } from '@material-ui/core'
 import Mtable from '@customComponent/Mtable'
 import { MTableToolbar } from 'material-table';
 import { useDispatch } from 'react-redux';
-import { addRatingToState, updateRatingToState, ratingsUpdated, updateRatings } from '../../Redux/actions/resultAddAction';
+import { addRatingToState, updateRatingToState, updateRatings } from '../../Redux/actions/resultAddAction';
 import clsx from 'clsx';
 import { editableRatingsTableColumns } from '../../CData/table';
+import { setRatings,ratingsUpdated } from '../../Redux/Ducks/MatchRatingsDuck';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -34,7 +35,7 @@ export default function RatingsTable({players,club_id,team,ratings,fixture_id,up
     const handleBulkUpdate = (changes) => (
 
         new Promise((resolve,reject)=>{
-         
+            console.log({changes})
             const updatedData = ratings.map((item,index)=>(
                 Object.keys(changes).includes(index.toString()) ? 
                     changes[index].newData
@@ -65,7 +66,7 @@ export default function RatingsTable({players,club_id,team,ratings,fixture_id,up
                 fixture_id
             }))
     
-            dispatch(addRatingToState(newData))
+            dispatch(setRatings(newData))
         }
 
     },[])

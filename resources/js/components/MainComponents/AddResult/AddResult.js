@@ -3,7 +3,7 @@ import { Container, makeStyles, Button, CircularProgress } from '@material-ui/co
 import RatingsEdit from './RatingsEdit'
 import EventsEdit from './EventsEdit';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchFixtureDetails, addMatchResult,loadingTrue, approveResult, fetchSubmittedResult } from '../../Redux/actions/resultAddAction';
+import { fetchFixtureDetails,loadingTrue, approveResult, fetchSubmittedResult } from '../../Redux/actions/resultAddAction';
 import clsx from 'clsx';
 import SubmitBtn from '@customComponent/SubmitBtn';
 import Progress from '@customComponent/Progress';
@@ -13,6 +13,7 @@ import Restricted from '@customComponent/Restricted';
 import Teams from '@customComponent/Teams';
 import ImageUpload from '../../CustomComponent/ImageUpload';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import { fetchFixture,addMatchResult } from '../../Redux/Ducks/AddResultDuck';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -43,7 +44,7 @@ export default function AddResult(props) {
     const toast = Notify();
     const history = useHistory();
 
-    const [btnDisable, setBtnDisable] = useState(true)
+    const [btnDisable, setBtnDisable] = useState(false)
     const [success, setsuccess] = useState(false)
     const [stateLoading, setStateLoading] = useState(true)
 
@@ -51,20 +52,27 @@ export default function AddResult(props) {
 
     const {
         fixture,
-        events,
-        ratings,
-        images,
+        loading,
+        fetching,
+    } = useSelector(state => state.addResult)
+    
+    const {
         eventsImages,
         ratings1Images,
         ratings2Images,
-        eventKey,
-        ratingKey,
-        loading,
-        fetching,
-        error
-    } = useSelector(state => state.addResult)
+    } = useSelector(state => state.images)
+    
+    const {
+        events,
+        loading:eventsLoading,
+        fetching:eventsFetching,
+    } = useSelector(state => state.events)
+    
+    const {
+        ratings,
+    } = useSelector(state => state.ratings)
 
-    const {user} = useSelector(state => state.session)
+    const {user} = useSelector(state => state.sessionUser)
 
     const dispatch = useDispatch();
 
@@ -103,7 +111,7 @@ export default function AddResult(props) {
         
         }
 
-
+        console.log({formData})
         dispatch(addMatchResult(formData,
      
             { 
@@ -113,6 +121,7 @@ export default function AddResult(props) {
         .then(response=>{
             toast(response,'success')
             setsuccess(true)
+            setStateLoading(false)
         })
         .catch(error=>{
             if(error.errorCode == 422){
@@ -127,9 +136,8 @@ export default function AddResult(props) {
 
     
     useEffect(()=>{
-        dispatch(fetchFixtureDetails(match_id))
+        dispatch(fetchFixture(match_id))
         .catch(err=>{
-            console.log({err})
             history.push('/error')
         })
         
@@ -184,24 +192,24 @@ export default function AddResult(props) {
 
     },[fixture,user])
     
-    useEffect(()=>{
-        if(Object.keys(user).length > 0){
-            if(Object.keys(ratings).length > 0 && user.club.id != fixture.team2_id){
-                let t1 = ratings.filter(rating=>rating.club_id == fixture.team1_id && rating.rating != 0).length;
-                let t2 = ratings.filter(rating=>rating.club_id == fixture.team2_id && rating.rating != 0).length;
-                if(t1 > 10 && t2 > 10 && eventsImages.length > 0 && ratings1Images.length > 0 && ratings2Images.length > 0){
-                    setBtnDisable(false)
-                }else{
-                    setBtnDisable(true)
-                }
-            }
-            if(Object.keys(ratings).length > 0 && user.club.id == fixture.team2_id){
-                if(eventsImages.length > 0 && ratings1Images.length > 0 && ratings2Images.length > 0){
-                    setBtnDisable(false)
-                }
-            }  
-        }
-    },[ratings,eventsImages,ratings1Images,ratings2Images])
+    // useEffect(()=>{
+    //     if(Object.keys(user).length > 0){
+    //         if(Object.keys(ratings).length > 0 && user.club.id != fixture.team2_id){
+    //             let t1 = ratings.filter(rating=>rating.club_id == fixture.team1_id && rating.rating != 0).length;
+    //             let t2 = ratings.filter(rating=>rating.club_id == fixture.team2_id && rating.rating != 0).length;
+    //             if(t1 > 10 && t2 > 10 && eventsImages.length > 0 && ratings1Images.length > 0 && ratings2Images.length > 0){
+    //                 setBtnDisable(false)
+    //             }else{
+    //                 setBtnDisable(true)
+    //             }
+    //         }
+    //         if(Object.keys(ratings).length > 0 && user.club.id == fixture.team2_id){
+    //             if(eventsImages.length > 0 && ratings1Images.length > 0 && ratings2Images.length > 0){
+    //                 setBtnDisable(false)
+    //             }
+    //         }  
+    //     }
+    // },[ratings,eventsImages,ratings1Images,ratings2Images])
 
 
     return (

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import ImageUploader from "react-images-upload";
 import { useSelector, useDispatch } from "react-redux";
-import { addImages, setImages } from "../Redux/actions/resultAddAction";
+import { addImages} from "../Redux/actions/resultAddAction";
+import { setImages } from "../Redux/Ducks/MatchImagesDuck";
 import { Button } from "@material-ui/core";
 import Notify from '@customComponent/Notify';
 
