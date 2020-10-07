@@ -14,7 +14,8 @@ const types = {
     12:'pre-season mode open',
     13:'pre-season mode close',
 
-    14:'match result submitted'
+    14:'match result submitted',
+    15:'match result rejected'
 }
 
 const columns = [

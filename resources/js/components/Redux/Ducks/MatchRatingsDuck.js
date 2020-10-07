@@ -3,8 +3,8 @@ import { postAction, getAction } from "./actions";
 //urls
 
 const fetch_ratings_url = (id)=>`/api/`;
-const add_ratings_url = `/api/`;
-const delete_ratings_url =(id)=> `/api/`;
+const add_ratings_url = `/api/result/rating`;
+const delete_ratings_url =(id)=> `/api/result/rating/${id}`;
 const update_ratings_url = (id)=>`/api/`;
 
 
@@ -12,9 +12,9 @@ const update_ratings_url = (id)=>`/api/`;
 
 const SET_RATINGS = 'pes/ratings/set_ratings';
 const RATINGS_FETCHED = 'pes/ratings/ratings_fetched';
-const RATINGS_ADDED = 'pes/ratings/ratings_added';
-const RATINGS_DELETED = 'pes/ratings/ratings_deleted';
-const RATINGS_UPDATED = 'pes/ratings/ratings_updated';
+const RATING_ADDED = 'pes/ratings/ratings_added';
+const RATING_DELETED = 'pes/ratings/ratings_deleted';
+const RATING_UPDATED = 'pes/ratings/ratings_updated';
 
 const LOADING_TRUE = 'pes/ratings/loading_true';
 const LOADING_FALSE = 'pes/ratings/loading_false';
@@ -35,20 +35,16 @@ export default (state=initState,action)=>{
     switch (action.type) {
 
         case SET_RATINGS:
+            
             return {
                 ...state,
                 fetching:false,
                 loading:false,
-                ratings:[...state.ratings,...action.payload],
+                ratings:action.payload,
+                
             }
-        case RATINGS_FETCHED:
-            return {
-                ...state,
-                fetching:false,
-                loading:false,
-                ratings:action.payload,   
-            }
-        case RATINGS_ADDED:
+
+        case RATING_ADDED:
             
             return {
                 ...state,
@@ -56,7 +52,7 @@ export default (state=initState,action)=>{
                 ratings:[...state.ratings,action.payload],
                 
             }
-        case RATINGS_UPDATED:
+        case RATING_UPDATED:
             
             return {
                 ...state,
@@ -64,7 +60,7 @@ export default (state=initState,action)=>{
                 ratings:state.ratings.map(item=>item.id == action.payload.id ? action.payload : item),
                 
             }
-        case RATINGS_DELETED:
+        case RATING_DELETED:
             
             return {
                 ...state,
@@ -116,25 +112,31 @@ export default (state=initState,action)=>{
 export const setRatings = (data) =>{
     return {
         type:SET_RATINGS,
+        payload:data.ratings
+    }
+}
+export const ratingsFetched = (data) =>{
+    return {
+        type:RATINGS_FETCHED,
         payload:data
     }
 }
 
-export const ratingsUpdated = (data) =>{
+export const ratingUpdated = (data) =>{
     return {
-        type:RATINGS_UPDATED,
+        type:RATING_UPDATED,
         payload:data
     }
 }
-export const ratingsDeleted = (id) =>{
+export const ratingDeleted = (id) =>{
     return {
-        type:RATINGS_DELETED,
+        type:RATING_DELETED,
         payload:id
     }
 }
-export const ratingsAdded = (data) =>{
+export const ratingAdded = (data) =>{
     return {
-        type:RATINGS_ADDED,
+        type:RATING_ADDED,
         payload:data
     }
 }
@@ -157,34 +159,34 @@ export const fetchRatings = () => (dispatch) => {
     return getAction(actions,url,dispatch);
 }
 
-export const addRatings = (newData) => (dispatch) => {
+export const addRating = (newData) => (dispatch) => {
     
     const url = add_ratings_url;
     const actions={
         loading:{type:LOADING_TRUE},
-        success:ratingsAdded,
+        success:ratingAdded,
         error:setErrors
     }
     return postAction(actions,url,newData,dispatch);
 }
 
-export const updateRatings = (newData) => (dispatch) => {
+export const updateRating = (newData) => (dispatch) => {
 
     const url = update_ratings_url();
     const actions={
         loading:{type:LOADING_TRUE},
-        success:ratingsUpdated,
+        success:ratingUpdated,
         error:setErrors
     }
     return postAction(actions,url,newData,dispatch,'put');
 }
 
-export const deleteRatings = (id) => (dispatch) => {
+export const deleteRating = (id) => (dispatch) => {
 
     const url = delete_ratings_url(id);
     const actions={
         loading:{type:LOADING_TRUE},
-        success:ratingsDeleted,
+        success:ratingDeleted,
         error:setErrors
     }
     return postAction(actions,url,{},dispatch,'delete');

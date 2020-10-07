@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Resources\ClubModelResource;
 use App\Model\ClubTournament;
 use App\Http\Resources\ClubResource;
 use App\Http\Resources\MatchImageResource;
 use App\Http\Resources\MatchResultResource;
 use App\Http\Resources\OfficialResource;
+use App\Http\Resources\PlayerModelCollection;
 use App\Http\Resources\PlayerResource;
 use App\Http\Resources\UserResource;
 use App\Model\Admin;
@@ -15,12 +17,14 @@ use App\Model\MatchImage;
 use App\Model\MatchRating;
 use App\Model\Official;
 use App\Model\Player;
+use App\Model\PlayerModel;
 use App\Model\Tournament;
 use App\Notifications\AddedAsOfficial;
 use App\Notifications\AddedInTournament;
 use App\Notifications\FixtureCreated;
 use App\Notifications\MatchResultApproved;
 use App\Notifications\ResultSubmitted;
+use App\Notifications\UserRegistered;
 use App\Notifications\WelcomeUser;
 use App\Repositories\ClubModelRepository;
 use App\Repositories\TournamentRepository;
@@ -62,24 +66,34 @@ Route::group(['middleware'=>'adminGuard'],function(){
 
 Route::get('/test',function(Request $request){
 
-    $user = User::with('club')->find(1);
-
-    if($user->club){
-        return 'a';
-    }else{
-        return 'b';
+    return new ClubModelResource(ClubModel::find(1));
+    Storage::delete('/images/sdf','4757.png');
+    return;
+    $qb = PlayerModel::query();
+    if($request->has('q')){
+        $qb->where('name','LIKE','%'.$request->q.'%')
+        ->orWhere('position','LIKE','%'.$request->q.'%')
+        ->orWhere('id','LIKE','%'.$request->q.'%');
+    }
+    if($request->has('sortby')){
+        //Handle default parameter of get with second argument
+        $qb->orderBy($request->get('sortBy'), $request->get('direction', 'ASC'));
     }
 
-    if(Auth::guard('admin')->check()){
-        return 'asfdas';
-    }else{
-        return 'bbbbbbb';
-    }
+    return $qb->paginate();
+
+
+
+
+    $players = PlayerModel::paginate(10);
+
+    return new PlayerModelCollection($players);
+//    Notification::send(User::first(),new UserRegistered(12));
     
-    Cache::put('info',[
-        'season'=>'Sep21',
-        'pre_season'=>true
-    ]);
+    // Cache::put('info',[
+    //     'season'=>'Sep21',
+    //     'pre_season'=>true
+    // ]);
 
 
     // Notification::send(User::find(57),new WelcomeUser());
@@ -124,7 +138,7 @@ Route::group(['prefix'=>'tournament'],function(){
 });
 
 Route::get('/fixture/{fixture_id}','FixtureController@show'); // ?fixture_id
-
+Route::get('/fixture/details/{fixture_id}','FixtureController@getFixtureDetails');
 Route::post('/deletefixture','FixtureController@destroy'); // ?ids
 Route::post('/updatefixture','FixtureController@updateFixture'); 
 Route::post('/createfixture','FixtureController@createFixture'); 
@@ -168,7 +182,7 @@ Route::post('/tournament/officials/remove','TournamentOfficialsController@remove
 // -----------Clubs-----------
 Route::get('/allclubs','ClubController@index');
 
-Route::get('/club/{ref}','ClubController@show'); 
+
 
 Route::get('/clubmodel/search','ClubController@searchModel');
 Route::post('/clubs/sendinvitation','ClubController@sendInvitation'); 
@@ -176,7 +190,8 @@ Route::post('/clubs/sendinvitation','ClubController@sendInvitation');
 
 Route::group(['prefix'=>'club'],function(){
 
-    Route::get('/search','ClubController@search');                
+    Route::get('/search','ClubController@search');
+    Route::get('/{ref}','ClubController@show');                 
     Route::post('/','ClubController@create');  
     Route::put('/{id}','ClubController@update'); 
     
@@ -189,7 +204,27 @@ Route::group(['prefix'=>'player'],function(){
     Route::get('/search','PlayerController@search');   
     
 });
-Route::get('/clubmodels','ClubController@getAllModels');  
+
+
+Route::get('/playermodels','PlayerModelController@index');
+Route::group(['prefix'=>'playermodel'],function(){
+      
+    Route::post('/','PlayerModelController@store');  
+    Route::put('/{playerModel}','PlayerModelController@update');  
+    Route::delete('/{playerModel}','PlayerModelController@destroy');
+    Route::get('/search','PlayerController@search');   
+    
+});
+
+Route::get('/clubmodels','ClubModelController@index');
+Route::group(['prefix'=>'clubmodel'],function(){
+      
+    Route::post('/','ClubModelController@store');  
+    Route::put('/{clubModel}','ClubModelController@update');  
+    Route::delete('/{clubModel}','ClubModelController@destroy');   
+    
+});
+
 
 
 // -----------Clubs_End----------
@@ -198,31 +233,23 @@ Route::get('/clubmodels','ClubController@getAllModels');
 
 // -----------results-----------
 
-Route::get('/result','ResultController@getResultDetails');  // ?id return:single match details
+Route::get('/result/{fixture_id}','ResultController@show');  // ?id return:single match details
 
-Route::get('/result/submitted/{fixture_id}','ResultController@getSubmittedResultDetails');  // ?id return:single match details
 
 Route::put('/result/event/{event}','MatchEventController@update'); 
 Route::post('/result/event/add','MatchEventController@create'); 
 Route::delete('/result/event/{event}','MatchEventController@delete'); 
 
 Route::put('/result/rating/{rating}','MatchRatingController@update'); 
-Route::post('/result/rating/add','MatchRatingController@create'); 
+Route::post('/result/rating','MatchRatingController@create'); 
 Route::delete('/result/rating/{rating}','MatchRatingController@delete'); 
 
-Route::post('/result/image/add','ResultController@addImage'); 
-Route::post('/result/image/delete','ResultController@deleteMatchImage'); 
+Route::post('/result/image/add','MatchImageController@addImages'); 
+Route::delete('/result/image/{image}','MatchImageController@removeImage'); 
 
-Route::post('/result/ratings/update','ResultController@updateMatchRatings'); 
-Route::post('/result/delete/rating','ResultController@deleteMatchRating'); 
-
-Route::post('/result/add/rating','ResultController@addMatchRating'); 
-
-Route::post('/result/add','ResultController@addMatchResult'); 
-
-Route::get('/resultdetails','ResultController@getResultDetails');  // ?id return:events,ratings,team1,team2
-Route::post('/result/approve','ResultController@approveResult');  // ?id return:events,ratings,team1,team2
-Route::post('/resulttest','ResultController@test');  // ?id return:events,ratings,team1,team2
+Route::put('/result/submit/{fixture_id}','ResultController@submit'); 
+Route::put('/result/approve/{fixture_id}','ResultController@approveResult');  // ?id return:events,ratings,team1,team2
+Route::post('/result/reject','ResultController@rejectResult');  
 
 
 // -----------results_End----------
@@ -267,4 +294,4 @@ Route::get('/ginfo','GinfoController@index');
 
 Route::get('/teams/logo','UserController@getTeamsLogo');
 
-Broadcast::routes(['middleware' => ['auth:sanctum']]);
+Broadcast::routes();

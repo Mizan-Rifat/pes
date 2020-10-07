@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\FixtureResource;
+use App\Http\Resources\MatchEventsResource;
+use App\Http\Resources\MatchImageResource;
+use App\Http\Resources\MatchRatingsResource;
 use App\Model\Fixture;
 use App\Model\Tournament;
 use App\Repositories\FixtureRepository;
@@ -38,28 +41,19 @@ class FixtureController extends Controller
         return new FixtureResource($fixture);
     }
 
-    
-    
-    public function getFixturesByClub(){
+    public function getFixtureDetails($fixture_id){
+        
+        $fixture = Fixture::with(['result',"events",'ratings','team1.players','team2.players','images'])->findOrFail($fixture_id);
+        
+        return response()->json([
+            'data'=> [
+                'fixture' => new FixtureResource($fixture),
+                'events'=> MatchEventsResource::collection($fixture->events),
+                'ratings' => MatchRatingsResource::collection($fixture->ratings),
+                'images'=>MatchImageResource::collection($fixture->images)
+            ]
+        ]);
 
-        $fixtures = $this->fixtureRepo->getClubFixtures(request('club_id'),request('tournament_id'));
-
-        // return $fixtures;
-
-        return  FixtureResource::collection($fixtures,false);
-    }
-    
-    public function getClubHomeFixtures(){
-
-        $fixtures = $this->fixtureRepo->getClubHomeFixtures(request('club_id'),request('tournament_id'));
-
-        return  FixtureResource::collection($fixtures);
-    }
-    public function getClubAwayFixtures(){
-
-        $fixtures = $this->fixtureRepo->getClubAwayFixtures(request('club_id'),request('tournament_id'));
-
-        return  FixtureResource::collection($fixtures);
     }
 
     public function createFixtures(Tournament $tournament){

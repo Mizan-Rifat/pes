@@ -3,10 +3,10 @@ import Mtable from '@customComponent/Mtable';
 import {makeStyles, TextField} from '@material-ui/core';
 import { MTableToolbar } from 'material-table';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeEventFromState, addTeam1EventToState, addTeam2EventToState, addEventToState, deleteEvent, addEvent } from '../../Redux/actions/resultAddAction';
 import Notify from '@customComponent/Notify';
+import useTableActions from '@customComponent/useTableActions';
 import { editableEventsTableColumns } from '../../CData/table';
-import { eventAdded,eventDeleted } from '../../Redux/Ducks/MatchEventsDuck';
+import { eventAdded,eventDeleted,addEvent,deleteEvent } from '../../Redux/Ducks/MatchEventsDuck';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -20,13 +20,13 @@ const useStyles = makeStyles(theme=>({
         height: '100%',
     },
     toolbar:{
-        padding:'0 !important',
+        padding:'5px 0 !important',
         minHeight:'unset'
         
     },
 }))
 
-export default function EventTable({players,club_id,events,loading,fixture_id,eventKey,updateMode,editable}) {
+export default function EventTable({players,club,events,loading,fixture_id,editable}) {
 
     const classes  = useStyles();
 
@@ -36,92 +36,34 @@ export default function EventTable({players,club_id,events,loading,fixture_id,ev
 
     const columns = editableEventsTableColumns(players);
 
-    const handleAddRow = (newData) => (
+    const tabelActions = {
+        add:addEvent,
+        delete:deleteEvent,
+    }
 
-        new Promise((resolve,reject)=>{
+    const {handleAddRow,handleDeleteRow} = useTableActions(tabelActions)
 
-            console.log({newData})
+    const handleAdd = (newData) => {
+        const data = {
+            ...newData,
+            club_id:club.id,
+            fixture_id,
+            assist_player_id:newData.hasOwnProperty('assist_player_id') ? newData.assist_player_id : null 
+        }
 
-            if( !newData.hasOwnProperty('event_id')){
-                toast('Event field is required.','error')
-             
-                return reject();
-            }
-            
-            if( !newData.hasOwnProperty('player_id')){
-                toast('player field is required.','error')
-              
-                return reject()
-            }
-            
-            if( !newData.hasOwnProperty('minute')){
-                toast('Minute field is required.','error')
-             
-                return reject()
-            }
-            if( !Number.isInteger(parseInt(newData.minute))){
-                toast('Invalid Minute','error')
-             
-                return reject()
-            }
-
-            const data = {
-                ...newData,
-                id:eventKey,
-                club_id,
-                fixture_id,
-                assist_player_id:newData.hasOwnProperty('assist_player_id') ? newData.assist_player_id : null 
-            }
-
-            if(updateMode){
-                dispatch(addEvent(data))
-                .then(response=>{
-                    toast(response,'success')
-                })
-                .catch(error=>{
-                    Object.keys(error.errors).map(err=>{
-                        toast(error.errors[err],'error')
-                    })
-                    return reject();
-                })    
-            }else{
-                dispatch(eventAdded(data))
-            }
-            
-            resolve()
-         
-        })
-
-    ) 
-    const handleDeleteRow = (oldData) => (
-
-        new Promise((resolve,reject)=>{
-            if(updateMode){
-                dispatch(deleteEvent({id:oldData.id}))
-                .then(response=>{
-                    toast(response,'success')
-                })
-                .catch(err=>{
-                    toast(err,'error')
-                })    
-            }else{
-                dispatch(eventDeleted(oldData.id))
-            }
-            
-            resolve()
-        })
-
-    ) 
+        return handleAddRow(data)
+    } 
 
     return (
             <Mtable 
                 columns={columns}
                 data={events}
-                handleAddRow={ editable ? handleAddRow : false}
-                handleDeleteRow={editable ? handleDeleteRow : false}
-                edit={!loading}
+                editable={editable}
+                handleAddRow={handleAdd}
+                handleDeleteRow={(oldData)=>handleDeleteRow(oldData.id)}
+                // edit={!loading}
                 addLast={true}
-                title='Events'
+                title={`${club.name} EVENTS`}
                 header={{padding:'8px'}}
                 search={false}
                 toolbarLess={true}

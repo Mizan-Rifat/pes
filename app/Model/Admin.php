@@ -39,5 +39,10 @@ class Admin extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function receivesBroadcastNotificationsOn()
+    {
+        return 'App.'.'Admin.'.$this->id;
+    }
+
    
 }

@@ -19,7 +19,7 @@ export const postAction = (actions,url,formData,dispatch,method='post',headers={
                     headers:headers
                 })
                 .then(response=>{
-                    
+                    console.log({response})
                     if(Array.isArray(actions.success)){
                         actions.success.map(item=>{
                             dispatch(item(response.data.data))
@@ -30,12 +30,13 @@ export const postAction = (actions,url,formData,dispatch,method='post',headers={
 
                     resolve(response.data.message)
                 }).catch(error=>{
+                    console.log({error})
                     const err = {
                         errors:error.response.data.hasOwnProperty('errors') ? error.response.data.errors : {},
                         message:error.response.data.message,
                         errorCode:error.response.status
                     }
-                    console.log({error})
+                    
                     dispatch(actions.error(err))
         
                     reject(err);

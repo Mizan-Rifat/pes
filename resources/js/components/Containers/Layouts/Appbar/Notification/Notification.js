@@ -3,7 +3,7 @@ import {Divider} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { Link } from 'react-router-dom';
-import { ResultSubmitted, ResultApproved,Welcome, AddedInTournament, FixturesCreated, AddedAsOfficial } from './NotificationComponent';
+import { ResultSubmitted, ResultApproved,Welcome, AddedInTournament, FixturesCreated, AddedAsOfficial, ResultRejected,UserRegistered } from './NotificationComponent';
 import { useSelector, useDispatch } from 'react-redux';
 import dateFormat from "dateformat";
 import clsx from 'clsx'
@@ -92,11 +92,17 @@ export default function Notification({count}) {
 
     const component=(data)=>{
       switch (data.type) {
+        case 1:
+          return <UserRegistered data={data} />
+          break;
         case 9:
           return <ResultApproved data={data} />
           break;
         case 14:
           return <ResultSubmitted data={data} />
+          break;
+        case 15:
+          return <ResultRejected data={data} />
           break;
         case 5:
           return <Welcome />

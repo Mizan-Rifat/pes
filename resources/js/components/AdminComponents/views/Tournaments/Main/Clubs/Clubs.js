@@ -57,7 +57,7 @@ export default function Clubs({setTitle}) {
             title:'Club',
             field:'name',
             render : rowData => <ListGroupItem1 image={rowData.logo} label={rowData.name} imageStyle={{height:'25px',marginRight:'5px'}} />,
-            editComponent: props => <SearchComp searchurl='/api/search/club' label='clubs' props={props} />
+            editComponent: props => <SearchComp searchurl='/api/club/search' label='clubs' props={props} />
 
         },
         {

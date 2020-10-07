@@ -20,6 +20,7 @@ resolve: {
         '@customComponent': path.resolve(__dirname, 'resources/js/components/CustomComponent'),
         '@actions': path.resolve(__dirname, 'resources/js/components/Redux/actions'),
         '@reducers': path.resolve(__dirname, 'resources/js/components/Redux/reducers'),
+        '@ducks': path.resolve(__dirname, 'resources/js/components/Redux/Ducks'),
     }
 }
 });

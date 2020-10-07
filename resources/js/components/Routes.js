@@ -18,14 +18,12 @@ import AllClubs from './AdminComponents/views/Clubs/AllClubs';
 import AllTournaments from './AdminComponents/views/AllTournaments/AllTournaments';
 import Club from './MainComponents/Club/Club';
 import ResultDetails from './MainComponents/MatchDetails/ResultDetails';
-import Result from './MainComponents/AddResult/Result';
 import { createMuiTheme } from "@material-ui/core/styles";
 import { makeStyles, ThemeProvider } from "@material-ui/styles";
 import { purple,pink,red } from '@material-ui/core/colors';
 import LandingPage from './MainComponents/Landing'
 import Profile from './MainComponents/Profile/Profile';
 import ApproveResult from './MainComponents/AddResult/ApproveResult';
-import EditResult from './MainComponents/AddResult/EditResult';
 import ErrorComp from './Errors/ErrorComp';
 import SubmittedFixtures from './MainComponents/AddResult/SubmittedFixtures';
 import {AuthProtectedRoute} from '@customComponent/AuthProtectedRoute'
@@ -34,9 +32,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import Progress from './CustomComponent/Progress';
 import { fetchSessionUser } from './Redux/actions/SessionAction';
 import AddResult from './MainComponents/AddResult/AddResult';
-import UpdateResult from './MainComponents/AddResult/UpdateResult';
 import { fetchGinfo } from './Redux/Ducks/GInfoDuck';
 import { AdminProtectedRoute } from './CustomComponent/AdminProtecedRoute';
+import PlayerModels from './AdminComponents/views/PlayerModels';
+import ClubModels from './AdminComponents/views/ClubModels';
 
 
 
@@ -126,6 +125,8 @@ export default function Routes() {
                                     <Route path='/admin/tournament/:title'  component={Tournament} />
                                     <Route path='/admin/users'  component={Users} />
                                     <Route path='/admin/clubs'  component={AllClubs} />
+                                    <Route path='/admin/playermodels'  component={PlayerModels} />
+                                    <Route path='/admin/clubmodels'  component={ClubModels} />
                                     <Route path='/admin/alltournaments'  component={AllTournaments} />
                                     <Redirect from='/admin' to ='/admin/dashboard' />
                                 
@@ -149,7 +150,6 @@ export default function Routes() {
 
                                 <AuthProtectedRoute path='/result/add/:match_id' component={AddResult} panel='addresult' />
                                 <AuthProtectedRoute path='/result/approve/:match_id' component={ApproveResult} panel='approveresult' />
-                                <AuthProtectedRoute path='/result/update/:match_id' component={UpdateResult} panel='updateresult' />
                                 {/* <Redirect from='/profile' to ='/profile' /> */}
                                 <Route path='*' component={ErrorComp} />
                             </Switch>

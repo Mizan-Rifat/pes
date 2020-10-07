@@ -41,9 +41,13 @@ export default function useTableActions(actions) {
                 resolve();
             }).catch(error=>{
                
-                Object.keys(error.errors).map(err=>{
-                    toast(error.errors[err],'error')
-                })
+                if(error.errorCode == 422){
+                    Object.keys(error.errors).map(err=>{
+                        toast(error.errors[err],'error')
+                    })
+                }else{
+                    toast(error.message,'error')
+                }
                 reject();
             })
         })
@@ -58,9 +62,14 @@ export default function useTableActions(actions) {
                 toast(response,'success')
                 resolve()
             }).catch(error=>{
-                Object.keys(error.errors).map(err=>{
-                    toast(error.errors[err],'error')
-                })
+                console.log({error})
+                if(error.errorCode == 422){
+                    Object.keys(error.errors).map(err=>{
+                        toast(error.errors[err],'error')
+                    })
+                }else{
+                    toast(error.message,'error')
+                }
                 reject();
             })
 

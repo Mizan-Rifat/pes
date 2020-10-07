@@ -3,7 +3,7 @@ import { Container, makeStyles,Button } from '@material-ui/core'
 import Events from './Events'
 import Ratings from './Ratings'
 import Teams from '@customComponent/Teams';
-import { fetchResultDetails } from '../../Redux/actions/resultActions'
+import { fetchResultDetails } from '../../Redux/Ducks/ResultDetailsDuck'
 import { useSelector, useDispatch } from 'react-redux';
 import Progress from '@customComponent/Progress';
 import { useHistory } from 'react-router-dom'
@@ -33,69 +33,53 @@ export default function ResultDetails(props) {
     const history = useHistory();
 
     const {
-        resultDetails,
-        resultDetailsLoading,
-    } = useSelector(state=>state.results)
-
-    const [error, seterror] = useState(true)
+        result,
+        fetching
+    } = useSelector(state=>state.resultDetails)
 
     const dispatch = useDispatch();
 
     const match_id = props.match.params.match_id
 
     useEffect(()=>{
-        dispatch(fetchResultDetails(match_id,false))
-        .then(response=>seterror(false))
+        dispatch(fetchResultDetails(match_id))
         .catch(error=>{
-
-            // history.push('/')
-            seterror(true)
+            history.push('/error')
+            return;
         })    
     },[])
 
     return (
         <>
             {
-                resultDetailsLoading ?
+                fetching ?
 
                 <Progress />
                 :
 
                 <>
-
-                    {
-                        error ? 
-
-                        <div className='text-center mt-5'>
-                            <h5>Result not found.</h5>
-                            <Button variant='contained' color='secondary' onClick={()=>history.goBack()} className='my-4' >
-                                Go Back
-                            </Button>
-                        </div>
-
-                        :
-
                         <Container>
                             <div  style={{marginTop:'120px',marginBottom:'25px'}}>
                                 <Teams 
-                                    fixtureDetails = {resultDetails.fixture} 
+                                    fixtureDetails = {result.fixture} 
                                 />
                             </div>
                             <Container className={classes.container2}>
                                 <Events 
-                                    team1_events={resultDetails.team1_events} 
-                                    team2_events={resultDetails.team2_events} 
+                                    team1_events={result.events.filter(item=>item.club_id == result.fixture.team1_id)} 
+                                    team2_events={result.events.filter(item=>item.club_id == result.fixture.team2_id)} 
+
                                 />
                                 
                                 <Ratings
-                                    team1_name={resultDetails.fixture.team1_details.name} 
-                                    team2_name={resultDetails.fixture.team2_details.name} 
-                                    team1_ratings = {resultDetails.team1_ratings}
-                                    team2_ratings = {resultDetails.team2_ratings}
+                                    team1_name={result.fixture.team1_details.name} 
+                                    team2_name={result.fixture.team2_details.name} 
+                                    team1_ratings = {result.ratings.filter(item=>item.club_id == result.fixture.team1_id)}
+                                    team2_ratings = {result.ratings.filter(item=>item.club_id == result.fixture.team2_id)}
                                 />
                             </Container>
                         </Container>
-                    }   
+                     
                 </>
             }
         </>        

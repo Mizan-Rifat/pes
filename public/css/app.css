@@ -10933,6 +10933,11 @@ html {
   font-size: 14px !important;
 }
 
+.formDisable {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 button:focus {
   box-shadow: none !important;
   outline: none !important;

@@ -9,9 +9,8 @@ import clsx from 'clsx';
 import SideBarImage from '@assets/img/sidebar-2.jpg';
 import {useSelector,useDispatch} from 'react-redux';
 import { fetchAllTournaments } from '../../../Redux/Ducks/TournamentsDuck';
-import MAppBar from './Appbar/MAppBar';
 import MyAppBar from '../Appbar/MyAppBar';
-import { fetchSessionAdmin } from '../../../Redux/Ducks/SessionAdminDuck';
+import { receiveNotification } from '../../../Redux/Ducks/NotificationsDuck';
 import Progress from '@customComponent/Progress';
 
 
@@ -75,10 +74,13 @@ function AdminLayout(props) {
     if(Object.entries(tournaments).length == 0){
       dispatch(fetchAllTournaments())
     }
-    if(Object.entries(admin).length == 0){
-      dispatch(fetchSessionAdmin())
-    }
 
+    Echo.private(`App.Admin.${admin.id}`)
+      .notification((notification) => {
+        console.log(notification);
+        dispatch(receiveNotification(notification))
+    });
+    
   }, [])
 
   return (

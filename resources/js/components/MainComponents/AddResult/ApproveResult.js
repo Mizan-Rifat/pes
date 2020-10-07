@@ -1,9 +1,8 @@
 import React,{useState, useEffect} from 'react'
-import { Container, makeStyles, Button, CircularProgress } from '@material-ui/core'
+import { Container, makeStyles, Grid, CircularProgress } from '@material-ui/core'
 import RatingsEdit from './RatingsEdit'
 import EventsEdit from './EventsEdit';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchFixtureDetails, addMatchResult,loadingTrue, approveResult, fetchSubmittedResult } from '../../Redux/actions/resultAddAction';
 import clsx from 'clsx';
 import SubmitBtn from '@customComponent/SubmitBtn';
 import Progress from '@customComponent/Progress';
@@ -13,8 +12,10 @@ import Restricted from '@customComponent/Restricted';
 import Teams from '@customComponent/Teams';
 import ImageUpload from '../../CustomComponent/ImageUpload';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import { fetchOfficials, addOfficials, deleteOfficials } from '@actions/officialsAction';
-
+import CancelIcon from '@material-ui/icons/Cancel';
+import { fetchFixture, resetUpdateResult, approveResult } from '../../Redux/Ducks/UpdateResultDuck';
+import { fetchOfficials } from '../../Redux/Ducks/OfficialsDuck';
+import RejectResult from './RejectResult';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -51,55 +52,55 @@ export default function ApproveResult(props) {
 
     const match_id = props.match.params.match_id
 
+    const {officials,fetching:officialsFetching} = useSelector(state=>state.officials)
+
     const {
         fixture,
-        events,
-        ratings,
-        images,
-        eventsImages,
-        ratings1Images,
-        ratings2Images,
-        eventKey,
-        ratingKey,
         loading,
         fetching,
-        error
-    } = useSelector(state => state.addResult)
+    } = useSelector(state => state.updateResult)
+    
 
-    const {user} = useSelector(state => state.session)
-
-    const {officials,fetching:officialsFetching} = useSelector(state=>state.officials)
+    const {user} = useSelector(state => state.sessionUser)
+    const {club,loading:clubLoading} = useSelector(state => state.cuClub)
 
     const dispatch = useDispatch();
 
     const handleApproveResult = ()=>{
-        dispatch(approveResult({fixture_id:fixture.id}))
+        dispatch(approveResult(fixture.id))
         .then(response=>{
             toast(response,'success')
             setsuccess(true)
         })
+        .catch(error=>{
+            toast(error.message,'error')
+        })
     }
+
+
+    useEffect(()=>{
+        dispatch(fetchFixture(match_id))
+        .then(response=>{
+            dispatch(fetchOfficials(response.fixture.tournament_id))
+        })
+        .catch(err=>{
+            history.push('/error')
+            return;
+        })
+        
+    },[])
     
     useEffect(()=>{
-        
-            dispatch(fetchSubmittedResult(match_id))
-            .then(response=>{
-                console.log({response})
-                dispatch(fetchOfficials(response.fixture.tournament_id))
-            })
-            .catch(err=>{
-                console.log({err})
-                history.push('/error')
-            })
-
-             
-    },[])
+        return ()=>{
+            dispatch(resetUpdateResult())
+        }
+    },[match_id])
 
     useEffect(()=>{
 
         if(!fetching && !officialsFetching){
         
-                const is_official = officials.some(item=>item.user_id == user.id)
+                const is_official = officials.some(item=>item.id == user.id)
                 const own_match = fixture.team1_id == user.club.id || fixture.team2_id == user.club.id
 
                 console.log('fc',fixture.completed)
@@ -107,8 +108,9 @@ export default function ApproveResult(props) {
                 console.log({own_match})
 
 
-                if(fixture.completed != 2 || is_official == false || own_match == true){
+                if(is_official == false || own_match == true){
                     history.push('/error')
+                    return;
                 }
 
                 setStateLoading(false)
@@ -123,7 +125,7 @@ export default function ApproveResult(props) {
     return (
         <Container>
             {
-                stateLoading || officialsFetching ? <Progress size={30} /> : 
+                stateLoading ? <Progress size={30} /> : 
                 <>
 
                             <div className={clsx({[classes.disable]:loading})}>
@@ -138,6 +140,45 @@ export default function ApproveResult(props) {
 
                                 <Container className={classes.container2}>
 
+                                    <Grid container spacing={3}>
+                                        <Grid item xs={12} sm={6}>
+
+                                            <div className='text-center'>
+                                                {
+                                                    fixture.completed == 2 || fixture.completed == 3 ?
+                                                    <>    
+                                                        <CheckCircleIcon style={{color:'green'}} />
+                                                        <div>Result Submitted</div>
+                                                    </>
+                                                    :
+                                                    <>
+                                                        <CancelIcon style={{color:'red'}} />
+                                                        <div>Result not submitted.</div>
+                                                    </>
+                                                }
+                                            </div>
+                                            
+                                        </Grid>
+
+                                        <Grid item xs={12} sm={6} >
+                                            <div className='text-center'>
+                                                {
+                                                    fixture.completed == 2 || fixture.completed == 4 ?
+                                                    <>    
+                                                        <CheckCircleIcon style={{color:'green'}} />
+                                                        <div>Result Submitted</div>
+                                                    </>
+                                                    :
+                                                    <>
+                                                        <CancelIcon style={{color:'red'}} />
+                                                        <div>Result not submitted.</div>
+                                                    </>
+                                                }
+                                            </div>
+                                        </Grid>
+                                    
+                                    </Grid>
+
                                    
                                         <EventsEdit
                                             panel={props.panel}
@@ -146,6 +187,16 @@ export default function ApproveResult(props) {
                                     
                                         <RatingsEdit
                                             panel={props.panel}
+                                        />
+
+                                        <RejectResult 
+                                            club={fixture.team1_details}
+                                            fixture={fixture}
+                                            
+                                        />
+                                        <RejectResult 
+                                            club={fixture.team2_details}
+                                            fixture={fixture}
                                         />
 
                                     <div className='text-center py-5'>

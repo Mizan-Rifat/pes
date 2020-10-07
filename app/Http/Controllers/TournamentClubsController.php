@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ClubResource;
 use App\Model\Club;
 use App\Model\Tournament;
+use App\Notifications\AddedInTournament;
 use App\Repositories\ClubRepository;
 use App\Repositories\TournamentRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 
 class TournamentClubsController extends Controller
@@ -54,9 +56,11 @@ class TournamentClubsController extends Controller
         ]);
 
         $tournament = $this->tournamentRepo->findOrFail($validatedData['tournament_id']);
-        $club = $this->clubRepo->findOrFail($validatedData['club_id']);
+        $club = $this->clubRepo->with('owner')->findOrFail($validatedData['club_id']);
 
         $tournament->clubs()->attach($validatedData['club_id']);
+
+        Notification::send($club->owner,new AddedInTournament($tournament->name,$club->name));
 
         
         return response()->json([
