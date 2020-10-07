@@ -4,39 +4,29 @@ namespace App\Repositories\Traits;
 
 use App\Model\MatchRating;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 trait RatingRepository
 {
-    public function createRatings($ratings,$fixture_id){
-
-        $ratingsRules = [
-            '*.player_id' => 'required|numeric', 
-            '*.club_id' => 'required|numeric', 
-            '*.rating' => 'required|numeric|max:10|min:0', 
-        ];
-
-        $validatedData = Validator::make($ratings,$ratingsRules)->validate();
-
-        $allRatings = collect($validatedData)->map(function($item) use($fixture_id){
-            $item['fixture_id'] = $fixture_id;
-            return $item;
-        })->toArray();
-        
-        return MatchRating::insert($allRatings);
-    }
-
-    public function addMatchRating($request){
+    public function createRating($request){
 
         $ratingRules = [
-            'player_id' => 'required|numeric', 
+            'player_id' => ['required','integer',
+                                Rule::unique('match_ratings')->where(function ($query) use($request){
+                                    return $query->where('fixture_id', $request['fixture_id']);
+                                })            
+                            ], 
             'club_id' => 'required|numeric', 
+            'fixture_id' => 'required|numeric', 
             'rating' => 'required|numeric|max:10|min:0', 
         ];
+        $msg = [
+            'unique'=>'Player rating has already been submitted.'
+        ];
+
+        $validatedData = $request->validate($ratingRules,$msg);
         
-        $validatedData = $request->validate($ratingRules);
-        
-        $rating = MatchRating::create($validatedData);
-        return $rating;
+        return MatchRating::create($validatedData);
     }
 
     public function updateMatchRating($request,$rating){

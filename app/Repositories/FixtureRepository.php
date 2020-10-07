@@ -42,17 +42,6 @@ class FixtureRepository
 
         return $fixtures;
     }
-    public function getCompletedFixturesByTournament($tournament_id,$with=[]){
-
-        $fixtures = $this->tournamentRepo
-                        ->find($tournament_id)
-                        ->fixtures()
-                        ->where('completed',1)
-                        ->with($with)
-                        ->get();
-
-        return $fixtures;
-    }
 
 
     public function getClubFixtures($club_id,$tournament_id,$completed = 0,$withResult=false){
@@ -123,11 +112,6 @@ class FixtureRepository
        return $fixture;
    }
 
-    public function destroyById($ids){
-
-        $delete = $this->model->whereIn('id',$ids)->delete();
-
-        return $delete;
-    }
+    
     
 }

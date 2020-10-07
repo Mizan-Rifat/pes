@@ -3,8 +3,8 @@ import { postAction, getAction } from "./actions";
 //urls
 
 const fetch_images_url = (id)=>`/api/`;
-const add_images_url = `/api/`;
-const delete_images_url =(id)=> `/api/`;
+const add_images_url = `/api/result/image/add`;
+const delete_images_url =(id)=> `/api/result/image/${id}`;
 const update_images_url = (id)=>`/api/`;
 
 
@@ -12,7 +12,7 @@ const update_images_url = (id)=>`/api/`;
 
 const SET_IMAGES = 'pes/images/set_images';
 const IMAGES_ADDED = 'pes/images/images_added';
-const IMAGES_DELETED = 'pes/images/images_deleted';
+const IMAGE_DELETED = 'pes/images/image_deleted';
 const IMAGES_UPDATED = 'pes/images/images_updated';
 
 const LOADING_TRUE = 'pes/images/loading_true';
@@ -26,19 +26,19 @@ const SET_ERRORS = 'pes/images/set_errors';
 const initState = {
     fetching:true,
     loading:false,
-    eventsImages:[],
-    ratings1Images:[],
-    ratings2Images:[],
+    images:[],
     error:{},
 };
 
 export default (state=initState,action)=>{
     switch (action.type) {
+
         case SET_IMAGES:
             return {
                 ...state,
-                [action.payload.label]:action.payload.images
-
+                fetching:false,
+                loading:false,
+                images:action.payload
             }
 
         case IMAGES_ADDED:
@@ -46,7 +46,7 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 loading:false,
-                images:[...state.images,action.payload],
+                images:action.payload,
                 
             }
         case IMAGES_UPDATED:
@@ -57,7 +57,7 @@ export default (state=initState,action)=>{
                 images:state.images.map(item=>item.id == action.payload.id ? action.payload : item),
                 
             }
-        case IMAGES_DELETED:
+        case IMAGE_DELETED:
             
             return {
                 ...state,
@@ -106,16 +106,11 @@ export default (state=initState,action)=>{
 
 // action_creators
 
-export const imagesFetched = (data) =>{
-    return {
-        type:IMAGES_FETCHED,
-        payload:data
-    }
-}
-export const setImages = (label,images) =>{
+export const setImages = (data) =>{
+
     return {
         type:SET_IMAGES,
-        payload:{label,images}
+        payload:data.images
     }
 }
 
@@ -125,9 +120,9 @@ export const imagesUpdated = (data) =>{
         payload:data
     }
 }
-export const imagesDeleted = (id) =>{
+export const imageDeleted = (id) =>{
     return {
-        type:IMAGES_DELETED,
+        type:IMAGE_DELETED,
         payload:id
     }
 }
@@ -156,15 +151,16 @@ export const fetchImages = () => (dispatch) => {
     return getAction(actions,url,dispatch);
 }
 
-export const addImages = (newData) => (dispatch) => {
+
+export const addImages = (data,config) => (dispatch) => {
     
-    const url = add_images_url;
-    const actions={
+    const url = add_images_url,
+    actions={
         loading:{type:LOADING_TRUE},
         success:imagesAdded,
         error:setErrors
     }
-    return postAction(actions,url,newData,dispatch);
+    return postAction(actions,url,data,dispatch,'post',config);
 }
 
 export const updateImages = (newData) => (dispatch) => {
@@ -178,12 +174,12 @@ export const updateImages = (newData) => (dispatch) => {
     return postAction(actions,url,newData,dispatch,'put');
 }
 
-export const deleteImages = (id) => (dispatch) => {
+export const deleteImage = (id) => (dispatch) => {
 
     const url = delete_images_url(id);
     const actions={
         loading:{type:LOADING_TRUE},
-        success:imagesDeleted,
+        success:imageDeleted,
         error:setErrors
     }
     return postAction(actions,url,{},dispatch,'delete');

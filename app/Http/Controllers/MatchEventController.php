@@ -16,7 +16,7 @@ class MatchEventController extends Controller
         $this->resultRepo = $resultRepo;
     }
 
-    public function addEvent(Request $request){
+    public function create(Request $request){
 
       $event = $this->resultRepo->addMatchEvent($request);
 
@@ -35,13 +35,12 @@ class MatchEventController extends Controller
         ],200);
     }
 
-    public function delete(MatchEvent $matchEvent){
-
-        $delete = $matchEvent->delete();
+    public function delete(MatchEvent $event){
+        $delete = $event->delete();
 
         if($delete){
             return response()->json([
-                'data'=>$matchEvent->id,
+                'data'=>$event->id,
                 'message' => 'Event(s) removed successfully.',
             ],200);
             }else{

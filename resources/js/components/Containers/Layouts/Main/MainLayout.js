@@ -20,7 +20,6 @@ import Appbar from './Appbar';
 import Navbar from './Navbar';
 import {useSelector,useDispatch} from 'react-redux';
 import { fetchAllTournaments } from '../../../Redux/Ducks/TournamentsDuck';
-import MAppBar from '../Admin/Appbar/MAppBar';
 import MyAppBar from '../Appbar/MyAppBar';
 import { fetchSessionUser } from '../../../Redux/Ducks/SessionUserDuck';
 import { receiveNotification } from '../../../Redux/Ducks/NotificationsDuck';

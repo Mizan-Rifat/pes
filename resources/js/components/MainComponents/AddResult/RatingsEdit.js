@@ -7,7 +7,7 @@ import { addRatingToState, updateRatingToState, ratingsUpdated, updateRatings } 
 import clsx from 'clsx';
 import { editableRatingsTableColumns } from '../../CData/table';
 import ImageUpload from '../../CustomComponent/ImageUpload';
-import ImageBox from '../ApproveResult.js/ImageBox';
+import ImageBox from '../../CustomComponent/ImageBox';
 import RatingsTable from './RatingsTable'
 
 const useStyles = makeStyles(theme=>({
@@ -37,96 +37,81 @@ export default function RatingsEdit({panel}) {
         loading,
         fetching
     } = useSelector(state => state.ratings)
+
+    const {user} = useSelector(state => state.sessionUser)
+    const {club,loading:clubLoading} = useSelector(state => state.cuClub)
+    
+    const {images,loading:imageLoading} = useSelector(state => state.images)
     
     const {
         fixture,
-    } = useSelector(state => state.addResult)
+    } = useSelector(state => state.updateResult)
 
-    const {user} = useSelector(state => state.sessionUser)
     const dispatch = useDispatch();
 
-    const [updateMode, setUpdateMode] = useState(false)
-    const [editable, setEditable] = useState(false)
-
-    useEffect(()=>{
-        if(panel == 'updateresult'){
-            setUpdateMode(true)
-            setEditable(true)
-         
-        }
-        if(panel == 'addresult'){
-            setUpdateMode(false)
-            setEditable(true)
-        }
-        if(panel == 'approveresult'){
-            setUpdateMode(false)
-            setEditable(false)
-        }
-    },[panel])
+    
    
     return (
+        // !fetching &&
         <>
-            <Grid container spacing={3} className={clsx(classes.container,{'d-none':user.club.id == fixture.team2_details.id})} justify='space-between'>
-                <Grid item xs={12} sm={4} >
+            <Grid container spacing={3}>
+                <Grid item xs={12} sm={6} className={clsx({'d-none':club.id == fixture.team2_id})}>
                     
                     <RatingsTable 
                         players={fixture.team1_details.players}
-                        club_id={fixture.team1_details.id}
+                        club={fixture.team1_details}
                         team={1}
                         ratings={ratings.filter(item=>item.club_id == fixture.team1_details.id)}
                         fixture_id={fixture.id}
-                        updateMode={updateMode}
-                        editable={editable}
+                        editable={club.id == fixture.team1_id && (fixture.completed == 0 || fixture.completed == 4)}
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6} className={clsx({'d-none':club.id == fixture.team1_id})}>
                     <RatingsTable 
                         players={fixture.team2_details.players}
-                        club_id={fixture.team2_details.id}
+                        club={fixture.team2_details}
                         team={2}
                         ratings={ratings.filter(item=>item.club_id == fixture.team2_details.id)}
                         fixture_id={fixture.id}
-                        updateMode={updateMode}
-                        editable={editable}
+                        editable={club.id == fixture.team1_id && (fixture.completed == 0 || fixture.completed == 3)}
                     />
                 </Grid>
             
             </Grid>
 
             {
-                panel != 'addresult' &&
 
             <>
-                <div className={clsx({'d-none':user.club.id == fixture.team2_details.id})}>
+                <div className={clsx({'d-none':club.id == fixture.team2_details.id})}>
                     <ImageBox 
                         title={`${fixture.team1_details.name} Ratings (sumitted by ${fixture.team1_details.name})`}
                         images={images.filter(item=>item.submitted_by == fixture.team1_id && item.field == 'team1_Rating')}
-                        updateMode={updateMode}
+                        updateMode={panel != 'approveresult'}
                     />
                 </div>
                 
-                <div className={clsx({'d-none':user.club.id == fixture.team1_details.id})}>
+                <div className={clsx({'d-none':club.id == fixture.team1_details.id})}>
                     <ImageBox 
                         title={`${fixture.team1_details.name} Ratings (sumitted by ${fixture.team2_details.name})`}
                         images={images.filter(item=>item.submitted_by == fixture.team2_id && item.field == 'team1_Rating')}
-                        updateMode={updateMode}
+                        updateMode={panel != 'approveresult'}
                     />
                 </div>
 
-                <div className={clsx({'d-none':user.club.id == fixture.team2_details.id})}>
+                <div className={clsx({'d-none':club.id == fixture.team2_details.id})}>
                     <ImageBox 
                         title={`${fixture.team2_details.name} Ratings (sumitted by ${fixture.team1_details.name})`}
                         images={images.filter(item=>item.submitted_by == fixture.team1_id && item.field == 'team2_Rating')}
-                        updateMode={updateMode}
+                        updateMode={panel != 'approveresult'}
                     />
                 </div>
 
-                <div className={clsx({'d-none':user.club.id == fixture.team1_details.id})}>
+                <div className={clsx({'d-none':club.id == fixture.team1_details.id})}>
                     <ImageBox 
                         title={`${fixture.team2_details.name} Ratings (sumitted by ${fixture.team2_details.name})`}
                         images={images.filter(item=>item.submitted_by == fixture.team2_id && item.field == 'team2_Rating')}
-                        updateMode={updateMode}
+                        updateMode={panel != 'approveresult'}
                     />
                 </div>
             </>
@@ -138,14 +123,12 @@ export default function RatingsEdit({panel}) {
                     <ImageUpload 
                         buttonText={`Upload ${fixture.team1_details.name} rating images`}
                         label='ratings1Images'
-                        updateMode={updateMode}
                         fixture_id={fixture.id}
                     />
 
                     <ImageUpload 
                         buttonText={`Upload ${fixture.team2_details.name} rating images`}
                         label='ratings2Images'
-                        updateMode={updateMode}
                         fixture_id={fixture.id}
                     />
                 </>

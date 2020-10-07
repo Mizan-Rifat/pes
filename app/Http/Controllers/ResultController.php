@@ -9,14 +9,21 @@ use App\Http\Resources\MatchRatingsResource;
 use App\Http\Resources\MatchResultDetailsResource;
 use App\Http\Resources\PlayerResource;
 use App\Http\Resources\ResultResource;
+use App\Model\Club;
 use App\Model\Fixture;
 use App\Model\MatchDetails;
 use App\Model\MatchImage;
+use App\Model\Tournament;
+use App\Notifications\ResultRejected;
+use App\Notifications\ResultSubmitted;
 use App\Repositories\ClubRepository;
 use App\Repositories\FixtureRepository;
 use App\Repositories\ResultRepository;
+use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 
 class ResultController extends Controller
@@ -31,257 +38,134 @@ class ResultController extends Controller
         $this->resultRepo = $resultRepo;
     }
 
-    public function getResult(Request $request){
-        
-    }
-
-    public function getResultDetails(Request $request){
-
-        $fixture = $this->fixtureRepo->with(['result',"events",'ratings','team1','team2'])->where('completed',1)->findOrFail($request->id);
-
-        $team1_events = $fixture->events
-            ->where('club_id',$fixture->team1_id);
-        
-        $team2_events = $fixture->events
-            ->where('club_id',$fixture->team2_id);
-
-
-        if($request['admin']){
-            return $this->getResultDetailsForAdmin($fixture);
-        }
-
-        $request->merge(['playerDetails'=>1]);
+    public function show(Request $request,$fixture_id){
+        $fixture = Fixture::with(['team1','team2','events','ratings'])->findOrFail($fixture_id);
+        $request->merge(["playerDetails"=>1]);
 
 
         return response()->json([
             'data'=> [
                 'fixture' => new ResultResource($fixture),
-                // 'team1_events'=> MatchEventsResource::collection($fixture->events->where('club_id',$fixture->team1_id)),
-                'team1_events'=> MatchEventsResource::collection($team1_events),
-                'team2_events'=> MatchEventsResource::collection($team2_events),
-                'team1_ratings' => MatchRatingsResource::collection($fixture->ratings->where('club_id',$fixture->team1_id)),
-                'team2_ratings' => MatchRatingsResource::collection($fixture->ratings->where('club_id',$fixture->team2_id)),
-
-            ]
-        ]);
-    }
-
-    public function getSubmittedResultDetails($fixture_id){
-        
-        $fixture = Fixture::with(['result',"events",'ratings','team1.players','team2.players','images'])->findOrFail($fixture_id);
-        
-        return response()->json([
-            'data'=> [
-                'fixture' => new FixtureResource($fixture),
                 'events'=> MatchEventsResource::collection($fixture->events),
                 'ratings' => MatchRatingsResource::collection($fixture->ratings),
-                'images'=>MatchImageResource::collection($fixture->images)
             ]
         ]);
-
     }
-    
-    public function getSubmittedResultDetails2(Request $request){
 
-        $vd = $request->validate([
-            'fixture_id' => ['required','numeric']
-        ]);
-        
-        $fixture = $this->fixtureRepo->with(['result',"events",'ratings','team1.players','team2.players','images'])->where('completed',2)->findOrFail($vd['fixture_id']);
+ 
 
-        $team1_events = $fixture->events
-            ->where('club_id',$fixture->team1_id);
-        
-        $team2_events = $fixture->events
-            ->where('club_id',$fixture->team2_id);
-        
-        $team1_ratings = $fixture->ratings
-            ->where('club_id',$fixture->team1_id);
+    public function submit($fixture_id){
 
-        $team2_ratings = $fixture->ratings
-            ->where('club_id',$fixture->team2_id);
+        $current_user_club = Auth::user();
 
+        $fixture = Fixture::with([
+            'ratings'=>function($query) use($current_user_club){
+                $query->where('club_id',$current_user_club->id);
+            },
+            'images'=>function($query) use($current_user_club){
+                $query->where('submitted_by',$current_user_club->id);
+            },
+            'team1:id,name','team2:id,name','tournament:id,name'
+            ])
+        ->findOrFail($fixture_id);
 
-        if($request['admin']){
-            return $this->getResultDetailsForAdmin($fixture);
+        $eic = count($fixture->images->filter(function($item){
+            return $item->field == 1;
+        }));
+
+        $r1ic = count($fixture->images->filter(function($item){
+            return $item->field == 2;
+        }));
+
+        $r2ic = count($fixture->images->filter(function($item){
+            return $item->field == 3;
+        }));
+
+        if($eic == 0){
+            abort(403,'Events images are needed.');
+        }
+        if($r1ic == 0){
+            abort(403,'Team1 ratings images are needed.');
+        }
+        if($r2ic == 0){
+            abort(403,'Team2 ratings images are needed.');
+        }
+        if(count($fixture->ratings) < 1){
+            abort(403,'At least 11 player\'s ratings are needed.');
         }
 
-        // $request->merge(['playerDetails'=>1]);
+        $completed = 2;
 
+        if($fixture->completed == 0){
+            $completed = $fixture->team1_id == $current_user_club->id ? 3 : 4;
+        }
 
-        $event_images_sub_by_team1 = $fixture->images
-            ->where('submitted_by',$fixture->team1_id)
-            ->where('field',1)
-            ->map(function($item){
-                return asset('images/events/'.$item->image);
-            })->values();
+        $fixture->completed = $completed;
+        $fixture->save();
 
-        $event_images_sub_by_team2 = $fixture->images
-            ->where('submitted_by',$fixture->team2_id)
-            ->where('field',1)
-            ->map(function($item){
-                return asset('images/events/'.$item->image);
-            })->values();
+        $officials = Tournament::findOrFail($fixture->tournament_id)
+                    ->officials()
+                    ->with('club')
+                    ->get()
+                    ->filter(function($item) use($fixture){
+                        return $item->club['id'] != $fixture->team1_id && $item->club['id'] != $fixture->team2_id;
+                    });
 
-        $team1_ratings_images_sub_by_team1 = $fixture->images
-            ->where('submitted_by',$fixture->team1_id)
-            ->where('field',2)
-            ->map(function($item){
-                return asset('images/ratings/'.$item->image);
-            })->values();
-
-        $team1_ratings_images_sub_by_team2 = $fixture->images
-            ->where('submitted_by',$fixture->team2_id)
-            ->where('field',2)
-            ->map(function($item){
-                return asset('images/ratings/'.$item->image);
-            })->values();
-
-        $team2_ratings_images_sub_by_team1 = $fixture->images
-            ->where('submitted_by',$fixture->team1_id)
-            ->where('field',3)
-            ->map(function($item){
-                return asset('images/ratings/'.$item->image);
-            })->values();
-
-        $team2_ratings_images_sub_by_team2 = $fixture->images
-            ->where('submitted_by',$fixture->team2_id)
-            ->where('field',3)
-            ->map(function($item){
-                return asset('images/ratings/'.$item->image);
-            })->values();
-
+        if($fixture->completed == 2){
+            Notification::send($officials,new ResultSubmitted($fixture->id,$fixture->tournament['name'],$fixture->team1['name'],$fixture->team2['name']));
+        }
 
         return response()->json([
-            'data'=> [
-                'fixture' => new FixtureResource($fixture),
-                'team1_events'=> MatchEventsResource::collection($team1_events),
-                'team2_events'=> MatchEventsResource::collection($team2_events),
-                'team1_ratings' => MatchRatingsResource::collection($team1_ratings),
-                'team2_ratings' => MatchRatingsResource::collection($team2_ratings),
-
-                'event_images_sub_by_team1'=>$event_images_sub_by_team1,
-                'event_images_sub_by_team2'=>$event_images_sub_by_team2,
-
-                'team1_ratings_images_sub_by_team1'=>$team1_ratings_images_sub_by_team1,
-
-                'team1_ratings_images_sub_by_team2'=>$team1_ratings_images_sub_by_team2,
-
-                'team2_ratings_images_sub_by_team1'=>$team2_ratings_images_sub_by_team1,
-                
-                'team2_ratings_images_sub_by_team2'=>$team2_ratings_images_sub_by_team2,
-
-
-            ]
+            'message'=>'Result Submitted.',
+            'data'=>$fixture->completed
         ]);
     }
+    
 
-    public function getResultDetailsForAdmin($fixture){
+    public function approveResult($fixture_id){
 
-        $team1 = $this->clubRepo->find($fixture->team1_id)->players()->with('details')->get();
-        $team2 = $this->clubRepo->find($fixture->team2_id)->players()->with('details')->get();
+        $fixture = Fixture::with('events','team1:id,name','team2:id,name','tournament:id,name')->findOrFail($fixture_id);
         
-        return response()->json([
-            'result' => new MatchResultDetailsResource($fixture),
-            'team1'=>PlayerResource::collection($team1),
-            'team2'=>PlayerResource::collection($team2),
-        ],200);
-    }
-
-
-
-    
-    
-    public function updateMatchRatings(Request $request){
-       $ratings = $this->resultRepo->updateMatchRatings($request);
-       return MatchRatingsResource::collection($ratings) ;
-       
-    }
-
-
-
-   
-     public function deleteMatchImage(Request $request){
-        $delete = $this->resultRepo->deleteImage($request);
-
-        if($delete){
-            return response()->json([
-                'data'=>$request['id'],
-                'message' => 'Image(s) removed successfully.',
-            ],200);
-            }else{
-                return response()->json([
-                    'message' => 'Image(s) not removed.',
-                ],500);
-            }
-    }
-
-    public function addImage(Request $request){
-        $images = $this->resultRepo->addImage($request);
-
-        return response()->json([
-            'message'=>'Image(s) added successfully.',
-            'data'=>MatchImageResource::collection($images)
-        ],200);
-
-    }
-
-
-
-    public function deleteMatchRating(Request $request){
-        $delete = $this->resultRepo->deleteMatchRating($request);
-
-        if($delete){
-            return response()->json([
-                'message' => 'Rating(s) removed successfully.',
-            ],200);
-            }else{
-                return response()->json([
-                    'message' => 'Rating(s) not removed.',
-                ],500);
-            }
-    }
-
-
-
-    public function addMatchRating(Request $request){
-
-        $rating = $this->resultRepo->addMatchRating($request);
-
-        return response()->json([
-            'message'=>'Rating Created',
-            'rating'=>new MatchRatingsResource($rating)
-        ],200);
-
-    
-    }
-
-
-    public function addMatchResult(Request $request){
-
-
-       $this->resultRepo->addResultForApproval($request);
-
-        return response()->json([
-            'message'=>'Result Added Successfully.'
-        ]);
-
-    }
-
-    public function approveResult(Request $request){
-        $this->resultRepo->approveResult($request);
+        $this->resultRepo->approveResult($fixture);
         
         return response()->json([
             'message'=>'Result Approved.'
         ]);
     }
 
-    public function test(Request $request){
-        $evnets = $request->events;
-        $ratings = $request->ratings;
-        $fixture_id = $request->fixture_id;
+    public function rejectResult(Request $request){
 
-        $this->resultRepo->createEvents($evnets,$fixture_id);
-        $this->resultRepo->createRatings($ratings,$fixture_id);
+        $validatedData = $request->validate([
+            'fixture_id'=>['required','numeric'],
+            'club_id'=>['required','numeric'],
+            'message'=>['required'],
+        ]);
+
+        $fixture = Fixture::with([
+            'team1:id,name','team2:id,name','tournament:id,name'
+            ])
+        ->findOrFail($validatedData['fixture_id']);
+
+        switch ($fixture->completed) {
+            case 2:
+                $fixture->completed = $fixture->team1_id == $validatedData['club_id'] ? 4 : 3;
+                break;
+            case 3:
+                $fixture->completed = 0;
+            case 4:
+                $fixture->completed = 0;
+            default:
+                break;
+        }
+
+        $fixture->save();
+
+        Notification::send(Club::find($validatedData['club_id'])->owner,new ResultRejected($fixture->id,$fixture->tournament['name'],$fixture->team1['name'],$fixture->team2['name']));
+
+        return response()->json([
+            'message'=>'Result Rejected.',
+            'data'=>$fixture->completed
+        ]);
     }
+
 }

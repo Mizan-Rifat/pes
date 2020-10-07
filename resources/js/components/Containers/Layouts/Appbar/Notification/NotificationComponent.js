@@ -25,6 +25,22 @@ export function ResultSubmitted({data}) {
         </div>
     )
 }
+export function ResultRejected({data}) {
+
+    const  {tournament,team1,team2,fixture_id} = data;
+
+    const classes = useStyles();
+    return (
+        <div className={classes.msg}>
+            <b>{tournament} Result Rejected.</b>
+            <div>
+                {team1} VS {team2} result has been rejected for wrong information.
+                <Link to={`/result/add/${fixture_id}`}>Update Result</Link>
+            </div>
+            
+        </div>
+    )
+}
 
 export function ResultApproved({data}) {
 
@@ -51,7 +67,20 @@ export function Welcome() {
             <b>Welcome to PesTournament.</b>
             <div>
                 You should create a club first.
-                <Link to='/profile'>Create club</Link>
+                <Link to='/profile/clubinfo'>Create club</Link>
+            </div>
+            
+        </div>
+    )
+}
+export function UserRegistered({data}) {
+
+    const classes = useStyles();
+    return (
+        <div className={classes.msg}>
+            <b>New User Registered.</b>
+            <div>
+                user_id : {data.user_id}
             </div>
             
         </div>

@@ -22,22 +22,16 @@ export const editableRatingsTableColumns = (players) => {
 
     return [
 
-        
-       
         {
             title:'Player',
             field:'player_id',
+            // field:'player.name',
             lookup:playerLookup(players),
             cellStyle:{
-                padding:'8px',
+                padding:'5px',
                 fontSize:'12px',
-                textAlign:'center'
-                
-            },
-            headerStyle:{
-                textAlign:'center'
-            },
-            editable:'never'
+                // textAlign:'center'
+            }
         },
         {
             title:'Rating',

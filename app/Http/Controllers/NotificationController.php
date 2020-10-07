@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
@@ -10,7 +11,8 @@ class NotificationController extends Controller
   
     public function destroy($id)
     {
-        Auth::user()->Notifications->find($id)->delete();
+        DatabaseNotification::findOrFail($id)->delete();
+        // Auth::user()->Notifications->find($id)->delete();
         return response()->json([
             'data'=>$id,
             'message' => 'success',
@@ -18,7 +20,8 @@ class NotificationController extends Controller
     }
 
     public function notificationMarkAsRead($id){
-        Auth::user()->Notifications->find($id)->markAsRead();
+        DatabaseNotification::findOrFail($id)->markAsRead();
+        // Auth::user()->Notifications->find($id)->markAsRead();
         return response()->json([
             'data'=>$id,
             'message' => 'success',
@@ -26,7 +29,8 @@ class NotificationController extends Controller
 
     }
     public function notificationMarkAsUnRead($id){
-        Auth::user()->Notifications->find($id)->markAsUnRead();
+        DatabaseNotification::findOrFail($id)->markAsUnRead();
+        // Auth::user()->Notifications->find($id)->markAsUnRead();
         return response()->json([
             'data'=>$id,
             'message' => 'success',

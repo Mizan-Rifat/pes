@@ -29,7 +29,7 @@ export default function Stats() {
         {
             title:'Player',
             field: 'name',
-            render:rowData => <ListGroupItem1 image={rowData.image} label={rowData.name} panel='admin' />,
+            render:rowData => <ListGroupItem1 image={rowData.image} label={rowData.name} />,
         },
         {
             title:'Club',

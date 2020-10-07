@@ -22,6 +22,7 @@ export default function Users() {
     const {users,loading,fetching} = useSelector(state => state.users);
     const dispatch = useDispatch()
 
+    const [querySearch, setQuerySearch] = useState('')
     const tabelActions = {
         update:updateUser,
         delete:deleteUser,
@@ -34,7 +35,7 @@ export default function Users() {
             title:'ID',
             field:'id',
             width:'50px',
-            editable: 'never'
+            editable: 'never',
         },
         {
             title:'Name',
@@ -72,12 +73,18 @@ export default function Users() {
     ])
 
 
+    const onChangePage = (page)=>{
+        console.log({page})
+    }
+    
     useEffect(()=>{
         if(users.length === 0){
             dispatch(fetchAllUsers());
         }
     },[])
-
+    useEffect(()=>{
+        console.log({querySearch})
+        },[querySearch])
  
 
     return (
@@ -91,6 +98,8 @@ export default function Users() {
                 handleDeleteRow={(oldData)=>handleDeleteRow(oldData.id)}
                 paging={true}
                 editable={true}
+                onSearchChange={setQuerySearch}
+                onChangePage={onChangePage}
             
             />
         

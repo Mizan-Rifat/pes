@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\OfficialResource;
 use App\Http\Resources\UserResource;
+use App\Notifications\AddedAsOfficial;
 use App\Repositories\OfficialRepository;
 use App\Repositories\TournamentRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 
 class TournamentOfficialsController extends Controller
@@ -50,6 +52,8 @@ class TournamentOfficialsController extends Controller
         $official = $this->userRepo->findOrFail($validatedData['user_id']);
 
         $tournament->officials()->attach($validatedData['user_id']);
+
+        Notification::send($official,new AddedAsOfficial($tournament->name));
 
         
         return response()->json([

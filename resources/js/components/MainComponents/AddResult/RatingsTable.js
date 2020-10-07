@@ -3,10 +3,10 @@ import { Grid,makeStyles } from '@material-ui/core'
 import Mtable from '@customComponent/Mtable'
 import { MTableToolbar } from 'material-table';
 import { useDispatch } from 'react-redux';
-import { addRatingToState, updateRatingToState, updateRatings } from '../../Redux/actions/resultAddAction';
 import clsx from 'clsx';
 import { editableRatingsTableColumns } from '../../CData/table';
-import { setRatings,ratingsUpdated } from '../../Redux/Ducks/MatchRatingsDuck';
+import { addRating,deleteRating } from '../../Redux/Ducks/MatchRatingsDuck';
+import useTableActions from '@customComponent/useTableActions';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -26,52 +26,28 @@ const useStyles = makeStyles(theme=>({
     },
 }))
 
-export default function RatingsTable({players,club_id,team,ratings,fixture_id,updateMode,editable}){
+export default function RatingsTable({players,club,team,ratings,initRatings,fixture_id,updateMode,editable}){
 
     const dispatch = useDispatch();
 
     const columns = editableRatingsTableColumns(players);
 
-    const handleBulkUpdate = (changes) => (
+    const tabelActions = {
+        add:addRating,
+        delete:deleteRating,
+    }
 
-        new Promise((resolve,reject)=>{
-            console.log({changes})
-            const updatedData = ratings.map((item,index)=>(
-                Object.keys(changes).includes(index.toString()) ? 
-                    changes[index].newData
-                    :
-                    item
-            ))
+    const {handleAddRow,handleDeleteRow} = useTableActions(tabelActions)
 
-            if(updateMode){
-                dispatch(updateRatings({fixture_id,ratings:updatedData}))
-            }else{
-                updatedData.map(item=>{
-                    dispatch(ratingsUpdated(item))    
-                })
-            }
-            resolve();
-  
-        })
-    )
+    const handleAdd = (newData) => {
 
-    useEffect(()=>{
-
-        if(ratings.length == 0){
-            const newData = players.map((player,index)=>({
-                id:team == 2 ? index + 30  : index,
-                player_id:player.id,
-                rating:0,
-                club_id,
-                fixture_id
-            }))
-    
-            dispatch(setRatings(newData))
+        const data = {
+            ...newData,
+            club_id:club.id,
+            fixture_id
         }
-
-    },[])
-
-
+        return handleAddRow(data)
+    } 
 
 
     const classes  = useStyles();
@@ -82,10 +58,12 @@ export default function RatingsTable({players,club_id,team,ratings,fixture_id,up
             columns={columns}
             data={ratings}
             search={false}
-            title='Ratings'
-            handleBulkUpdate={editable ? handleBulkUpdate : false }
+            title={`${club.name} RATINGS`}
+            editable={editable}
+            handleAddRow={handleAdd}
+            handleDeleteRow={(oldData)=>handleDeleteRow(oldData.id)}
             header={{padding:'8px'}}
-            edit={true}
+            // edit={true}
             sorting={false}
             components={{
                 Toolbar: props => (

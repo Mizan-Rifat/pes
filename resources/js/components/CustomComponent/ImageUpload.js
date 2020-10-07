@@ -1,16 +1,19 @@
 import React, { useState } from "react";
 import ImageUploader from "react-images-upload";
 import { useSelector, useDispatch } from "react-redux";
-import { addImages} from "../Redux/actions/resultAddAction";
+import { addImages} from "../Redux/Ducks/MatchImagesDuck";
 import { setImages } from "../Redux/Ducks/MatchImagesDuck";
 import { Button } from "@material-ui/core";
 import Notify from '@customComponent/Notify';
+import clsx from 'clsx';
 
 const ImageUpload = props => {
 
   const [pictures, setPictures] = useState([]);
   const [preview, setPreview] = useState(true);
   const [ImageUploaderKey, setImageUploaderKey] = useState(0);
+
+  const [loading, setloading] = useState(false)
 
 
   const dispatch = useDispatch();
@@ -19,16 +22,19 @@ const ImageUpload = props => {
   const onDrop = picture => {
     setPreview(true)
     setPictures(picture);
-    dispatch(setImages(props.label,picture))
+    // dispatch(setImages(props.label,picture))
   };
 
   const handleUpload = ()=>{
+
+    setloading(true)
 
     const field={
       eventsImages:1,
       ratings1Images:2,
       ratings2Images:3
     };
+
     const formData = new FormData();
 
     for (let i = 0; i < pictures.length; i++) {
@@ -45,12 +51,13 @@ const ImageUpload = props => {
         }
     ))
     .then(response=>{
+      setloading(false)
         toast(response,'success')
         setPictures([])
         setImageUploaderKey(ImageUploaderKey + 1);
     })
     .catch(error=>{
-        
+      setloading(false)
         Object.keys(error.errors).map(err=>{
             toast(error.errors[err],'error')
         })
@@ -58,7 +65,7 @@ const ImageUpload = props => {
   }
 
   return (
-    <>
+    <div className={clsx({'formDisable':loading})}>
         <ImageUploader
           {...props}
           key={ImageUploaderKey}
@@ -71,14 +78,14 @@ const ImageUpload = props => {
         //   buttonText={props.buttonText}
         />
         {
-            pictures.length > 0 && props.updateMode ?
+            pictures.length > 0 ?
           
             <div className='text-center'>
                 <Button variant='contained' color='primary' size='small' onClick={handleUpload}>Upload</Button>
             </div>
             : ''
         }
-    </>
+    </div>
   );
 };
 

@@ -3,8 +3,8 @@ import { postAction, getAction } from "./actions";
 //urls
 
 const fetch_events_url = (id)=>`/api/`;
-const add_events_url = `/api/`;
-const delete_events_url =(id)=> `/api/`;
+const add_event_url = `/api/result/event/add`;
+const delete_event_url =(id)=> `/api/result/event/${id}`;
 const update_events_url = (id)=>`/api/`;
 
 
@@ -51,9 +51,7 @@ export default (state=initState,action)=>{
             return {
                 ...state,
                 loading:false,
-                eventKey:state.eventKey + 1,
                 events:[...state.events,action.payload],
-                
             }
         case EVENT_UPDATED:
             
@@ -115,7 +113,7 @@ export default (state=initState,action)=>{
 export const setEvents = (data) =>{
     return {
         type:SET_EVENTS,
-        payload:data
+        payload:data.events
     }
 }
 export const eventsFetched = (data) =>{
@@ -164,10 +162,10 @@ export const fetchEvents = () => (dispatch) => {
 
 export const addEvent = (newData) => (dispatch) => {
     
-    const url = add_events_url;
+    const url = add_event_url;
     const actions={
         loading:{type:LOADING_TRUE},
-        success:eventsAdded,
+        success:eventAdded,
         error:setErrors
     }
     return postAction(actions,url,newData,dispatch);
@@ -184,12 +182,12 @@ export const updateEvents = (newData) => (dispatch) => {
     return postAction(actions,url,newData,dispatch,'put');
 }
 
-export const deleteEvents = (id) => (dispatch) => {
+export const deleteEvent = (id) => (dispatch) => {
 
-    const url = delete_events_url(id);
+    const url = delete_event_url(id);
     const actions={
         loading:{type:LOADING_TRUE},
-        success:eventsDeleted,
+        success:eventDeleted,
         error:setErrors
     }
     return postAction(actions,url,{},dispatch,'delete');

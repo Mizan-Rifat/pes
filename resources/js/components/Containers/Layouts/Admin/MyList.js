@@ -92,6 +92,18 @@ export default function MyList() {
       children:[]
     },
     {
+      path: "/admin/playermodels",
+      name: "Player Models",
+      icon: <PeopleIcon />,
+      children:[]
+    },
+    {
+      path: "/admin/clubmodels",
+      name: "Club Models",
+      icon: <PeopleIcon />,
+      children:[]
+    },
+    {
       path: "/admin/alltournaments",
       name: "All Tournaments",
       icon: <PeopleIcon />,

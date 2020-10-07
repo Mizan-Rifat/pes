@@ -87,7 +87,7 @@ const theme3 = {
 
 export default function Mtable(props) {
 
-    const {columns,data,handleAddRow,handleUpdateRow,handleDeleteRow,handleBulkUpdate,edit,addLast,onOrderChange,frTable,toolbarLess} = props;
+    const {columns,data,handleAddRow,handleUpdateRow,handleDeleteRow,handleBulkUpdate,edit,addLast,onOrderChange,frTable,toolbarLess,tableRef,onChangePage,onSearchChange} = props;
 
     const {title = ''} = props;
     const {detailPanel,actions = []} = props;
@@ -118,6 +118,7 @@ export default function Mtable(props) {
     return (
       <ThemeProvider theme={theme}>
         <MaterialTable
+                tableRef={tableRef}
                 style={{ boxShadow: 'unset',background:'unset' }}
                 title={title}
                 columns={columns}
@@ -125,6 +126,8 @@ export default function Mtable(props) {
                 isLoading={loading}
                 className='newClass'
                 onOrderChange={onOrderChange}
+                onChangePage={onChangePage}
+                onSearchChange={onSearchChange}
                 options={{
                     search:search,
                     actionsColumnIndex: -1,
@@ -140,7 +143,9 @@ export default function Mtable(props) {
                     padding:'dense',
                     rowStyle:{
                       fontSize:'12px'
-                    }
+                    },
+                    // debounceInterval:2000
+
                       
                     
                 }}

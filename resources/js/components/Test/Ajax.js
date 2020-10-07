@@ -6,7 +6,7 @@ import { Button } from '@material-ui/core'
 
 export default function Ajax() {
 
-    const url = `http://127.0.0.1:8000/api/resulttest`
+    const url = `http://127.0.0.1:8000/api/test`
     const [state, setstate] = useState('')
     const data = {
         ratings:[
@@ -48,7 +48,7 @@ export default function Ajax() {
     
     
     useEffect(() => {
-        axios.post(url,data)
+        axios.get(url)
         .then(response=>{
             console.log(response.data)
             setstate(response)

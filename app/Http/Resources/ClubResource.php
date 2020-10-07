@@ -29,6 +29,7 @@ class ClubResource extends JsonResource
             'establishedIn'=>$this->created_at,
             'owner_id'=>$this->owner_id,
             'owner'=>new UserResource($this->whenLoaded('owner')),
+            'approved'=>$this->approved,
             'tournaments'=> TournamentResource::collection($this->whenLoaded('tournaments')),
             'players'=> PlayerResource::collection($this->whenLoaded('players')),
         ];

@@ -19,7 +19,8 @@ export default function MTable(props) {
                     actionsColumnIndex: -1,
                     headerStyle: { backgroundColor: '#F1CB29', fontWeight: 'bold' },
                     pageSize:10,
-                    addRowPosition:'first'
+                    addRowPosition:'first',
+                    debounceInterval: 500,
                 }}
                 editable={ editMode ? {
                     onRowAdd: newData =>

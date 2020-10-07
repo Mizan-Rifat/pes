@@ -31,7 +31,7 @@
     "dependencies": {
         "dateformat": "^3.0.3",
         "laravel-echo": "^1.8.1",
-        "material-table": "1.68.0",
+        "material-table": "1.69.0",
         "notistack": "^0.9.17",
         "pusher-js": "^7.0.0",
         "react-image-lightbox": "^5.1.1",

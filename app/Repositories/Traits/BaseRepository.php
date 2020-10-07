@@ -16,7 +16,7 @@ trait BaseRepository
 
         $validatedData  = $request->validate([
             // 'query' => ['required','regex:/^[\pL\s\-]+$/u.']
-            'query' => ['required']
+            'query' => ['required','regex:/^[a-zA-Z ]+$/']
         ]);
 
         $results = $this->model->where($column, 'LIKE', '%' . $validatedData['query'] . '%')->limit(5)->get();

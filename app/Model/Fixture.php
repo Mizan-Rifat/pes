@@ -30,4 +30,7 @@ class Fixture extends Model
     public function images(){
         return $this->hasMany('App\Model\MatchImage');
     }
+    public function tournament(){
+        return $this->belongsTo('App\Model\Tournament');
+    }
 }

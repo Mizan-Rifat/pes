@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\MatchRatingsResource;
+use App\Model\Fixture;
 use App\Model\MatchRating;
 use App\Repositories\ResultRepository;
 use Illuminate\Http\Request;
@@ -15,13 +16,13 @@ class MatchRatingController extends Controller
         $this->resultRepo = $resultRepo;
     }
 
-    public function addRating(Request $request){
+    public function create(Request $request){
 
-      $ratings = $this->resultRepo->addMatchRatings($request);
+       $rating = $this->resultRepo->createRating($request);
 
         return response()->json([
-            'message'=>'Event Created',
-            'data'=>MatchRatingsResource::collection($ratings)
+            'message'=>'Rating added.',
+            'data'=>new MatchRatingsResource($rating)
         ],200);
     }
 

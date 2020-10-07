@@ -189,7 +189,7 @@ export const fetchSessionUser = () => (dispatch) =>{
     const url = session_user_fetching_url
     const actions={
         loading:{type:FETCHING_TRUE},
-        success:[sessionUserFetched,setNotifications,setCuClub],
+        success:[setNotifications,setCuClub,sessionUserFetched],
         error:setErrors
     }
     return getAction(actions,url,dispatch);
